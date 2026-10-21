@@ -157,8 +157,8 @@ flowchart TD
 
 ### 1. Clonar e Instalar
 ```bash
-git clone https://github.com/Fellipeeduardodev/curator.git
-cd curator
+git clone https://github.com/Fellipeeduardodev/Salvei-App.git
+cd Salvei-App
 npm install
 ```
 

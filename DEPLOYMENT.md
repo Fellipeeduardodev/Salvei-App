@@ -28,7 +28,7 @@ git push -u origin main
 
 ### Passo 2: Importar o Projeto na Vercel
 1. Acesse o [Painel da Vercel](https://vercel.com/dashboard) e clique em **"Add New..." > "Project"**.
-2. Conecte sua conta do GitHub e selecione o repositório `Curator`.
+2. Conecte sua conta do GitHub e selecione o repositório `Salvei-App`.
 3. A Vercel detectará automaticamente o framework como **Vite**:
    - **Framework Preset:** `Vite`
    - **Build Command:** `npm run build` (ou `tsc && vite build`)
