@@ -16,6 +16,9 @@ import { BulkAssociateModal } from './components/references/BulkAssociateModal';
 import { BulkTagModal } from './components/references/BulkTagModal';
 import { CommandPalette } from './components/ui/CommandPalette';
 import { KeyboardShortcutsModal } from './components/ui/KeyboardShortcutsModal';
+import { UserProfileModal } from './components/profile/UserProfileModal';
+import { OnboardingTutorialModal } from './components/onboarding/OnboardingTutorialModal';
+import { SettingsView } from './components/settings/SettingsView';
 import {
   Reference,
   CodeSnippet,
@@ -26,6 +29,7 @@ import {
   SortOption,
   ContentTypeFilter,
 } from './types/reference';
+import { UserProfile, UserPreferences } from './types/database';
 import {
   RotateCcw,
   CheckCircle2,
@@ -70,7 +74,13 @@ export function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
 
-  // 2. Cloud Loading and Communication States
+  // 2. User Profile & Onboarding State (Fase 9)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
+  const [hasPromptedOnboarding, setHasPromptedOnboarding] = useState(false);
+
+  // 3. Cloud Loading and Communication States
   const [isCloudLoading, setIsCloudLoading] = useState(false);
   const [cloudError, setCloudError] = useState<string | null>(null);
   const [isMigratingLegacy, setIsMigratingLegacy] = useState(false);
@@ -83,26 +93,35 @@ export function App() {
     }, 3500);
   }, []);
 
-  // 3. Load user data strictly from Supabase
+  // 4. Load user data and profile strictly from Supabase
   const loadUserCloudData = useCallback(async () => {
     if (!user) return;
     setIsCloudLoading(true);
     setCloudError(null);
     try {
-      const cloudData = await supabaseService.fetchUserData(user.id);
+      const [cloudData, profileData] = await Promise.all([
+        supabaseService.fetchUserData(user.id),
+        supabaseService.fetchUserProfile(user.id),
+      ]);
       setReferences(cloudData.references);
       setProjects(cloudData.projects);
       setCollections(cloudData.collections);
+      setUserProfile(profileData);
+
+      // Auto-launch Onboarding Tutorial on first login if not completed
+      if (profileData && !profileData.onboarding_completed && !hasPromptedOnboarding) {
+        setIsOnboardingModalOpen(true);
+        setHasPromptedOnboarding(true);
+      }
     } catch (err: any) {
-      console.error('Falha ao carregar dados do Supabase:', err);
+      console.error('Falha ao carregar dados do Salvei:', err);
       setCloudError(
-        err.message ||
-          'Não foi possível estabelecer conexão com o Supabase. Verifique sua conexão com a internet.'
+        'Não foi possível conectar ao seu acervo em nuvem. Verifique sua conexão com a internet.'
       );
     } finally {
       setIsCloudLoading(false);
     }
-  }, [user]);
+  }, [user, hasPromptedOnboarding]);
 
   useEffect(() => {
     if (user) {
@@ -112,11 +131,14 @@ export function App() {
       setReferences([]);
       setProjects([]);
       setCollections([]);
+      setUserProfile(null);
       setCloudError(null);
       setSelectedReferenceId(null);
       setActiveProjectId(null);
       setActiveCollectionId(null);
       setActiveTag(null);
+      setSelectedBatchIds([]);
+      setHasPromptedOnboarding(false);
     }
   }, [user, loadUserCloudData]);
 
@@ -434,7 +456,7 @@ export function App() {
             r.id === id ? { ...r, ...updates, updatedAt: new Date().toISOString() } : r
           )
         );
-        showToast('Referência atualizada com sucesso no Supabase.');
+        showToast('Referência atualizada com sucesso.');
       } catch (err: any) {
         console.error('Erro ao atualizar referência no Supabase:', err);
         showToast(`Erro ao atualizar: ${err.message || 'Falha no banco.'}`);
@@ -456,7 +478,7 @@ export function App() {
           setIsExpandedViewOpen(false);
         }
 
-        showToast('Referência excluída do Supabase com sucesso.');
+        showToast('Referência excluída com sucesso.');
       } catch (err: any) {
         console.error('Erro ao excluir no Supabase:', err);
         showToast(`Erro ao excluir: ${err.message || 'Falha na comunicação com o banco.'}`);
@@ -551,10 +573,12 @@ export function App() {
         return;
       }
 
+      const shortcutsAllowed = userProfile?.preferences?.shortcuts_enabled !== false;
+
       // 2. Multi-Select All Visible: Ctrl+A / Cmd+A
       // Intercept only when multi-selection context is active (selectedBatchIds > 0)
       // and not inside an editable field and no text is selected
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a' && shortcutsAllowed) {
         const textSelection = window.getSelection()?.toString();
         const hasTextSelection = textSelection && textSelection.trim().length > 0;
         if (!isInputFocused && !hasTextSelection && selectedBatchIds.length > 0) {
@@ -565,7 +589,7 @@ export function App() {
       }
 
       // 3. Global Search Focus: '/'
-      if (e.key === '/' && !isInputFocused && !e.ctrlKey && !e.metaKey) {
+      if (e.key === '/' && !isInputFocused && !e.ctrlKey && !e.metaKey && shortcutsAllowed) {
         e.preventDefault();
         const searchInput = document.getElementById('global-search-input') as HTMLInputElement | null;
         if (searchInput) {
@@ -578,14 +602,14 @@ export function App() {
       }
 
       // 4. Keyboard Shortcuts Help: '?' (Shift + /)
-      if (e.key === '?' && !isInputFocused) {
+      if (e.key === '?' && !isInputFocused && shortcutsAllowed) {
         e.preventDefault();
         setIsKeyboardShortcutsModalOpen(true);
         return;
       }
 
       // 5. New Reference: 'N'
-      if (e.key.toLowerCase() === 'n' && !isInputFocused && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (e.key.toLowerCase() === 'n' && !isInputFocused && !e.ctrlKey && !e.metaKey && !e.altKey && shortcutsAllowed) {
         e.preventDefault();
         setAddModalInitialMode('url');
         setIsAddModalOpen(true);
@@ -600,7 +624,9 @@ export function App() {
         isBulkCollectionModalOpen ||
         isBulkProjectModalOpen ||
         isBulkTagModalOpen ||
-        isAddModalOpen;
+        isAddModalOpen ||
+        isProfileModalOpen ||
+        isOnboardingModalOpen;
 
       if ((e.key === 'Delete' || e.key === 'Backspace') && !isInputFocused && !hasAnyModalOpen) {
         if (selectedBatchIds.length > 0) {
@@ -610,8 +636,18 @@ export function App() {
         }
       }
 
-      // 6. Escape hierarchy (closes top-most open surface or clears selection)
+      // 7. Escape hierarchy (closes top-most open surface or clears selection)
       if (e.key === 'Escape') {
+        if (isProfileModalOpen) {
+          e.preventDefault();
+          setIsProfileModalOpen(false);
+          return;
+        }
+        if (isOnboardingModalOpen) {
+          e.preventDefault();
+          setIsOnboardingModalOpen(false);
+          return;
+        }
         if (isCommandPaletteOpen) {
           e.preventDefault();
           setIsCommandPaletteOpen(false);
@@ -678,13 +714,52 @@ export function App() {
     isBulkProjectModalOpen,
     isBulkTagModalOpen,
     isAddModalOpen,
+    isProfileModalOpen,
+    isOnboardingModalOpen,
     isExpandedViewOpen,
     selectedReferenceId,
     selectedBatchIds,
     searchQuery,
+    userProfile,
     handleSelectAllVisible,
     showToast,
   ]);
+
+  // ============================================================================
+  // USER PROFILE, PREFERENCES & SAFE LOGOUT HANDLERS (FASE 9)
+  // ============================================================================
+  const handleCompleteOnboarding = async () => {
+    if (!user) {
+      setIsOnboardingModalOpen(false);
+      return;
+    }
+    try {
+      await supabaseService.completeOnboarding(user.id);
+      setUserProfile((prev) => (prev ? { ...prev, onboarding_completed: true } : null));
+      setIsOnboardingModalOpen(false);
+      showToast('Tutorial concluído! Bom proveito no Salvei.');
+    } catch (err: any) {
+      console.error('Falha ao concluir tutorial:', err);
+      setIsOnboardingModalOpen(false);
+    }
+  };
+
+  const handleSafeLogout = async () => {
+    // 1. Immediately wipe in-memory private user state
+    setReferences([]);
+    setProjects([]);
+    setCollections([]);
+    setUserProfile(null);
+    setSelectedReferenceId(null);
+    setActiveProjectId(null);
+    setActiveCollectionId(null);
+    setActiveTag(null);
+    setSelectedBatchIds([]);
+    setIsProfileModalOpen(false);
+    setIsOnboardingModalOpen(false);
+    // 2. Perform secure auth sign out
+    await signOut();
+  };
 
   // Batch Operations Handlers (Fase 6 - Persistência real no Supabase com tratamento de falhas)
   const handleBulkFavorite = useCallback(
@@ -934,7 +1009,7 @@ export function App() {
         }
         setSelectedBatchIds([]);
         setIsBulkDeleteModalOpen(false);
-        showToast(`${result.successCount} referências excluídas permanentemente do Supabase.`);
+        showToast(`${result.successCount} referências excluídas com sucesso.`);
       }
       if (result.failedCount > 0) {
         showToast(`Falha ao excluir ${result.failedCount} itens: ${result.errors?.[0] || 'Erro'}`);
@@ -960,7 +1035,7 @@ export function App() {
     try {
       await supabaseService.saveProject(user.id, newProject);
       setProjects((prev) => [newProject, ...prev]);
-      showToast(`Projeto "${name}" salvo no Supabase!`);
+      showToast(`Projeto "${name}" salvo com sucesso!`);
     } catch (err: any) {
       console.error('Erro ao salvar projeto no Supabase:', err);
       showToast(`Erro ao salvar projeto: ${err.message || 'Falha no banco.'}`);
@@ -982,7 +1057,7 @@ export function App() {
     try {
       await supabaseService.saveProject(user.id, updatedProject);
       setProjects((prev) => prev.map((p) => (p.id === id ? updatedProject : p)));
-      showToast('Projeto atualizado no Supabase.');
+      showToast('Projeto atualizado com sucesso.');
     } catch (err: any) {
       console.error('Erro ao atualizar projeto no Supabase:', err);
       showToast(`Erro ao atualizar projeto: ${err.message || 'Falha no banco.'}`);
@@ -1012,7 +1087,7 @@ export function App() {
       if (activeProjectId === id) {
         setActiveProjectId(null);
       }
-      showToast('Projeto removido do Supabase. Referências preservadas.');
+      showToast('Projeto removido. Referências preservadas.');
     } catch (err: any) {
       console.error('Erro ao excluir projeto no Supabase:', err);
       showToast(`Erro ao excluir projeto: ${err.message || 'Falha no banco.'}`);
@@ -1073,7 +1148,7 @@ export function App() {
     try {
       await supabaseService.saveCollection(user.id, newCol);
       setCollections((prev) => [newCol, ...prev]);
-      showToast(`Coleção "${name}" salva no Supabase!`);
+      showToast(`Coleção "${name}" salva com sucesso!`);
     } catch (err: any) {
       console.error('Erro ao salvar coleção no Supabase:', err);
       showToast(`Erro ao salvar coleção: ${err.message || 'Falha no banco.'}`);
@@ -1095,7 +1170,7 @@ export function App() {
     try {
       await supabaseService.saveCollection(user.id, updatedCol);
       setCollections((prev) => prev.map((c) => (c.id === id ? updatedCol : c)));
-      showToast('Coleção atualizada no Supabase.');
+      showToast('Coleção atualizada com sucesso.');
     } catch (err: any) {
       console.error('Erro ao atualizar coleção no Supabase:', err);
       showToast(`Erro ao atualizar coleção: ${err.message || 'Falha no banco.'}`);
@@ -1125,7 +1200,7 @@ export function App() {
       if (activeCollectionId === id) {
         setActiveCollectionId(null);
       }
-      showToast('Coleção removida do Supabase. Referências preservadas.');
+      showToast('Coleção removida. Referências preservadas.');
     } catch (err: any) {
       console.error('Erro ao excluir coleção no Supabase:', err);
       showToast(`Erro ao excluir coleção: ${err.message || 'Falha no banco.'}`);
@@ -1199,7 +1274,7 @@ export function App() {
           return ref;
         })
       );
-      showToast(`Etiqueta #${normOld} renomeada para #${normNew} no Supabase.`);
+      showToast(`Etiqueta #${normOld} renomeada para #${normNew}.`);
     } catch (err: any) {
       console.error('Erro ao renomear tag no Supabase:', err);
       showToast(`Erro ao renomear tag: ${err.message || 'Falha no banco.'}`);
@@ -1223,7 +1298,7 @@ export function App() {
           return ref;
         })
       );
-      showToast(`Etiqueta #${normDelete} removida das referências no Supabase.`);
+      showToast(`Etiqueta #${normDelete} removida das referências.`);
     } catch (err: any) {
       console.error('Erro ao excluir tag no Supabase:', err);
       showToast(`Erro ao excluir tag: ${err.message || 'Falha no banco.'}`);
@@ -1311,7 +1386,7 @@ export function App() {
     setReferences((prev) => [newReference, ...prev]);
     setCurrentDestination('inbox');
     setSelectedReferenceId(newReference.id);
-    showToast('Referência salva com sucesso no Supabase!');
+    showToast('Referência salva com sucesso!');
   };
 
   const handleSaveImages = async (
@@ -1380,8 +1455,8 @@ export function App() {
     const count = newReferences.length;
     showToast(
       count === 1
-        ? '1 imagem salva com sucesso no Supabase!'
-        : `${count} imagens salvas com sucesso no Supabase!`
+        ? '1 imagem salva com sucesso!'
+        : `${count} imagens salvas com sucesso!`
     );
   };
 
@@ -1472,7 +1547,7 @@ export function App() {
           <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center">
             <AlertCircle size={24} />
           </div>
-          <h2 className="font-bold text-lg text-[#171717]">Falha na conexão com o banco</h2>
+          <h2 className="font-bold text-lg text-[#171717]">Não foi possível conectar ao seu acervo</h2>
           <p className="text-xs text-[#737373] leading-relaxed">
             {cloudError}
           </p>
@@ -1488,7 +1563,7 @@ export function App() {
             <Button
               variant="secondary"
               size="sm"
-              onClick={signOut}
+              onClick={handleSafeLogout}
               iconLeft={<LogOut size={14} />}
             >
               Encerrar sessão
@@ -1505,7 +1580,7 @@ export function App() {
       <div className="min-h-screen bg-[#F8F8F6] text-[#171717] flex flex-col items-center justify-center p-6 gap-3 font-sans">
         <Loader2 size={32} className="animate-spin text-[#4355DB]" />
         <p className="text-xs text-[#737373] font-mono tracking-wider uppercase">
-          Carregando acervo do Supabase...
+          Carregando suas referências...
         </p>
       </div>
     );
@@ -1560,6 +1635,12 @@ export function App() {
         handleToggleContentType('is_favorite');
         setCurrentDestination('inbox');
       }}
+      profile={userProfile}
+      userEmail={user.email || ''}
+      onOpenProfile={() => setIsProfileModalOpen(true)}
+      onOpenSettings={() => setCurrentDestination('settings')}
+      onOpenTutorial={() => setIsOnboardingModalOpen(true)}
+      onSignOut={handleSafeLogout}
     >
       {/* Global Drag and Drop Window Overlay */}
       {isWindowDragging && (
@@ -1769,139 +1850,22 @@ export function App() {
         />
       )}
 
-      {/* VIEW 5: CONFIGURAÇÕES */}
+      {/* VIEW 5: CONFIGURAÇÕES E PREFERÊNCIAS */}
       {currentDestination === 'settings' && (
-        <div className="flex flex-col gap-6 max-w-xl">
-          <div className="flex flex-col gap-1">
-            <h1 className="font-sans font-bold text-2xl md:text-3xl text-[#171717] tracking-tight">
-              Configurações
-            </h1>
-            <p className="font-sans text-xs md:text-sm text-[#737373]">
-              Gestão de persistência em nuvem, segurança e preferências do Salvei.
-            </p>
-          </div>
-
-          {/* Card Supabase & PostgreSQL */}
-          <div className="bg-white border border-[#E7E7E5] rounded-sm p-6 flex flex-col gap-5 shadow-xs">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-md bg-[#171717] text-white flex items-center justify-center">
-                  <Database size={18} />
-                </div>
-                <div>
-                  <h3 className="font-sans font-bold text-sm text-[#171717]">
-                    Persistência Real (Supabase & PostgreSQL)
-                  </h3>
-                  <p className="font-sans text-xs text-[#737373]">
-                    Armazenamento relacional com Row Level Security (RLS)
-                  </p>
-                </div>
-              </div>
-
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-medium font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                NUVEM CONECTADA
-              </span>
-            </div>
-
-            <div className="p-3.5 bg-[#F8F8F6] rounded-sm border border-[#E7E7E5] flex flex-col gap-2 text-xs">
-              <div className="flex items-center justify-between text-[#737373]">
-                <span>E-mail do Usuário:</span>
-                <strong className="text-[#171717] font-medium font-mono text-[11px]">
-                  {user.email}
-                </strong>
-              </div>
-              <div className="flex items-center justify-between text-[#737373]">
-                <span>ID da Conta (UUID):</span>
-                <span className="font-mono text-[10px] text-[#737373]">
-                  {user.id}
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-[#737373]">
-                <span>Banco de Dados:</span>
-                <span className="font-mono text-[11px] text-[#171717]">
-                  PostgreSQL 15 (Supabase)
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-[#737373]">
-                <span>Segurança:</span>
-                <span className="text-emerald-700 font-medium flex items-center gap-1 text-[11px]">
-                  <ShieldCheck size={13} /> RLS Ativo por usuário
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-[#737373]">
-                <span>Armazenamento de Mídia:</span>
-                <span className="font-mono text-[11px] text-[#171717]">Bucket curator-media (Privado)</span>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 pt-1 border-t border-[#E7E7E5]/70">
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={loadUserCloudData}
-                disabled={isCloudLoading}
-                iconLeft={
-                  isCloudLoading ? (
-                    <Loader2 size={14} className="animate-spin" />
-                  ) : (
-                    <RefreshCw size={14} />
-                  )
-                }
-              >
-                {isCloudLoading ? 'Recarregando...' : 'Recarregar dados do Supabase'}
-              </Button>
-
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={signOut}
-                iconLeft={<LogOut size={14} />}
-              >
-                Encerrar sessão
-              </Button>
-            </div>
-          </div>
-
-          {/* Card Estatísticas */}
-          <div className="bg-white border border-[#E7E7E5] rounded-sm p-6 flex flex-col gap-4 shadow-xs">
-            <div>
-              <h3 className="font-sans font-bold text-sm text-[#171717] mb-1">
-                Estatísticas do Acervo
-              </h3>
-              <p className="font-sans text-xs text-[#737373] leading-relaxed">
-                Você possui <strong className="text-[#171717]">{references.length}</strong> referências,{' '}
-                <strong className="text-[#171717]">{projects.length}</strong> projetos,{' '}
-                <strong className="text-[#171717]">{collections.length}</strong> coleções e{' '}
-                <strong className="text-[#171717]">{availableTags.length}</strong> etiquetas registradas no banco de dados.
-              </p>
-            </div>
-
-            {/* Legacy data migration tool */}
-            <div className="pt-3 border-t border-[#E7E7E5]/70 flex flex-col gap-2">
-              <p className="text-[11px] text-[#737373]">
-                Possui itens salvos no armazenamento local deste navegador de versões anteriores?
-              </p>
-              <div>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleMigrateBrowserLegacyData}
-                  disabled={isMigratingLegacy}
-                  iconLeft={
-                    isMigratingLegacy ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : (
-                      <HardDriveUpload size={14} />
-                    )
-                  }
-                >
-                  {isMigratingLegacy ? 'Importando...' : 'Importar dados legados do navegador'}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <SettingsView
+          profile={userProfile}
+          userEmail={user.email || ''}
+          onOpenProfileModal={() => setIsProfileModalOpen(true)}
+          onOpenTutorial={() => setIsOnboardingModalOpen(true)}
+          onOpenShortcuts={() => setIsKeyboardShortcutsModalOpen(true)}
+          onReloadCloudData={loadUserCloudData}
+          isCloudLoading={isCloudLoading}
+          onSignOut={handleSafeLogout}
+          showToast={showToast}
+          onPreferencesUpdated={(newPrefs) => {
+            setUserProfile((prev) => (prev ? { ...prev, preferences: newPrefs } : null));
+          }}
+        />
       )}
 
       {/* Modal de Adicionar Referência */}
@@ -2028,6 +1992,23 @@ export function App() {
       <KeyboardShortcutsModal
         isOpen={isKeyboardShortcutsModalOpen}
         onClose={() => setIsKeyboardShortcutsModalOpen(false)}
+      />
+
+      {/* Modal de Perfil do Usuário */}
+      <UserProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        profile={userProfile}
+        userEmail={user.email || ''}
+        onProfileUpdated={(updated) => setUserProfile(updated)}
+        showToast={showToast}
+      />
+
+      {/* Modal do Tutorial de Primeiro Acesso (Onboarding) */}
+      <OnboardingTutorialModal
+        isOpen={isOnboardingModalOpen}
+        onClose={() => setIsOnboardingModalOpen(false)}
+        onComplete={handleCompleteOnboarding}
       />
     </AppShell>
   );

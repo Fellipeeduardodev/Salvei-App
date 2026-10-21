@@ -4,6 +4,7 @@ import { Topbar } from './Topbar';
 import { MobileNavBar } from './MobileNavBar';
 import { MobileMenuSheet } from './MobileMenuSheet';
 import { NavigationDestination, Project, Collection } from '../../types/reference';
+import { UserProfile } from '../../types/database';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -27,6 +28,12 @@ interface AppShellProps {
   isSelectionModeActive?: boolean;
   isFavoritesFilterActive?: boolean;
   onToggleFavoritesFilter?: () => void;
+  profile?: UserProfile | null;
+  userEmail?: string;
+  onOpenProfile?: () => void;
+  onOpenSettings?: () => void;
+  onOpenTutorial?: () => void;
+  onSignOut?: () => void;
 }
 
 export const AppShell: React.FC<AppShellProps> = ({
@@ -49,6 +56,12 @@ export const AppShell: React.FC<AppShellProps> = ({
   isSelectionModeActive = false,
   isFavoritesFilterActive = false,
   onToggleFavoritesFilter,
+  profile,
+  userEmail,
+  onOpenProfile,
+  onOpenSettings,
+  onOpenTutorial,
+  onSignOut,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -86,6 +99,8 @@ export const AppShell: React.FC<AppShellProps> = ({
         collections={collections}
         onSelectProject={onSelectProject}
         onSelectCollection={onSelectCollection}
+        profile={profile}
+        onOpenProfile={onOpenProfile}
       />
 
       {/* Main Content Area (Offset: pl-0 on mobile, md:pl-16 on tablet, lg:pl-60 on desktop) */}
@@ -97,6 +112,12 @@ export const AppShell: React.FC<AppShellProps> = ({
           onOpenAddModal={onOpenAddModal}
           onOpenCommandPalette={onOpenCommandPalette}
           onOpenShortcutsModal={onOpenShortcutsModal}
+          profile={profile}
+          userEmail={userEmail}
+          onOpenProfile={onOpenProfile}
+          onOpenSettings={onOpenSettings}
+          onOpenTutorial={onOpenTutorial}
+          onSignOut={onSignOut}
         />
 
         {/* Content Viewport with mobile bottom safe area padding */}
@@ -134,6 +155,10 @@ export const AppShell: React.FC<AppShellProps> = ({
         collectionCount={collectionCount}
         tagCount={tagCount}
         referenceCount={referenceCount}
+        profile={profile}
+        onOpenProfile={onOpenProfile}
+        onOpenTutorial={onOpenTutorial}
+        onSafeLogout={onSignOut}
       />
     </div>
   );

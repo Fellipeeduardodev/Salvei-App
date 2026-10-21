@@ -10,11 +10,12 @@ import {
   X,
   Compass,
   ChevronRight,
-  Database,
-  Cloud,
+  User as UserIcon,
+  BookOpen,
 } from 'lucide-react';
 import { NavigationDestination } from '../../types/reference';
 import { useAuth } from '../../contexts/AuthContext';
+import { UserProfile } from '../../types/database';
 
 interface MobileMenuSheetProps {
   isOpen: boolean;
@@ -28,6 +29,10 @@ interface MobileMenuSheetProps {
   collectionCount?: number;
   tagCount?: number;
   referenceCount?: number;
+  profile?: UserProfile | null;
+  onOpenProfile?: () => void;
+  onOpenTutorial?: () => void;
+  onSafeLogout?: () => void;
 }
 
 export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
@@ -42,6 +47,10 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
   collectionCount = 0,
   tagCount = 0,
   referenceCount = 0,
+  profile,
+  onOpenProfile,
+  onOpenTutorial,
+  onSafeLogout,
 }) => {
   const { user, signOut } = useAuth();
 
@@ -75,6 +84,15 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
   const handleSelectShortcuts = () => {
     onClose();
     onOpenShortcutsModal?.();
+  };
+
+  const handleLogout = () => {
+    onClose();
+    if (onSafeLogout) {
+      onSafeLogout();
+    } else {
+      signOut();
+    }
   };
 
   return (
@@ -288,33 +306,82 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
           </button>
         </div>
 
-        {/* User Account & Supabase Status Card */}
+        {/* User Account & Profile Access Card */}
         {user && (
-          <div className="mx-4 mt-2 p-3 rounded-xl bg-[#F8F8F6] border border-[#E7E7E5] flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-full bg-[#171717] text-white flex items-center justify-center text-xs font-bold shrink-0">
-                {user.email?.charAt(0).toUpperCase() || 'U'}
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-xs font-semibold text-[#171717] truncate">
-                  {user.email}
-                </span>
-                <span className="flex items-center gap-1.5 font-mono text-[9px] text-[#22c55e]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
-                  <span>SUPABASE CONECTADO</span>
-                </span>
-              </div>
+          <div className="mx-4 mt-2 p-3 rounded-xl bg-[#F8F8F6] border border-[#E7E7E5] flex flex-col gap-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenProfile?.();
+                }}
+                className="flex items-center gap-2.5 min-w-0 text-left hover:opacity-80 transition-opacity flex-1 cursor-pointer outline-none"
+                title="Abrir perfil"
+              >
+                <div className="w-9 h-9 rounded-full bg-[#171717] text-white flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden border border-[#E7E7E5]">
+                  {profile?.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt={profile.full_name || user.email || 'Avatar'}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span>
+                      {profile?.full_name?.charAt(0).toUpperCase() ||
+                        user.email?.charAt(0).toUpperCase() ||
+                        'U'}
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-xs font-semibold text-[#171717] truncate">
+                    {profile?.full_name || user.email?.split('@')[0] || 'Usuário'}
+                  </span>
+                  <span className="text-[11px] text-[#737373] truncate">
+                    {user.email}
+                  </span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                title="Encerrar sessão"
+                className="p-2 rounded-lg text-[#737373] hover:text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors cursor-pointer shrink-0"
+                aria-label="Encerrar sessão"
+              >
+                <LogOut size={16} />
+              </button>
             </div>
 
-            <button
-              type="button"
-              onClick={signOut}
-              title="Encerrar sessão"
-              className="p-2 rounded-lg text-[#737373] hover:text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors cursor-pointer shrink-0"
-              aria-label="Encerrar sessão"
-            >
-              <LogOut size={16} />
-            </button>
+            {/* Quick actions for Profile & Tutorial */}
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#E7E7E5]/70">
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenProfile?.();
+                }}
+                className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium bg-white border border-[#E7E7E5] text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer"
+              >
+                <UserIcon size={13} className="text-[#737373]" />
+                <span>Meu perfil</span>
+              </button>
+              {onOpenTutorial && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenTutorial();
+                  }}
+                  className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium bg-white border border-[#E7E7E5] text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer"
+                >
+                  <BookOpen size={13} className="text-[#4355DB]" />
+                  <span>Tutorial</span>
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>

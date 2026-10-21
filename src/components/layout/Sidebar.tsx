@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { NavigationDestination, Project, Collection } from '../../types/reference';
 import { useAuth } from '../../contexts/AuthContext';
+import type { UserProfile } from '../../types/database';
 
 interface SidebarProps {
   currentDestination: NavigationDestination;
@@ -29,6 +30,8 @@ interface SidebarProps {
   onCloseMobile?: () => void;
   onQuickFilterTag?: (tag: string) => void;
   onOpenAuthModal?: () => void;
+  profile?: UserProfile | null;
+  onOpenProfile?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -42,6 +45,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   collections = [],
   onSelectProject,
   onSelectCollection,
+  profile,
+  onOpenProfile,
 }) => {
   const { user, signOut } = useAuth();
 
@@ -224,12 +229,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="p-1 lg:p-2 rounded-md bg-[#F8F8F6] border border-[#E7E7E5] flex flex-col gap-1.5">
             {/* Tablet view: simple avatar with logout */}
             <div className="flex lg:hidden flex-col items-center gap-1.5 py-1">
-              <div
-                className="w-7 h-7 rounded-full bg-[#171717] text-white flex items-center justify-center text-xs font-bold"
-                title={user.email}
+              <button
+                type="button"
+                onClick={onOpenProfile}
+                title={profile?.full_name || user.email || 'Meu perfil'}
+                className="w-7 h-7 rounded-full overflow-hidden bg-[#171717] text-white flex items-center justify-center text-xs font-bold cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
               >
-                {user.email?.charAt(0).toUpperCase() || 'U'}
-              </div>
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span>{(profile?.full_name || user.email || 'U').charAt(0).toUpperCase()}</span>
+                )}
+              </button>
               <button
                 type="button"
                 onClick={signOut}
@@ -243,14 +254,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {/* Desktop view: full account badge with Supabase pulse */}
             <div className="hidden lg:flex flex-col gap-1.5">
               <div className="flex items-center justify-between gap-1">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-5 h-5 rounded-full bg-[#171717] text-white flex items-center justify-center text-[10px] font-bold shrink-0">
-                    {user.email?.charAt(0).toUpperCase() || 'U'}
+                <button
+                  type="button"
+                  onClick={onOpenProfile}
+                  className="flex items-center gap-2 min-w-0 text-left hover:opacity-80 transition-opacity cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-[#4355DB] rounded"
+                  title="Abrir meu perfil"
+                >
+                  <div className="w-6 h-6 rounded-full overflow-hidden bg-[#171717] text-white flex items-center justify-center text-[10px] font-bold shrink-0 shadow-2xs">
+                    {profile?.avatar_url ? (
+                      <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span>{(profile?.full_name || user.email || 'U').charAt(0).toUpperCase()}</span>
+                    )}
                   </div>
-                  <span className="text-xs font-medium text-[#171717] truncate" title={user.email}>
-                    {user.email}
-                  </span>
-                </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-xs font-bold text-[#171717] truncate leading-tight">
+                      {profile?.full_name || user.email?.split('@')[0]}
+                    </span>
+                    <span className="text-[10px] text-[#737373] truncate leading-tight" title={user.email}>
+                      {user.email}
+                    </span>
+                  </div>
+                </button>
                 <button
                   type="button"
                   onClick={signOut}

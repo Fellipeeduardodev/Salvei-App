@@ -6,6 +6,24 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+export interface UserPreferences {
+  theme?: 'light' | 'dark' | 'system';
+  shortcuts_enabled?: boolean;
+  default_view?: 'inbox' | 'favorites' | 'projects' | 'collections';
+  compact_cards?: boolean;
+}
+
+export interface UserProfile {
+  id: string;
+  email: string | null;
+  full_name: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  updated_at: string;
+  onboarding_completed: boolean;
+  preferences: UserPreferences;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -17,6 +35,8 @@ export interface Database {
           avatar_url: string | null;
           created_at: string;
           updated_at: string;
+          onboarding_completed?: boolean | null;
+          preferences?: Json | null;
         };
         Insert: {
           id: string;
@@ -25,6 +45,8 @@ export interface Database {
           avatar_url?: string | null;
           created_at?: string;
           updated_at?: string;
+          onboarding_completed?: boolean | null;
+          preferences?: Json | null;
         };
         Update: {
           id?: string;
@@ -33,6 +55,8 @@ export interface Database {
           avatar_url?: string | null;
           created_at?: string;
           updated_at?: string;
+          onboarding_completed?: boolean | null;
+          preferences?: Json | null;
         };
         Relationships: [];
       };

@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import type { Database } from '../types/database';
+import type { Database, UserProfile, UserPreferences } from '../types/database';
 import type {
   Reference,
   Project,
@@ -1268,4 +1268,313 @@ export async function bulkDeleteReferences(
     successCount: referenceIds.length,
     failedCount: 0,
   };
+}
+
+
+// ==============================================================================
+// FASE 9: PERFIL, PERSONALIZAÇÃO, FOTO E ONBOARDING
+// ==============================================================================
+
+export const ALLOWED_AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+export const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+
+export const DEFAULT_PREFERENCES: UserPreferences = {
+  theme: 'light',
+  shortcuts_enabled: true,
+  default_view: 'inbox',
+  compact_cards: false,
+};
+
+/**
+ * Valida o nome de exibição do usuário (não pode ser vazio, min 2 e max 50 caracteres).
+ */
+export function validateDisplayName(name: string): {
+  valid: boolean;
+  error?: string;
+  sanitizedName: string;
+} {
+  const trimmed = (name || '').trim();
+  if (!trimmed) {
+    return {
+      valid: false,
+      error: 'O nome não pode ficar em branco ou conter apenas espaços.',
+      sanitizedName: '',
+    };
+  }
+  if (trimmed.length < 2) {
+    return {
+      valid: false,
+      error: 'O nome deve conter pelo menos 2 caracteres.',
+      sanitizedName: trimmed,
+    };
+  }
+  if (trimmed.length > 50) {
+    return {
+      valid: false,
+      error: 'O nome deve conter no máximo 50 caracteres.',
+      sanitizedName: trimmed.slice(0, 50),
+    };
+  }
+  return { valid: true, sanitizedName: trimmed };
+}
+
+/**
+ * Valida o arquivo de imagem para foto de perfil.
+ */
+export function validateAvatarFile(file: File): { valid: boolean; error?: string } {
+  if (!file) {
+    return { valid: false, error: 'Nenhum arquivo de imagem foi selecionado.' };
+  }
+  if (!ALLOWED_AVATAR_TYPES.includes(file.type)) {
+    return {
+      valid: false,
+      error: 'Formato de imagem não suportado. Por favor, envie uma foto em PNG, JPG, WebP ou GIF.',
+    };
+  }
+  if (file.size > MAX_AVATAR_SIZE_BYTES) {
+    return {
+      valid: false,
+      error: 'A imagem deve ter no máximo 5 MB. Por favor, selecione um arquivo menor.',
+    };
+  }
+  return { valid: true };
+}
+
+/**
+ * Busca o perfil completo do usuário no Supabase.
+ */
+export async function fetchUserProfile(userId: string): Promise<UserProfile | null> {
+  const { data, error } = await (supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single() as any);
+
+  if (error || !data) {
+    return null;
+  }
+
+  // Gera Signed URL fresca para o avatar se houver caminho salvo
+  let resolvedAvatarUrl = data.avatar_url;
+  if (resolvedAvatarUrl && resolvedAvatarUrl.includes(userId)) {
+    try {
+      const path = resolvedAvatarUrl.startsWith('http')
+        ? resolvedAvatarUrl.split('/curator-media/')[1]?.split('?')[0]
+        : resolvedAvatarUrl;
+
+      if (path) {
+        const { data: signed } = await supabase.storage
+          .from('curator-media')
+          .createSignedUrl(path, 60 * 60 * 24 * 7); // 7 dias
+        if (signed?.signedUrl) {
+          resolvedAvatarUrl = signed.signedUrl;
+        }
+      }
+    } catch {
+      // fallback
+    }
+  }
+
+  const rawPrefs = data.preferences;
+  const preferences: UserPreferences = {
+    ...DEFAULT_PREFERENCES,
+    ...(typeof rawPrefs === 'object' && rawPrefs !== null ? rawPrefs : {}),
+  };
+
+  return {
+    id: data.id,
+    email: data.email,
+    full_name: data.full_name,
+    avatar_url: resolvedAvatarUrl,
+    created_at: data.created_at,
+    updated_at: data.updated_at,
+    onboarding_completed: Boolean(data.onboarding_completed),
+    preferences,
+  };
+}
+
+/**
+ * Atualiza metadados do perfil (nome, avatar, onboarding ou preferências).
+ */
+export async function updateUserProfile(
+  userId: string,
+  updates: {
+    full_name?: string;
+    avatar_url?: string | null;
+    onboarding_completed?: boolean;
+    preferences?: UserPreferences;
+  }
+): Promise<UserProfile> {
+  const updatePayload: Record<string, any> = {
+    updated_at: new Date().toISOString(),
+  };
+
+  if (updates.full_name !== undefined) {
+    const nameCheck = validateDisplayName(updates.full_name);
+    if (!nameCheck.valid) {
+      throw new Error(nameCheck.error || 'Nome de exibição inválido.');
+    }
+    updatePayload.full_name = nameCheck.sanitizedName;
+  }
+
+  if (updates.avatar_url !== undefined) {
+    updatePayload.avatar_url = updates.avatar_url;
+  }
+
+  if (updates.onboarding_completed !== undefined) {
+    updatePayload.onboarding_completed = updates.onboarding_completed;
+  }
+
+  if (updates.preferences !== undefined) {
+    updatePayload.preferences = updates.preferences;
+  }
+
+  const { data, error } = await (supabase
+    .from('profiles')
+    .update(updatePayload as any)
+    .eq('id', userId)
+    .select('*')
+    .single() as any);
+
+  if (error || !data) {
+    throw new Error(`Falha ao atualizar perfil: ${error?.message || 'Erro desconhecido'}`);
+  }
+
+  const rawPrefs = data.preferences;
+  const preferences: UserPreferences = {
+    ...DEFAULT_PREFERENCES,
+    ...(typeof rawPrefs === 'object' && rawPrefs !== null ? rawPrefs : {}),
+  };
+
+  return {
+    id: data.id,
+    email: data.email,
+    full_name: data.full_name,
+    avatar_url: data.avatar_url,
+    created_at: data.created_at,
+    updated_at: data.updated_at,
+    onboarding_completed: Boolean(data.onboarding_completed),
+    preferences,
+  };
+}
+
+/**
+ * Envia uma nova foto de perfil para o storage privado sob a pasta do usuário.
+ * Remove a foto anterior se for informada, evitando arquivos órfãos.
+ */
+export async function uploadAvatar(
+  userId: string,
+  file: File,
+  previousStoragePath?: string | null
+): Promise<{ url: string; storagePath: string }> {
+  const val = validateAvatarFile(file);
+  if (!val.valid) {
+    throw new Error(val.error || 'Arquivo de imagem inválido.');
+  }
+
+  const fileExt = file.name.split('.').pop()?.toLowerCase() || 'png';
+  const fileName = `${Date.now()}-avatar.${fileExt}`;
+  const storagePath = `${userId}/avatars/${fileName}`;
+
+  // Upload para o bucket privado
+  const { error: uploadError } = await supabase.storage
+    .from('curator-media')
+    .upload(storagePath, file, {
+      cacheControl: '3600',
+      upsert: true,
+      contentType: file.type,
+    });
+
+  if (uploadError) {
+    throw new Error(`Falha ao enviar a foto de perfil: ${uploadError.message}`);
+  }
+
+  // Gera Signed URL segura com validade de 7 dias
+  let signedUrl = '';
+  try {
+    const { data: signedData, error: signErr } = await supabase.storage
+      .from('curator-media')
+      .createSignedUrl(storagePath, 60 * 60 * 24 * 7);
+
+    if (!signErr && signedData?.signedUrl) {
+      signedUrl = signedData.signedUrl;
+    }
+  } catch {
+    // fallback
+  }
+
+  if (!signedUrl) {
+    const { data: pubData } = supabase.storage
+      .from('curator-media')
+      .getPublicUrl(storagePath);
+    signedUrl = pubData.publicUrl;
+  }
+
+  // Se havia foto anterior e o upload da nova deu certo, remove a foto antiga para evitar lixo
+  if (previousStoragePath && previousStoragePath !== storagePath) {
+    try {
+      const cleanPrevPath = previousStoragePath.startsWith('http')
+        ? previousStoragePath.split('/curator-media/')[1]?.split('?')[0]
+        : previousStoragePath;
+      if (cleanPrevPath && cleanPrevPath.includes(`${userId}/avatars/`)) {
+        await supabase.storage.from('curator-media').remove([cleanPrevPath]);
+      }
+    } catch {
+      // limpeza silenciosa de arquivo antigo
+    }
+  }
+
+  // Atualiza o perfil no banco com a nova foto
+  await updateUserProfile(userId, { avatar_url: storagePath });
+
+  return {
+    url: signedUrl,
+    storagePath,
+  };
+}
+
+/**
+ * Remove a foto de perfil atual e retorna ao avatar padrão.
+ */
+export async function removeAvatar(
+  userId: string,
+  currentStoragePath?: string | null
+): Promise<void> {
+  if (currentStoragePath) {
+    try {
+      const cleanPath = currentStoragePath.startsWith('http')
+        ? currentStoragePath.split('/curator-media/')[1]?.split('?')[0]
+        : currentStoragePath;
+      if (cleanPath && cleanPath.includes(`${userId}/avatars/`)) {
+        await supabase.storage.from('curator-media').remove([cleanPath]);
+      }
+    } catch {
+      // limpeza silenciosa
+    }
+  }
+
+  // Atualiza perfil no banco definindo avatar_url como null
+  await updateUserProfile(userId, { avatar_url: null });
+}
+
+/**
+ * Registra a conclusão do tutorial de primeiro acesso.
+ */
+export async function completeOnboarding(userId: string): Promise<void> {
+  try {
+    await updateUserProfile(userId, { onboarding_completed: true });
+  } catch (err) {
+    console.warn('Erro ao salvar conclusão de onboarding no servidor:', err);
+  }
+}
+
+/**
+ * Salva as preferências de usuário (tema, densidade, atalhos, visão inicial).
+ */
+export async function saveUserPreferences(
+  userId: string,
+  preferences: UserPreferences
+): Promise<UserPreferences> {
+  const updated = await updateUserProfile(userId, { preferences });
+  return updated.preferences;
 }
