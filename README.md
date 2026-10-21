@@ -7,7 +7,7 @@
   **O workspace editorial de alta performance para curadoria visual, referências de design e interfaces digitais.**
 
   <p align="center">
-    <a href="https://curator-sage-two.vercel.app/" target="_blank">
+    <a href="https://salvei.tech/" target="_blank">
       <img src="https://img.shields.io/badge/Vercel-Produção_Online-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Deploy" />
     </a>
     <a href="https://react.dev/" target="_blank">
@@ -31,7 +31,7 @@
   </p>
 
   <p align="center">
-    <a href="https://curator-sage-two.vercel.app/"><b>🚀 Acessar o Curator Online</b></a> •
+    <a href="https://salvei.tech/"><b>🚀 Acessar o Curator Online</b></a> •
     <a href="#-funcionalidades-chave"><b>✨ Funcionalidades</b></a> •
     <a href="#️-produtividade-teclado-first--atalhos"><b>⌨️ Atalhos</b></a> •
     <a href="#-arquitetura--tecnologias"><b>🏗️ Arquitetura</b></a> •
