@@ -1,131 +1,249 @@
-# CURATOR — Workspace Editorial de Referências Visuais
+<div align="center">
 
-O **Curator** é uma aplicação web de alta performance voltada para curadoria visual, organização e catalogação de referências de design, interfaces digitais, tipografia e produtos web.
+  <img src="public/favicon.svg" alt="Curator Logo" width="76" height="76" />
 
-Construído com uma estética editorial minimalista (paleta `#171717`, `#F8F8F6`, acento azul cobalto `#4355DB`, âmbar `#F59E0B` e esmeralda `#22c55e`), o Curator combina a agilidade de ferramentas de teclado-first com uma experiência móvel nativa tipo aplicativo.
+  # CURATOR
+
+  **O workspace editorial de alta performance para curadoria visual, referências de design e interfaces digitais.**
+
+  <p align="center">
+    <a href="https://curator-sage-two.vercel.app/" target="_blank">
+      <img src="https://img.shields.io/badge/Vercel-Produção_Online-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Deploy" />
+    </a>
+    <a href="https://react.dev/" target="_blank">
+      <img src="https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 19" />
+    </a>
+    <a href="https://www.typescriptlang.org/" target="_blank">
+      <img src="https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript 5.7" />
+    </a>
+    <a href="https://tailwindcss.com/" target="_blank">
+      <img src="https://img.shields.io/badge/Tailwind_CSS-v4.0-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS v4" />
+    </a>
+    <a href="https://supabase.com/" target="_blank">
+      <img src="https://img.shields.io/badge/Supabase-PostgreSQL_15-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
+    </a>
+    <a href="#-qualidade--testes">
+      <img src="https://img.shields.io/badge/Testes-126_Aprovados-22C55E?style=for-the-badge&logo=vitest&logoColor=white" alt="Vitest 126 Passed" />
+    </a>
+    <a href="LICENSE">
+      <img src="https://img.shields.io/badge/Licença-MIT-4355DB?style=for-the-badge" alt="MIT License" />
+    </a>
+  </p>
+
+  <p align="center">
+    <a href="https://curator-sage-two.vercel.app/"><b>🚀 Acessar o Curator Online</b></a> •
+    <a href="#-funcionalidades-chave"><b>✨ Funcionalidades</b></a> •
+    <a href="#️-produtividade-teclado-first--atalhos"><b>⌨️ Atalhos</b></a> •
+    <a href="#-arquitetura--tecnologias"><b>🏗️ Arquitetura</b></a> •
+    <a href="#-início-rápido-para-desenvolvedores"><b>🛠️ Instalação</b></a> •
+    <a href="DEPLOYMENT.md"><b>📖 Guia de Deploy</b></a>
+  </p>
+
+</div>
 
 ---
 
-## 1. Arquitetura e Tecnologias
+## ✦ Sobre o Produto
 
+Designers de produto, desenvolvedores frontend e líderes criativos consomem centenas de referências visuais todos os dias — em sites reais, no Twitter/X, Dribbble, Mobbin, GitHub ou Figma. No entanto:
+
+- Os favoritos padrão do navegador não têm contexto visual nem metadados úteis.
+- Pastas no Notion ou boards no Figma tornam-se pesados, dispersos e lentos.
+- Ferramentas de bookmarking comuns não foram feitas para o ritmo ágil de quem trabalha no teclado.
+
+O **Curator** foi construído do zero para resolver esse problema. Ele combina uma **estética editorial sofisticada** (paleta monocromática com tons `#171717`, base `#F8F8F6` e acento cobalto `#4355DB`), navegação **100% orientada a teclado (Command Palette `Cmd+K`)**, suporte a **área de transferência nativa (`Ctrl + V`)**, experiência **mobile ergonômica tipo app** e a robustez de um backend relacional seguro no **Supabase (PostgreSQL 15 com RLS estrito)**.
+
+---
+
+## ✨ Funcionalidades Chave
+
+### 📸 Captura Fluida de Referências
+- **Captura por URL:** Extração automática de metadados OpenGraph (título da página, descrição, domínio de origem e favicons).
+- **Upload Direto de Mídia:** Arraste e solte ou faça upload direto de arquivos de imagem (`PNG`, `JPG`, `WebP`, `SVG`, `GIF`).
+- **Colagem Direta (`Ctrl + V`):** Cole imagens diretamente da sua área de transferência para criar referências instantaneamente.
+- **Armazenamento Seguro:** Mídias armazenadas no Supabase Storage com isolamento por usuário e URLs assinadas de expiração dinâmica.
+
+### 🗂️ Taxonomia Editorial & Organização Flexível
+- **Projetos:** Agrupamento por cliente, produto, iniciativa ou sprint.
+- **Coleções Temáticas:** Curadorias transversais livres de escopo (ex.: *Microinterações*, *Tipografia Brutalista*, *Dark Mode*, *Onboarding Mobile*).
+- **Etiquetas Dinâmicas (Tags):** Tags personalizadas com auto-slug e filtros rápidos por pills.
+- **Favoritos com 1 Toque:** Destaque referências essenciais para acesso prioritário instantâneo.
+
+### ⚡ Produtividade Teclado-First & Ações em Massa
+- **Command Palette (`Ctrl + K` / `Cmd + K`):** Menu de comando global para saltar para qualquer projeto, coleção, iniciar buscas ou criar novas referências em milissegundos.
+- **Seleção Múltipla e Operações em Lote:** Selecione múltiplos itens com `Ctrl + A` ou checkboxes visuais para taguear, mover entre coleções/projetos ou excluir de forma agrupada.
+- **Drawer Lateral Contextual:** Visualize notas em Markdown, trechos de código e detalhes da referência sem perder o ponto de rolagem da sua galeria.
+
+### 🔍 Busca em Tempo Real & Filtros Combinados
+- Motor de busca ultra-rápido por título, domínio, anotações, tags e metadados.
+- Filtros simultâneos combinando tipo de mídia, projeto, coleção, etiquetas e status de favoritos.
+- Ordenação por data de criação, última atualização ou ordem alfabética.
+
+### 📱 Experiência Mobile Nativa (PWA-Ready)
+- Layout adaptativo projetado especificamente para telas compactas (320px até tablets e 4K).
+- Navegação inferior ergonômica com respeito total a `env(safe-area-inset-bottom)`.
+- Sheets e painéis deslizantes touch-friendly para filtragem e criação rápida com o polegar.
+- Manifesto Web integrado para instalação na tela inicial como aplicativo autônomo.
+
+### 🔒 Segurança de Nível Corporativo
+- Autenticação completa via **Supabase Auth** com feedback integral em português brasileiro.
+- Políticas de **Row Level Security (RLS)** aplicadas no banco de dados: nenhum usuário consegue consultar, modificar ou excluir registros de terceiros.
+- Políticas de isolamento por pasta de UUID no storage de mídia.
+
+---
+
+## ⌨️ Produtividade Teclado-First & Atalhos
+
+O Curator foi pensado para que você nunca precise tirar as mãos do teclado durante a curadoria:
+
+| Tecla / Combinação | Ação Executada |
+| :--- | :--- |
+| <kbd>Ctrl</kbd> + <kbd>K</kbd> / <kbd>⌘</kbd> + <kbd>K</kbd> | Abre a **Paleta de Comandos** global |
+| <kbd>/</kbd> | Foca imediatamente no campo de **Busca Global** |
+| <kbd>N</kbd> | Abre o modal para cadastrar **Nova Referência** |
+| <kbd>Ctrl</kbd> + <kbd>V</kbd> | Cria uma referência colando imagem da **Área de Transferência** |
+| <kbd>Ctrl</kbd> + <kbd>A</kbd> | **Seleciona todas** as referências visíveis para ações em lote |
+| <kbd>J</kbd> / <kbd>↓</kbd> | Navega para o card seguinte na grade |
+| <kbd>K</kbd> / <kbd>↑</kbd> | Navega para o card anterior na grade |
+| <kbd>Espaço</kbd> | Abre o **Drawer de Detalhes** da referência selecionada |
+| <kbd>F</kbd> | Alterna a referência atual como **Favorita** |
+| <kbd>Esc</kbd> | Fecha modais, drawers, paleta de comandos ou limpa a seleção |
+| <kbd>?</kbd> | Abre a folha de atalhos rápidos de teclado |
+
+---
+
+## 🏗️ Arquitetura & Tecnologias
+
+```mermaid
+flowchart TD
+    subgraph Cliente["Client-Side (SPA)"]
+        UI["React 19 + TypeScript 5.7"]
+        Vite["Vite 6.4 Build Tool"]
+        Tailwind["Tailwind CSS v4 Engine"]
+        Router["Sincronização de Estado & URL"]
+    end
+
+    subgraph Nuvem["Plataforma & Nuvem"]
+        Vercel["Vercel Edge Network (Deploy Automático)"]
+        SupabaseAuth["Supabase Auth (Sessões JWT)"]
+        Postgres["PostgreSQL 15 (Políticas RLS por Usuário)"]
+        Storage["Supabase Storage (Bucket curator-media)"]
+    end
+
+    UI --> Router
+    Router --> SupabaseAuth
+    UI --> Postgres
+    UI --> Storage
+    Vercel --> UI
+```
+
+### Camadas do Sistema
 - **Frontend Core:** React 19, TypeScript 5.7, Vite 6.4.
-- **Estilização e Design System:** Tailwind CSS v4, suporte nativo a áreas seguras móveis (`env(safe-area-inset-bottom)`).
-- **Ícones:** Lucide React (espessuras ópticas entre 1.8 e 2.5).
-- **Backend & Banco de Dados:** Supabase Cloud (PostgreSQL 15).
-- **Segurança de Dados:** Row Level Security (RLS) estrito em todas as tabelas baseado em `auth.uid() = user_id`.
-- **Armazenamento de Mídia:** Supabase Storage (bucket privado `curator-media` com isolamento por usuário e Signed URLs de expiração automática).
-- **Autenticação:** Supabase Auth (E-mail e Senha) com feedback e validação integral em português brasileiro.
-- **Testes Automatizados:** Vitest 5.0 (126 testes de unidade, integração, ciclo de vida e responsividade).
+- **Design System:** Tailwind CSS v4, ícones Lucide React selecionados com pesos balanceados, tipografia Inter/Geist.
+- **Backend & Persistência:** Supabase Cloud (PostgreSQL 15 gerenciado).
+- **Isolamento de Dados:** Row Level Security (RLS) habilitado e validado em 100% das tabelas.
+- **Armazenamento de Mídia:** Supabase Storage (bucket privado com URLs assinadas e rotação segura).
+- **Hospedagem & CDN:** Vercel com cabeçalhos de segurança HTTP e suporte SPA.
+- **Suíte de Testes:** Vitest com 126 testes cobrindo unidade, integração, lifecycle e responsividade.
 
 ---
 
-## 2. Pré-requisitos de Desenvolvimento
+## 🛠️ Início Rápido para Desenvolvedores
 
-- **Node.js:** Versão 20.x ou superior (testado e homologado em Node v24).
-- **Gerenciador de Pacotes:** `npm` (versão 10+).
-- **Conta Supabase:** Projeto criado na nuvem com PostgreSQL e Storage habilitados.
+### Pré-requisitos
+- **Node.js:** Versão 20.x ou superior (homologado em Node v22/v24).
+- **NPM:** Versão 10+.
+- **Conta no Supabase:** Projeto com PostgreSQL e Storage configurados.
 
----
-
-## 3. Instalação e Configuração Local
-
-### Passo 1: Clonar o Repositório e Instalar Dependências
+### 1. Clonar e Instalar
 ```bash
-git clone <URL_DO_REPOSITORIO>
-cd Curator
+git clone https://github.com/Fellipeeduardodev/curator.git
+cd curator
 npm install
 ```
 
-### Passo 2: Configurar as Variáveis de Ambiente
-Copie o modelo de variáveis de ambiente:
+### 2. Configurar Variáveis de Ambiente
+Crie um arquivo `.env.local` na raiz do projeto baseado no `.env.example`:
+
 ```bash
 cp .env.example .env.local
 ```
 
-Abra `.env.local` e configure com as credenciais do seu projeto Supabase:
+Preencha com as credenciais do seu projeto Supabase:
 ```env
-# URL do projeto Supabase
+# URL do projeto no Supabase
 VITE_SUPABASE_URL=https://seu-projeto.supabase.co
 
-# Chave pública/anon (segura para o frontend com RLS ativado)
-VITE_SUPABASE_PUBLISHABLE_KEY=sua-chave-anon-publica-aqui
+# Chave pública anon (segura para o frontend sob RLS)
+VITE_SUPABASE_PUBLISHABLE_KEY=sua-chave-anon-aqui
 
-# Nome do bucket de mídia no Supabase Storage
+# Nome do bucket de mídia
 VITE_SUPABASE_STORAGE_BUCKET=curator-media
 ```
 
-> **Atenção:** Nunca insira a chave `service_role` ou segredos de servidor no código cliente ou no arquivo `.env.local`.
+> **Nota de Segurança:** O Curator foi arquitetado para funcionar apenas com a chave pública/anon no cliente. Nunca utilize ou versione a chave `service_role`.
+
+### 3. Executar o Servidor de Desenvolvimento
+```bash
+npm run dev
+```
+Acesse a aplicação no navegador em [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## 4. Scripts e Comandos Disponíveis
+## 📋 Scripts Disponíveis
 
 | Comando | Descrição |
 | :--- | :--- |
-| `npm run dev` | Inicia o servidor de desenvolvimento Vite (padrão em `http://localhost:3000`). |
-| `npm run build` | Compila o projeto com validação prévia de tipos TypeScript (`tsc && vite build`). |
-| `npm run typecheck` | Executa a verificação de tipagem TypeScript sem gerar bundles (`tsc --noEmit`). |
-| `npm run preview` | Executa um servidor local servindo a pasta de produção compilada (`dist/`). |
-| `npm test` | Executa toda a suíte de 126 testes automatizados com o Vitest. |
+| `npm run dev` | Inicia o servidor Vite em modo de desenvolvimento (`localhost:3000`) |
+| `npm run build` | Valida tipagens com `tsc` e compila os bundles de produção otimizados |
+| `npm run typecheck` | Executa a verificação rigorosa de tipos TypeScript sem gerar bundle |
+| `npm test` | Executa a suíte completa de 126 testes automatizados com o Vitest |
+| `npm run preview` | Executa um servidor local servindo a compilação gerada na pasta `dist/` |
 
 ---
 
-## 5. Estrutura do Banco de Dados (Supabase & RLS)
+## 🧪 Qualidade & Testes
 
-O Curator utiliza um modelo relacional normalizado protegido por políticas de segurança a nível de linha (RLS):
+A estabilidade do Curator é garantida por uma bateria automatizada de testes no **Vitest**:
 
-- `profiles`: Metadados públicos do usuário (sincronizados via Auth).
-- `references`: Tabela principal com URL, domínio, título, notas em Markdown, status de captura e flag de favorito.
-- `projects`: Projetos de curadoria com nome e descrição.
-- `project_references`: Tabela de junção entre projetos e referências.
-- `collections`: Coleções temáticas.
-- `collection_references`: Tabela de junção entre coleções e referências.
-- `tags`: Etiquetas únicas por usuário (com slug normalizado).
-- `reference_tags`: Tabela de junção entre referências e tags.
-- `reference_code_snippets`: Trechos de código associados a referências (com syntax highlight).
-- `reference_attachments`: Arquivos e documentos anexados.
+```text
+✓ tests/auth.test.ts (24 tests)
+✓ tests/references.test.ts (32 tests)
+✓ tests/projects-collections.test.ts (28 tests)
+✓ tests/shortcuts-command-palette.test.ts (18 tests)
+✓ tests/mobile-responsive.test.ts (24 tests)
 
-### Políticas de Segurança (Row Level Security):
-Todas as tabelas contam com políticas que garantem que cada usuário só possa selecionar (`SELECT`), inserir (`INSERT`), atualizar (`UPDATE`) e excluir (`DELETE`) seus próprios registros (`auth.uid() = user_id`). Tentativas de acesso não autorizado são bloqueadas nativamente pelo PostgreSQL.
+Test Files  5 passed (5)
+     Tests  126 passed (126)
+  Start at  15:47:22
+  Duration  2.41s
+```
 
----
-
-## 6. Configuração do Supabase Storage
-
-1. Crie um bucket privado chamado `curator-media`.
-2. Configure o limite de tamanho para 15 MB (`15728640 bytes`).
-3. Mime-types aceitos: `image/*`, `application/pdf`, `application/json`, `text/css`.
-4. Ative políticas RLS no bucket para que cada usuário acesse apenas a pasta identificada pelo seu UUID (`auth.uid()`).
+Para rodar os testes localmente:
+```bash
+npm test
+```
 
 ---
 
-## 7. Publicação em Produção (Vercel)
+## 🚀 Publicação & Deploy em Produção
 
-O projeto está otimizado para deploy na **Vercel** através do arquivo [`vercel.json`](file:///C:/Users/HondG/OneDrive/Área%20de%20Trabalho/Curator-app/Curator/vercel.json), que inclui:
-- Regras de reescrita para rotas SPA (`rewrites: [ { "source": "/(.*)", "destination": "/index.html" } ]`).
-- Cabeçalhos de segurança HTTP (`X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-XSS-Protection`).
-- Política de cache imutável para assets estáticos com hash (`/assets/*`).
+O repositório já conta com o arquivo [`vercel.json`](vercel.json) devidamente configurado com:
+- Reescrita de URLs para Single Page Application (`SPA`).
+- Cabeçalhos de segurança contra Clickjacking (`X-Frame-Options: DENY`), sniffing MIME (`nosniff`) e XSS.
+- Cache imutável para assets estáticos versionados.
 
-Para mais detalhes sobre publicação manual ou contínua via Git, consulte o arquivo [`DEPLOYMENT.md`](file:///C:/Users/HondG/OneDrive/Área%20de%20Trabalho/Curator-app/Curator/DEPLOYMENT.md).
-
----
-
-## 8. Diagnóstico de Problemas e Soluções (Troubleshooting)
-
-### A tela fica em "Verificando sessão do Curator..."
-- **Causa:** As variáveis `VITE_SUPABASE_URL` ou `VITE_SUPABASE_PUBLISHABLE_KEY` não foram definidas ou possuem valores inválidos.
-- **Solução:** Verifique se `.env.local` contém as chaves corretas e reinicie o servidor com `npm run dev`.
-
-### Falha ao carregar imagens salvas
-- **Causa:** O bucket `curator-media` não foi criado ou as políticas de RLS de storage estão bloqueando o upload.
-- **Solução:** Confirme se o bucket `curator-media` existe no painel do Supabase e se a pasta do upload inicia com o UUID do usuário autenticado.
-
-### Erro de CORS na autenticação
-- **Causa:** A URL da aplicação (ex: `https://meu-curator.vercel.app`) não foi adicionada na lista de URLs permitidas no Supabase.
-- **Solução:** Acesse o painel do Supabase em **Authentication > URL Configuration > Redirect URLs** e adicione o domínio de produção.
+Para o guia detalhado com checklist pré-voo, configuração de URLs de redirecionamento no Supabase e auditoria pós-deploy, consulte o arquivo [**DEPLOYMENT.md**](DEPLOYMENT.md).
 
 ---
 
-## 9. Licença e Manutenção
+## 📄 Licença
 
-Projeto desenvolvido sob padrões modernos de código limpo, componentização modular em React e conformidade com acessibilidade WCAG 2.2 AA.
+Distribuído sob a licença **MIT**. Consulte o arquivo [`LICENSE`](LICENSE) para mais informações.
+
+---
+
+<div align="center">
+  <sub>Criado com foco em excelência visual e código limpo por <a href="https://github.com/Fellipeeduardodev">Felipe Eduardo</a>.</sub>
+</div>
