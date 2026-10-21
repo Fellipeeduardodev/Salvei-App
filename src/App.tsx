@@ -1688,14 +1688,14 @@ export function App() {
       {/* Global Drag and Drop Window Overlay */}
       {isWindowDragging && (
         <div className="fixed inset-0 z-50 pointer-events-none bg-[#4355DB]/15 backdrop-blur-xs flex items-center justify-center p-6 animate-in fade-in duration-100">
-          <div className="bg-white border-2 border-dashed border-[#4355DB] rounded-sm p-8 max-w-md text-center shadow-2xl flex flex-col items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-[#4355DB]/10 text-[#4355DB] flex items-center justify-center">
+          <div className="bg-white dark:bg-[#191B20] border-2 border-dashed border-[#4355DB] dark:border-[#6375F1] rounded-sm p-8 max-w-md text-center shadow-2xl flex flex-col items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-[#4355DB]/10 dark:bg-[#6375F1]/20 text-[#4355DB] dark:text-[#6375F1] flex items-center justify-center">
               <UploadCloud size={28} />
             </div>
-            <h3 className="font-sans font-bold text-base text-[#171717]">
+            <h3 className="font-sans font-bold text-base text-[#171717] dark:text-[#F3F4F6]">
               Solte suas imagens aqui
             </h3>
-            <p className="font-sans text-xs text-[#737373]">
+            <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF]">
               Elas serão enviadas para o Supabase Storage e salvas na sua biblioteca em nuvem.
             </p>
           </div>
@@ -1707,10 +1707,10 @@ export function App() {
         <div
           role="status"
           aria-live="polite"
-          className="bg-amber-500/10 border border-amber-500/30 text-amber-900 px-4 py-2.5 text-xs flex items-center justify-between gap-3 font-sans mb-4 rounded-xs animate-in fade-in"
+          className="bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/30 dark:border-amber-700/50 text-amber-900 dark:text-amber-300 px-4 py-2.5 text-xs flex items-center justify-between gap-3 font-sans mb-4 rounded-xs animate-in fade-in"
         >
           <div className="flex items-center gap-2">
-            <WifiOff size={15} className="text-amber-600 flex-shrink-0" />
+            <WifiOff size={15} className="text-amber-600 dark:text-amber-400 flex-shrink-0" />
             <span className="font-medium">
               Sem conexão com a internet. O Salvei reconectará e sincronizará com o banco assim que a rede for restabelecida.
             </span>

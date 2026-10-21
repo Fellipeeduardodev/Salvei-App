@@ -480,7 +480,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                 className={`relative flex flex-col items-center justify-center p-6 sm:p-8 rounded-sm border-2 border-dashed transition-all cursor-pointer text-center select-none ${
                   isDragOver
                     ? 'border-[#4355DB] bg-[#4355DB]/5 scale-[0.995]'
-                    : 'border-[#D4D4D0] hover:border-[#171717] bg-[#F8F8F6]'
+                    : 'border-[#D4D4D0] dark:border-[#3E434D] hover:border-[#171717] dark:hover:border-[#F3F4F6] bg-[#F8F8F6] dark:bg-[#15171C]'
                 }`}
               >
                 <input
@@ -495,24 +495,24 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                   className="hidden"
                 />
 
-                <div className="w-10 h-10 rounded-full bg-white border border-[#E7E7E5] flex items-center justify-center text-[#4355DB] shadow-2xs mb-3">
+                <div className="w-10 h-10 rounded-full bg-white dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] flex items-center justify-center text-[#4355DB] dark:text-[#6375F1] shadow-2xs mb-3">
                   <Upload size={18} strokeWidth={2} />
                 </div>
 
-                <p className="font-sans font-semibold text-xs text-[#171717]">
+                <p className="font-sans font-semibold text-xs text-[#171717] dark:text-[#F3F4F6]">
                   Arraste suas imagens aqui ou clique para selecionar
                 </p>
-                <p className="font-sans text-[11px] text-[#737373] mt-1">
-                  Ou apenas cole diretamente com <kbd className="px-1 py-0.5 font-mono text-[10px] bg-white border border-[#E7E7E5] rounded">Ctrl+V</kbd>
+                <p className="font-sans text-[11px] text-[#737373] dark:text-[#9CA3AF] mt-1">
+                  Ou apenas cole diretamente com <kbd className="px-1 py-0.5 font-mono text-[10px] bg-white dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] rounded text-[#171717] dark:text-[#F3F4F6]">Ctrl+V</kbd>
                 </p>
-                <span className="font-mono text-[10px] text-[#A8A8A6] mt-2 tracking-wide uppercase">
+                <span className="font-mono text-[10px] text-[#A8A8A6] dark:text-[#6B7280] mt-2 tracking-wide uppercase">
                   PNG, JPG, WebP, GIF até 15MB • Múltiplos arquivos suportados
                 </span>
               </div>
 
               {/* Error Alert */}
               {imageErrorMessage && (
-                <div className="p-3 bg-[#FEF2F2] border border-[#FCA5A5] rounded-sm text-[#B91C1C] text-xs flex items-center gap-2">
+                <div className="p-3 bg-[#FEF2F2] dark:bg-rose-950/40 border border-[#FCA5A5] dark:border-rose-800/60 rounded-sm text-[#B91C1C] dark:text-rose-300 text-xs flex items-center gap-2">
                   <AlertCircle size={15} className="flex-shrink-0" />
                   <span>{imageErrorMessage}</span>
                 </div>
@@ -522,13 +522,13 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
               {imageDrafts.length > 0 && (
                 <div className="flex flex-col gap-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-[11px] font-bold text-[#171717] uppercase tracking-wider">
+                    <span className="font-mono text-[11px] font-bold text-[#171717] dark:text-[#F3F4F6] uppercase tracking-wider">
                       Imagens selecionadas ({imageDrafts.length})
                     </span>
                     <button
                       type="button"
                       onClick={() => setImageDrafts([])}
-                      className="text-[11px] text-[#737373] hover:text-[#EF4444] font-medium transition-colors cursor-pointer"
+                      className="text-[11px] text-[#737373] dark:text-[#9CA3AF] hover:text-[#EF4444] font-medium transition-colors cursor-pointer"
                     >
                       Remover todas
                     </button>
@@ -538,9 +538,9 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                     {imageDrafts.map((draft, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center gap-3 p-2.5 bg-[#F8F8F6] border border-[#E7E7E5] rounded-sm"
+                        className="flex items-center gap-3 p-2.5 bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm"
                       >
-                        <div className="w-12 h-10 rounded bg-white border border-[#E7E7E5] overflow-hidden flex-shrink-0">
+                        <div className="w-12 h-10 rounded bg-white dark:bg-[#15171C] border border-[#E7E7E5] dark:border-[#2D3139] overflow-hidden flex-shrink-0">
                           <img
                             src={draft.previewUrl}
                             alt={draft.name}
@@ -554,9 +554,9 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                             value={draft.title}
                             onChange={(e) => handleUpdateDraftTitle(idx, e.target.value)}
                             placeholder="Título da referência..."
-                            className="w-full text-xs font-semibold text-[#171717] bg-transparent border-b border-transparent hover:border-[#D4D4D0] focus:border-[#4355DB] outline-none px-0 py-0.5 truncate"
+                            className="w-full text-xs font-semibold text-[#171717] dark:text-[#F3F4F6] bg-transparent border-b border-transparent hover:border-[#D4D4D0] dark:hover:border-[#3E434D] focus:border-[#4355DB] outline-none px-0 py-0.5 truncate"
                           />
-                          <div className="flex items-center gap-2 font-mono text-[10px] text-[#A8A8A6] truncate">
+                          <div className="flex items-center gap-2 font-mono text-[10px] text-[#A8A8A6] dark:text-[#6B7280] truncate">
                             <span className="truncate">{draft.name}</span>
                             <span>•</span>
                             <span>{draft.sizeFormatted}</span>
@@ -566,7 +566,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                         <button
                           type="button"
                           onClick={() => handleRemoveDraft(idx)}
-                          className="p-1.5 text-[#A8A8A6] hover:text-[#EF4444] transition-colors rounded cursor-pointer"
+                          className="p-1.5 text-[#A8A8A6] dark:text-[#6B7280] hover:text-[#EF4444] transition-colors rounded cursor-pointer"
                           title="Remover imagem"
                           aria-label={`Remover ${draft.name}`}
                         >
@@ -579,10 +579,10 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
               )}
 
               {/* Shared Metadata Fields */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-[#E7E7E5]/70">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-[#E7E7E5]/70 dark:border-[#2D3139]/70">
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="shared-tags" className="text-xs font-semibold text-[#171717]">
-                    Etiquetas <span className="text-[#737373] font-normal">(separadas por vírgula)</span>
+                  <label htmlFor="shared-tags" className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">
+                    Etiquetas <span className="text-[#737373] dark:text-[#9CA3AF] font-normal">(separadas por vírgula)</span>
                   </label>
                   <Input
                     id="shared-tags"
@@ -594,8 +594,8 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="shared-url" className="text-xs font-semibold text-[#171717]">
-                    URL de origem <span className="text-[#737373] font-normal">(opcional)</span>
+                  <label htmlFor="shared-url" className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">
+                    URL de origem <span className="text-[#737373] dark:text-[#9CA3AF] font-normal">(opcional)</span>
                   </label>
                   <Input
                     id="shared-url"
@@ -610,11 +610,11 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
 
               {/* Associations (Projects & Collections) */}
               {(availableProjects.length > 0 || availableCollections.length > 0) && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[#E7E7E5]/70">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[#E7E7E5]/70 dark:border-[#2D3139]/70">
                   {availableProjects.length > 0 && (
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-[#171717] flex items-center gap-1.5">
-                        <Briefcase size={12} className="text-[#4355DB]" /> Vincular a Projeto
+                      <label className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6] flex items-center gap-1.5">
+                        <Briefcase size={12} className="text-[#4355DB] dark:text-[#6375F1]" /> Vincular a Projeto
                       </label>
                       <select
                         value={imageSelectedProjectIds[0] || ''}
@@ -622,7 +622,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                           const val = e.target.value;
                           setImageSelectedProjectIds(val ? [val] : []);
                         }}
-                        className="w-full text-xs p-2 rounded bg-[#F8F8F6] border border-[#E7E7E5] text-[#171717] outline-none"
+                        className="w-full text-xs p-2 rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-[#171717] dark:text-[#F3F4F6] outline-none"
                       >
                         <option value="">Nenhum projeto vinculado</option>
                         {availableProjects.map((p) => (
@@ -636,8 +636,8 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
 
                   {availableCollections.length > 0 && (
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-[#171717] flex items-center gap-1.5">
-                        <Layers size={12} className="text-[#4355DB]" /> Vincular a Coleção
+                      <label className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6] flex items-center gap-1.5">
+                        <Layers size={12} className="text-[#4355DB] dark:text-[#6375F1]" /> Vincular a Coleção
                       </label>
                       <select
                         value={imageSelectedCollectionIds[0] || ''}
@@ -645,7 +645,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                           const val = e.target.value;
                           setImageSelectedCollectionIds(val ? [val] : []);
                         }}
-                        className="w-full text-xs p-2 rounded bg-[#F8F8F6] border border-[#E7E7E5] text-[#171717] outline-none"
+                        className="w-full text-xs p-2 rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-[#171717] dark:text-[#F3F4F6] outline-none"
                       >
                         <option value="">Nenhuma coleção vinculada</option>
                         {availableCollections.map((c) => (
@@ -660,7 +660,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
               )}
 
               {/* Submit Buttons */}
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#E7E7E5]/70">
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#E7E7E5]/70 dark:border-[#2D3139]/70">
                 <Button variant="secondary" size="md" type="button" onClick={onClose}>
                   Cancelar
                 </Button>
@@ -685,8 +685,8 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
             <form onSubmit={handleSubmitUrl} className="flex flex-col gap-4">
               {/* URL Input (Obrigatório) */}
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="ref-url" className="text-xs font-semibold text-[#171717]">
-                  URL do website <span className="text-[#4355DB]">*</span>
+                <label htmlFor="ref-url" className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">
+                  URL do website <span className="text-[#4355DB] dark:text-[#6375F1]">*</span>
                 </label>
                 <Input
                   ref={urlInputRef}
@@ -708,18 +708,18 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
 
                 {/* Duplicate URL Banner with Non-destructive Actions */}
                 {isDuplicate && (
-                  <div className="mt-1.5 p-3 bg-[#FFFBEB] border border-[#FDE68A] rounded-sm flex flex-col gap-2">
+                  <div className="mt-1.5 p-3 bg-[#FFFBEB] dark:bg-amber-950/40 border border-[#FDE68A] dark:border-amber-700/50 rounded-sm flex flex-col gap-2">
                     <div className="flex items-start gap-2">
-                      <AlertCircle size={15} className="text-[#D97706] mt-0.5 flex-shrink-0" />
-                      <div className="flex-1 text-xs text-[#92400E]">
+                      <AlertCircle size={15} className="text-[#D97706] dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1 text-xs text-[#92400E] dark:text-amber-200">
                         <p className="font-semibold">Esta URL já está salva em sua biblioteca.</p>
-                        <p className="text-[11px] text-[#B45309] mt-0.5 leading-snug">
+                        <p className="text-[11px] text-[#B45309] dark:text-amber-300 mt-0.5 leading-snug">
                           Você pode abrir o registro existente ou salvá-la como uma cópia independente sem perder seus dados.
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3 pt-1 border-t border-[#FDE68A]/60">
+                    <div className="flex flex-wrap items-center gap-3 pt-1 border-t border-[#FDE68A]/60 dark:border-amber-700/40">
                       {onOpenExisting && (
                         <button
                           type="button"
@@ -727,14 +727,14 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                             onClose();
                             onOpenExisting(url);
                           }}
-                          className="text-[11px] font-semibold text-[#4355DB] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                          className="text-[11px] font-semibold text-[#4355DB] dark:text-[#6375F1] hover:underline inline-flex items-center gap-1 cursor-pointer"
                         >
                           Visualizar referência existente
                           <ArrowUpRight size={11} />
                         </button>
                       )}
 
-                      <label className="text-[11px] font-medium text-[#78350F] flex items-center gap-1.5 cursor-pointer ml-auto">
+                      <label className="text-[11px] font-medium text-[#78350F] dark:text-amber-300 flex items-center gap-1.5 cursor-pointer ml-auto">
                         <input
                           type="checkbox"
                           checked={allowDuplicateUrl}
@@ -753,8 +753,8 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
 
               {/* Title Input (Opcional) */}
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="ref-title" className="text-xs font-semibold text-[#171717]">
-                  Título da referência <span className="text-[#737373] font-normal">(opcional)</span>
+                <label htmlFor="ref-title" className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">
+                  Título da referência <span className="text-[#737373] dark:text-[#9CA3AF] font-normal">(opcional)</span>
                 </label>
                 <Input
                   id="ref-title"
@@ -768,15 +768,15 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
               {/* Optional Attached Screenshot / Image */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-[#171717]">
-                    Imagem ou captura visual <span className="text-[#737373] font-normal">(opcional)</span>
+                  <label className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">
+                    Imagem ou captura visual <span className="text-[#737373] dark:text-[#9CA3AF] font-normal">(opcional)</span>
                   </label>
-                  <span className="text-[10px] text-[#A8A8A6] font-mono">CORS local / screenshot manual</span>
+                  <span className="text-[10px] text-[#A8A8A6] dark:text-[#6B7280] font-mono">CORS local / screenshot manual</span>
                 </div>
 
                 {urlImagePreview ? (
-                  <div className="flex items-center gap-3 p-2.5 bg-[#F8F8F6] border border-[#E7E7E5] rounded-sm">
-                    <div className="w-12 h-10 rounded bg-white border border-[#E7E7E5] overflow-hidden flex-shrink-0">
+                  <div className="flex items-center gap-3 p-2.5 bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm">
+                    <div className="w-12 h-10 rounded bg-white dark:bg-[#15171C] border border-[#E7E7E5] dark:border-[#2D3139] overflow-hidden flex-shrink-0">
                       <img
                         src={urlImagePreview}
                         alt="Pré-visualização"
@@ -784,7 +784,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="text-xs font-semibold text-[#171717] truncate block">
+                      <span className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6] truncate block">
                         {urlImageFile?.name}
                       </span>
                       <span className="font-mono text-[10px] text-[#22c55e] flex items-center gap-1">
@@ -798,7 +798,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                         setUrlImageFile(null);
                         setUrlImagePreview(null);
                       }}
-                      className="p-1.5 text-[#A8A8A6] hover:text-[#EF4444] transition-colors rounded cursor-pointer"
+                      className="p-1.5 text-[#A8A8A6] dark:text-[#6B7280] hover:text-[#EF4444] transition-colors rounded cursor-pointer"
                       title="Remover imagem"
                     >
                       <Trash2 size={14} />
@@ -807,7 +807,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                 ) : (
                   <div
                     onClick={() => urlFileInputRef.current?.click()}
-                    className="flex items-center gap-2 p-3 rounded-sm border border-dashed border-[#D4D4D0] hover:border-[#171717] bg-[#F8F8F6] cursor-pointer transition-colors"
+                    className="flex items-center gap-2 p-3 rounded-sm border border-dashed border-[#D4D4D0] dark:border-[#3E434D] hover:border-[#171717] dark:hover:border-[#F3F4F6] bg-[#F8F8F6] dark:bg-[#15171C] cursor-pointer transition-colors"
                   >
                     <input
                       ref={urlFileInputRef}
@@ -827,8 +827,8 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                       }}
                       className="hidden"
                     />
-                    <FileImage size={16} className="text-[#737373]" />
-                    <span className="text-xs text-[#737373]">
+                    <FileImage size={16} className="text-[#737373] dark:text-[#9CA3AF]" />
+                    <span className="text-xs text-[#737373] dark:text-[#9CA3AF]">
                       Clique para anexar captura manual ou imagem de capa
                     </span>
                   </div>
@@ -837,8 +837,8 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
 
               {/* Tags Input (Opcional) */}
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="ref-tags" className="text-xs font-semibold text-[#171717]">
-                  Etiquetas <span className="text-[#737373] font-normal">(separadas por vírgula)</span>
+                <label htmlFor="ref-tags" className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">
+                  Etiquetas <span className="text-[#737373] dark:text-[#9CA3AF] font-normal">(separadas por vírgula)</span>
                 </label>
                 <Input
                   id="ref-tags"
@@ -854,8 +854,8 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                   {availableProjects.length > 0 && (
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-[#171717] flex items-center gap-1.5">
-                        <Briefcase size={12} className="text-[#4355DB]" /> Vincular a Projeto
+                      <label className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6] flex items-center gap-1.5">
+                        <Briefcase size={12} className="text-[#4355DB] dark:text-[#6375F1]" /> Vincular a Projeto
                       </label>
                       <select
                         value={urlSelectedProjectIds[0] || ''}
@@ -863,7 +863,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                           const val = e.target.value;
                           setUrlSelectedProjectIds(val ? [val] : []);
                         }}
-                        className="w-full text-xs p-2 rounded bg-[#F8F8F6] border border-[#E7E7E5] text-[#171717] outline-none"
+                        className="w-full text-xs p-2 rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-[#171717] dark:text-[#F3F4F6] outline-none"
                       >
                         <option value="">Nenhum projeto selecionado</option>
                         {availableProjects.map((p) => (
@@ -877,8 +877,8 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
 
                   {availableCollections.length > 0 && (
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-[#171717] flex items-center gap-1.5">
-                        <Layers size={12} className="text-[#4355DB]" /> Vincular a Coleção
+                      <label className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6] flex items-center gap-1.5">
+                        <Layers size={12} className="text-[#4355DB] dark:text-[#6375F1]" /> Vincular a Coleção
                       </label>
                       <select
                         value={urlSelectedCollectionIds[0] || ''}
@@ -886,7 +886,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                           const val = e.target.value;
                           setUrlSelectedCollectionIds(val ? [val] : []);
                         }}
-                        className="w-full text-xs p-2 rounded bg-[#F8F8F6] border border-[#E7E7E5] text-[#171717] outline-none"
+                        className="w-full text-xs p-2 rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-[#171717] dark:text-[#F3F4F6] outline-none"
                       >
                         <option value="">Nenhuma coleção selecionada</option>
                         {availableCollections.map((c) => (
@@ -902,8 +902,8 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
 
               {/* Notes Input (Opcional) */}
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="ref-notes" className="text-xs font-semibold text-[#171717]">
-                  Anotações iniciais <span className="text-[#737373] font-normal">(opcional)</span>
+                <label htmlFor="ref-notes" className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">
+                  Anotações iniciais <span className="text-[#737373] dark:text-[#9CA3AF] font-normal">(opcional)</span>
                 </label>
                 <textarea
                   id="ref-notes"
@@ -911,38 +911,38 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                   onChange={(e) => setUrlNotes(e.target.value)}
                   placeholder="Por que você está salvando esta referência? O que chamou sua atenção?"
                   rows={2}
-                  className="w-full text-xs font-sans text-[#171717] p-2.5 rounded-sm bg-[#F8F8F6] border border-[#E7E7E5] focus:bg-white focus:border-[#4355DB] outline-none transition-colors resize-none"
+                  className="w-full text-xs font-sans text-[#171717] dark:text-[#F3F4F6] p-2.5 rounded-sm bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] focus:bg-white dark:focus:bg-[#15171C] focus:border-[#4355DB] outline-none transition-colors resize-none"
                 />
               </div>
 
               {/* Collapsible: Optional Code Snippet */}
-              <div className="border border-[#E7E7E5] rounded-sm bg-[#FAFAF8] overflow-hidden">
+              <div className="border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm bg-[#FAFAF8] dark:bg-[#15171C] overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setIncludeSnippet(!includeSnippet)}
-                  className="w-full px-3.5 py-2.5 flex items-center justify-between text-xs font-semibold text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer"
+                  className="w-full px-3.5 py-2.5 flex items-center justify-between text-xs font-semibold text-[#171717] dark:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
-                    <Code2 size={13} className="text-[#4355DB]" />
+                    <Code2 size={13} className="text-[#4355DB] dark:text-[#6375F1]" />
                     <span>Incluir trecho de código inicial (opcional)</span>
                   </span>
                   {includeSnippet ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                 </button>
 
                 {includeSnippet && (
-                  <div className="p-3 border-t border-[#E7E7E5] bg-white flex flex-col gap-2.5">
+                  <div className="p-3 border-t border-[#E7E7E5] dark:border-[#2D3139] bg-white dark:bg-[#191B20] flex flex-col gap-2.5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <input
                         type="text"
                         placeholder="Título do trecho (ex: Header Grid)"
                         value={snippetTitle}
                         onChange={(e) => setSnippetTitle(e.target.value)}
-                        className="text-xs p-2 rounded bg-[#F8F8F6] border border-[#E7E7E5] text-[#171717] outline-none"
+                        className="text-xs p-2 rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-[#171717] dark:text-[#F3F4F6] outline-none"
                       />
                       <select
                         value={snippetLang}
                         onChange={(e) => setSnippetLang(e.target.value as CodeSnippet['language'])}
-                        className="text-xs p-2 rounded bg-[#F8F8F6] border border-[#E7E7E5] text-[#171717] outline-none"
+                        className="text-xs p-2 rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-[#171717] dark:text-[#F3F4F6] outline-none"
                       >
                         <option value="tailwind">Tailwind CSS</option>
                         <option value="css">CSS Padrão</option>
@@ -957,24 +957,24 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                       rows={3}
                       value={snippetCode}
                       onChange={(e) => setSnippetCode(e.target.value)}
-                      className="w-full p-2.5 font-mono text-xs bg-[#F8F8F6] border border-[#E7E7E5] rounded outline-none"
+                      className="w-full p-2.5 font-mono text-xs bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-[#171717] dark:text-[#F3F4F6] rounded outline-none"
                     />
                   </div>
                 )}
               </div>
 
               {/* Collapsible: Optional Supplementary Files */}
-              <div className="border border-[#E7E7E5] rounded-sm bg-[#FAFAF8] overflow-hidden">
+              <div className="border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm bg-[#FAFAF8] dark:bg-[#15171C] overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setIncludeFiles(!includeFiles)}
-                  className="w-full px-3.5 py-2.5 flex items-center justify-between text-xs font-semibold text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer"
+                  className="w-full px-3.5 py-2.5 flex items-center justify-between text-xs font-semibold text-[#171717] dark:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
-                    <Paperclip size={13} className="text-[#4355DB]" />
+                    <Paperclip size={13} className="text-[#4355DB] dark:text-[#6375F1]" />
                     <span>Anexar arquivos complementares (opcional)</span>
                     {attachedFiles.length > 0 && (
-                      <span className="px-1.5 py-0.2 rounded-full bg-[#171717] text-white font-mono text-[10px]">
+                      <span className="px-1.5 py-0.2 rounded-full bg-[#171717] dark:bg-[#4355DB] text-white font-mono text-[10px]">
                         {attachedFiles.length}
                       </span>
                     )}
@@ -983,7 +983,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                 </button>
 
                 {includeFiles && (
-                  <div className="p-3 border-t border-[#E7E7E5] bg-white flex flex-col gap-2.5">
+                  <div className="p-3 border-t border-[#E7E7E5] dark:border-[#2D3139] bg-white dark:bg-[#191B20] flex flex-col gap-2.5">
                     <input
                       ref={supplementaryFileInputRef}
                       type="file"
@@ -997,9 +997,9 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
 
                     <div
                       onClick={() => supplementaryFileInputRef.current?.click()}
-                      className="p-3 border border-dashed border-[#D4D4D0] hover:border-[#171717] rounded-sm text-center cursor-pointer bg-[#F8F8F6] transition-colors"
+                      className="p-3 border border-dashed border-[#D4D4D0] dark:border-[#3E434D] hover:border-[#171717] dark:hover:border-[#F3F4F6] rounded-sm text-center cursor-pointer bg-[#F8F8F6] dark:bg-[#15171C] transition-colors"
                     >
-                      <span className="text-xs text-[#737373]">
+                      <span className="text-xs text-[#737373] dark:text-[#9CA3AF]">
                         Clique para anexar especificações, JSON, CSS ou outros arquivos
                       </span>
                     </div>
@@ -1009,15 +1009,15 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                         {attachedFiles.map((file, idx) => (
                           <div
                             key={file.id}
-                            className="flex items-center justify-between p-2 rounded bg-[#F8F8F6] border border-[#E7E7E5] text-xs font-mono"
+                            className="flex items-center justify-between p-2 rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-xs font-mono"
                           >
-                            <span className="truncate max-w-[280px] text-[#171717]">{file.name}</span>
+                            <span className="truncate max-w-[280px] text-[#171717] dark:text-[#F3F4F6]">{file.name}</span>
                             <div className="flex items-center gap-2">
-                              <span className="text-[#A8A8A6] text-[10px]">{file.size}</span>
+                              <span className="text-[#A8A8A6] dark:text-[#6B7280] text-[10px]">{file.size}</span>
                               <button
                                 type="button"
                                 onClick={() => setAttachedFiles((prev) => prev.filter((_, i) => i !== idx))}
-                                className="text-[#A8A8A6] hover:text-[#EF4444] cursor-pointer"
+                                className="text-[#A8A8A6] dark:text-[#6B7280] hover:text-[#EF4444] cursor-pointer"
                                 title="Remover anexo"
                               >
                                 <Trash2 size={12} />
@@ -1032,7 +1032,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#E7E7E5]/70">
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#E7E7E5]/70 dark:border-[#2D3139]/70">
                 <Button variant="secondary" size="md" type="button" onClick={onClose}>
                   Cancelar
                 </Button>

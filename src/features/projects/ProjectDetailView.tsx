@@ -79,7 +79,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-1.5 text-xs font-mono font-medium text-[#737373] hover:text-[#171717] transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-mono font-medium text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] transition-colors cursor-pointer"
         >
           <ArrowLeft size={13} />
           <span>Voltar para Projetos</span>
@@ -87,24 +87,24 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       </div>
 
       {/* Project Header Card */}
-      <div className="p-6 bg-white border border-[#E7E7E5] rounded-sm flex flex-col md:flex-row md:items-start justify-between gap-4">
+      <div className="p-6 bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 text-[#4355DB] font-mono text-[11px] font-bold uppercase tracking-wider mb-1">
+          <div className="flex items-center gap-2 text-[#4355DB] dark:text-[#6375F1] font-mono text-[11px] font-bold uppercase tracking-wider mb-1">
             <Briefcase size={14} />
             <span>PROJETO</span>
           </div>
 
-          <h1 className="font-sans font-bold text-2xl md:text-3xl text-[#171717] tracking-tight">
+          <h1 className="font-sans font-bold text-2xl md:text-3xl text-[#171717] dark:text-[#F3F4F6] tracking-tight">
             {project.name}
           </h1>
 
           {project.description && (
-            <p className="font-sans text-xs md:text-sm text-[#737373] mt-2 max-w-2xl leading-relaxed">
+            <p className="font-sans text-xs md:text-sm text-[#737373] dark:text-[#9CA3AF] mt-2 max-w-2xl leading-relaxed">
               {project.description}
             </p>
           )}
 
-          <div className="mt-3 font-mono text-[11px] text-[#A8A8A6]">
+          <div className="mt-3 font-mono text-[11px] text-[#A8A8A6] dark:text-[#6B7280]">
             [ {projectReferences.length}{' '}
             {projectReferences.length === 1 ? 'referência associada' : 'referências associadas'} ]
           </div>
@@ -137,7 +137,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
           <button
             type="button"
             onClick={() => setIsConfirmingDelete(true)}
-            className="p-2 rounded text-[#A8A8A6] hover:text-[#EF4444] hover:bg-[#FEF2F2] transition-colors cursor-pointer ml-1"
+            className="p-2 rounded text-[#A8A8A6] dark:text-[#6B7280] hover:text-[#EF4444] dark:hover:text-[#F87171] hover:bg-[#FEF2F2] dark:hover:bg-[#EF4444]/10 transition-colors cursor-pointer ml-1"
             title="Excluir projeto"
           >
             <Trash2 size={16} />
@@ -147,14 +147,14 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 
       {/* Grid of References */}
       {projectReferences.length === 0 ? (
-        <div className="py-24 bg-white border border-[#E7E7E5] rounded-sm p-8 text-center flex flex-col items-center justify-center">
-          <div className="w-12 h-12 rounded-full bg-[#F1F1EF] text-[#737373] flex items-center justify-center mb-3">
+        <div className="py-24 bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm p-8 text-center flex flex-col items-center justify-center">
+          <div className="w-12 h-12 rounded-full bg-[#F1F1EF] dark:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF] flex items-center justify-center mb-3">
             <Inbox size={22} strokeWidth={1.8} />
           </div>
-          <h3 className="font-sans font-semibold text-base text-[#171717] mb-1">
+          <h3 className="font-sans font-semibold text-base text-[#171717] dark:text-[#F3F4F6] mb-1">
             Nenhuma referência neste projeto
           </h3>
-          <p className="font-sans text-xs text-[#737373] max-w-sm mb-4">
+          <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF] max-w-sm mb-4">
             Vincule referências já existentes na sua biblioteca para reunir benchmarks e inspirações para esta entrega.
           </p>
           <Button
@@ -191,7 +191,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                   e.stopPropagation();
                   onRemoveReferenceFromProject(ref.id);
                 }}
-                className="absolute top-2 left-2 z-20 px-2 py-1 rounded bg-white/95 text-[#737373] hover:text-[#EF4444] text-[10px] font-mono border border-[#E7E7E5] shadow-xs opacity-0 group-hover/wrapper:opacity-100 transition-opacity flex items-center gap-1 cursor-pointer"
+                className="absolute top-2 left-2 z-20 px-2 py-1 rounded bg-white/95 dark:bg-[#191B20]/95 text-[#737373] dark:text-[#9CA3AF] hover:text-[#EF4444] dark:hover:text-[#F87171] text-[10px] font-mono border border-[#E7E7E5] dark:border-[#2D3139] shadow-xs opacity-0 group-hover/wrapper:opacity-100 transition-opacity flex items-center gap-1 cursor-pointer"
                 title="Desvincular deste projeto (não apaga a referência original)"
               >
                 <MinusCircle size={11} />
@@ -211,30 +211,30 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
           />
           <form
             onSubmit={handleSaveEdit}
-            className="relative w-full max-w-md bg-white border border-[#E7E7E5] rounded-sm p-6 shadow-2xl z-10 flex flex-col gap-4 animate-in fade-in zoom-in-95"
+            className="relative w-full max-w-md bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm p-6 shadow-2xl z-10 flex flex-col gap-4 animate-in fade-in zoom-in-95"
           >
-            <h3 className="font-sans font-bold text-base text-[#171717]">
+            <h3 className="font-sans font-bold text-base text-[#171717] dark:text-[#F3F4F6]">
               Editar Projeto
             </h3>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-[#171717]">Nome</label>
+              <label className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">Nome</label>
               <input
                 type="text"
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
                 required
-                className="w-full text-xs p-2.5 rounded bg-[#F8F8F6] border border-[#E7E7E5] focus:bg-white focus:border-[#4355DB] outline-none"
+                className="w-full text-xs p-2.5 rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-[#171717] dark:text-[#F3F4F6] focus:bg-white dark:focus:bg-[#15171C] focus:border-[#4355DB] outline-none"
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-[#171717]">Descrição</label>
+              <label className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">Descrição</label>
               <textarea
                 value={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
                 rows={3}
-                className="w-full text-xs p-2.5 rounded bg-[#F8F8F6] border border-[#E7E7E5] focus:bg-white focus:border-[#4355DB] outline-none resize-none"
+                className="w-full text-xs p-2.5 rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-[#171717] dark:text-[#F3F4F6] focus:bg-white dark:focus:bg-[#15171C] focus:border-[#4355DB] outline-none resize-none"
               />
             </div>
 
@@ -262,11 +262,11 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
             onClick={() => setIsConfirmingDelete(false)}
             className="fixed inset-0 bg-[#0F0F0F]/50 backdrop-blur-xs"
           />
-          <div className="relative w-full max-w-sm bg-white border border-[#E7E7E5] rounded-sm p-6 shadow-2xl z-10 flex flex-col gap-3 animate-in fade-in zoom-in-95">
-            <h3 className="font-sans font-bold text-base text-[#171717]">
+          <div className="relative w-full max-w-sm bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm p-6 shadow-2xl z-10 flex flex-col gap-3 animate-in fade-in zoom-in-95">
+            <h3 className="font-sans font-bold text-base text-[#171717] dark:text-[#F3F4F6]">
               Excluir projeto "{project.name}"?
             </h3>
-            <p className="font-sans text-xs text-[#737373] leading-relaxed">
+            <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF] leading-relaxed">
               O projeto será removido. Suas {projectReferences.length} referências{' '}
               <strong>continuarão preservadas na biblioteca.</strong>
             </p>

@@ -264,30 +264,30 @@ export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
           />
           <form
             onSubmit={handleSaveEdit}
-            className="relative w-full max-w-md bg-white border border-[#E7E7E5] rounded-sm p-6 shadow-2xl z-10 flex flex-col gap-4 animate-in fade-in zoom-in-95"
+            className="relative w-full max-w-md bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm p-6 shadow-2xl z-10 flex flex-col gap-4 animate-in fade-in zoom-in-95"
           >
-            <h3 className="font-sans font-bold text-base text-[#171717]">
+            <h3 className="font-sans font-bold text-base text-[#171717] dark:text-[#F3F4F6]">
               Editar Coleção
             </h3>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-[#171717]">Nome</label>
+              <label className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">Nome</label>
               <input
                 type="text"
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
                 required
-                className="w-full text-xs p-2.5 rounded bg-[#F8F8F6] border border-[#E7E7E5] focus:bg-white focus:border-[#4355DB] outline-none"
+                className="w-full text-xs p-2.5 rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-[#171717] dark:text-[#F3F4F6] focus:bg-white dark:focus:bg-[#15171C] focus:border-[#4355DB] outline-none"
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-[#171717]">Descrição</label>
+              <label className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">Descrição</label>
               <textarea
                 value={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
                 rows={3}
-                className="w-full text-xs p-2.5 rounded bg-[#F8F8F6] border border-[#E7E7E5] focus:bg-white focus:border-[#4355DB] outline-none resize-none"
+                className="w-full text-xs p-2.5 rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-[#171717] dark:text-[#F3F4F6] focus:bg-white dark:focus:bg-[#15171C] focus:border-[#4355DB] outline-none resize-none"
               />
             </div>
 
@@ -315,11 +315,11 @@ export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
             onClick={() => setDeletingCollectionId(null)}
             className="fixed inset-0 bg-[#0F0F0F]/50 backdrop-blur-xs"
           />
-          <div className="relative w-full max-w-sm bg-white border border-[#E7E7E5] rounded-sm p-6 shadow-2xl z-10 flex flex-col gap-3 animate-in fade-in zoom-in-95">
-            <h3 className="font-sans font-bold text-base text-[#171717]">
+          <div className="relative w-full max-w-sm bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm p-6 shadow-2xl z-10 flex flex-col gap-3 animate-in fade-in zoom-in-95">
+            <h3 className="font-sans font-bold text-base text-[#171717] dark:text-[#F3F4F6]">
               Excluir coleção?
             </h3>
-            <p className="font-sans text-xs text-[#737373] leading-relaxed">
+            <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF] leading-relaxed">
               A coleção será removida. <strong>As referências associadas continuarão salvas em sua biblioteca.</strong>
             </p>
             <div className="flex justify-end gap-2 pt-3">

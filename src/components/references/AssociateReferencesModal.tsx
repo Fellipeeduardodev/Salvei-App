@@ -103,22 +103,22 @@ export const AssociateReferencesModal: React.FC<AssociateReferencesModalProps> =
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-assoc-title"
-        className="relative w-full max-w-[620px] max-h-[85vh] bg-white border border-[#E7E7E5] rounded-sm shadow-2xl flex flex-col z-10 animate-in fade-in zoom-in-95 duration-150 overflow-hidden"
+        className="relative w-full max-w-[620px] max-h-[85vh] bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm shadow-2xl flex flex-col z-10 animate-in fade-in zoom-in-95 duration-150 overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-[#E7E7E5]/70 flex-shrink-0">
+        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70 flex-shrink-0">
           <div>
-            <h2 id="modal-assoc-title" className="font-sans font-bold text-base text-[#171717] flex items-center gap-2">
+            <h2 id="modal-assoc-title" className="font-sans font-bold text-base text-[#171717] dark:text-[#F3F4F6] flex items-center gap-2">
               {entityType === 'project' ? <Briefcase size={16} /> : <Layers size={16} />}
               <span>Gerenciar referências associadas</span>
             </h2>
-            <p className="font-sans text-xs text-[#737373] mt-0.5">
+            <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF] mt-0.5">
               Selecione as referências da sua biblioteca vinculadas a <strong>{entityName}</strong>.
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-md text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer"
+            className="p-1 rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer"
             aria-label="Fechar"
           >
             <X size={17} />
@@ -126,15 +126,15 @@ export const AssociateReferencesModal: React.FC<AssociateReferencesModalProps> =
         </div>
 
         {/* Search & Bulk Select Toolbar */}
-        <div className="p-4 bg-[#F8F8F6] border-b border-[#E7E7E5] flex flex-col sm:flex-row items-center justify-between gap-3 flex-shrink-0">
+        <div className="p-4 bg-[#F8F8F6] dark:bg-[#15171C] border-b border-[#E7E7E5] dark:border-[#2D3139] flex flex-col sm:flex-row items-center justify-between gap-3 flex-shrink-0">
           <div className="relative w-full sm:w-72 flex items-center">
-            <Search size={14} className="absolute left-2.5 text-[#A8A8A6] pointer-events-none" />
+            <Search size={14} className="absolute left-2.5 text-[#A8A8A6] dark:text-[#6B7280] pointer-events-none" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Filtrar por título, domínio ou tag..."
-              className="w-full h-8 pl-8 pr-3 text-xs bg-white border border-[#E7E7E5] rounded focus:border-[#4355DB] outline-none text-[#171717]"
+              className="w-full h-8 pl-8 pr-3 text-xs bg-white dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] rounded focus:border-[#4355DB] outline-none text-[#171717] dark:text-[#F3F4F6]"
             />
           </div>
 
@@ -142,15 +142,15 @@ export const AssociateReferencesModal: React.FC<AssociateReferencesModalProps> =
             <button
               type="button"
               onClick={handleSelectAllFiltered}
-              className="text-[#4355DB] hover:underline cursor-pointer font-medium"
+              className="text-[#4355DB] dark:text-[#6375F1] hover:underline cursor-pointer font-medium"
             >
               Marcar todos visíveis
             </button>
-            <span className="text-[#D4D4D0]">|</span>
+            <span className="text-[#D4D4D0] dark:text-[#3E434D]">|</span>
             <button
               type="button"
               onClick={handleDeselectAllFiltered}
-              className="text-[#737373] hover:text-[#EF4444] cursor-pointer"
+              className="text-[#737373] dark:text-[#9CA3AF] hover:text-[#EF4444] cursor-pointer"
             >
               Desmarcar
             </button>
@@ -160,7 +160,7 @@ export const AssociateReferencesModal: React.FC<AssociateReferencesModalProps> =
         {/* References Selection List */}
         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-1.5 scrollbar-thin">
           {filteredList.length === 0 ? (
-            <div className="py-12 text-center text-xs text-[#737373]">
+            <div className="py-12 text-center text-xs text-[#737373] dark:text-[#9CA3AF]">
               Nenhuma referência encontrada para o termo informado.
             </div>
           ) : (
@@ -172,8 +172,8 @@ export const AssociateReferencesModal: React.FC<AssociateReferencesModalProps> =
                   onClick={() => handleToggle(ref.id)}
                   className={`flex items-center gap-3 p-2.5 rounded-sm border cursor-pointer select-none transition-colors ${
                     isChecked
-                      ? 'bg-[#4355DB]/5 border-[#4355DB]/40 ring-1 ring-[#4355DB]/20'
-                      : 'bg-white border-[#E7E7E5] hover:bg-[#F8F8F6]'
+                      ? 'bg-[#4355DB]/10 dark:bg-[#4355DB]/20 border-[#4355DB]/40 ring-1 ring-[#4355DB]/20'
+                      : 'bg-white dark:bg-[#191B20] border-[#E7E7E5] dark:border-[#2D3139] hover:bg-[#F8F8F6] dark:hover:bg-[#20232A]'
                   }`}
                 >
                   {/* Checkbox indicator */}
@@ -181,14 +181,14 @@ export const AssociateReferencesModal: React.FC<AssociateReferencesModalProps> =
                     className={`w-4 h-4 rounded flex items-center justify-center border transition-colors flex-shrink-0 ${
                       isChecked
                         ? 'bg-[#4355DB] border-[#4355DB] text-white'
-                        : 'border-[#D4D4D0] bg-white'
+                        : 'border-[#D4D4D0] dark:border-[#4B5563] bg-white dark:bg-[#20232A]'
                     }`}
                   >
                     {isChecked && <Check size={12} strokeWidth={3} />}
                   </div>
 
                   {/* Thumbnail / Icon */}
-                  <div className="w-10 h-7 rounded bg-[#F1F1EF] border border-[#E7E7E5] overflow-hidden flex-shrink-0 flex items-center justify-center">
+                  <div className="w-10 h-7 rounded bg-[#F1F1EF] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] overflow-hidden flex-shrink-0 flex items-center justify-center">
                     {ref.screenshotUrl && ref.screenshotStatus === 'ready' ? (
                       <img
                         src={ref.screenshotUrl}
@@ -196,18 +196,18 @@ export const AssociateReferencesModal: React.FC<AssociateReferencesModalProps> =
                         className="w-full h-full object-cover"
                       />
                     ) : ref.url ? (
-                      <Globe size={13} className="text-[#A8A8A6]" />
+                      <Globe size={13} className="text-[#A8A8A6] dark:text-[#6B7280]" />
                     ) : (
-                      <ImageIcon size={13} className="text-[#A8A8A6]" />
+                      <ImageIcon size={13} className="text-[#A8A8A6] dark:text-[#6B7280]" />
                     )}
                   </div>
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <span className="font-semibold text-xs text-[#171717] block truncate">
+                    <span className="font-semibold text-xs text-[#171717] dark:text-[#F3F4F6] block truncate">
                       {ref.title}
                     </span>
-                    <span className="font-mono text-[10px] text-[#737373] block truncate">
+                    <span className="font-mono text-[10px] text-[#737373] dark:text-[#9CA3AF] block truncate">
                       {ref.domain || ref.originalFileName || 'Referência de imagem'}
                     </span>
                   </div>
@@ -218,7 +218,7 @@ export const AssociateReferencesModal: React.FC<AssociateReferencesModalProps> =
                       {ref.tags.slice(0, 2).map((t) => (
                         <span
                           key={t}
-                          className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-[#F1F1EF] text-[#737373]"
+                          className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-[#F1F1EF] dark:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF]"
                         >
                           #{t}
                         </span>
@@ -232,8 +232,8 @@ export const AssociateReferencesModal: React.FC<AssociateReferencesModalProps> =
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-[#E7E7E5] bg-[#F8F8F6] flex items-center justify-between gap-3 flex-shrink-0">
-          <span className="font-mono text-xs text-[#737373]">
+        <div className="p-4 border-t border-[#E7E7E5] dark:border-[#2D3139] bg-[#F8F8F6] dark:bg-[#15171C] flex items-center justify-between gap-3 flex-shrink-0">
+          <span className="font-mono text-xs text-[#737373] dark:text-[#9CA3AF]">
             {selectedIds.length} {selectedIds.length === 1 ? 'referência selecionada' : 'referências selecionadas'}
           </span>
 

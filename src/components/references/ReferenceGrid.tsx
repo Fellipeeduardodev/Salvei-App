@@ -44,14 +44,14 @@ export const ReferenceGrid: React.FC<ReferenceGridProps> = ({
   // Case 1: Search / Filter returned no results (NO_SEARCH_RESULTS)
   if (isFiltered && references.length === 0) {
     return (
-      <div className="w-full py-20 px-4 flex flex-col items-center justify-center text-center bg-white border border-[#E7E7E5] rounded-sm">
-        <div className="w-12 h-12 rounded-full bg-[#F1F1EF] flex items-center justify-center text-[#737373] mb-4">
+      <div className="w-full py-20 px-4 flex flex-col items-center justify-center text-center bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm transition-colors">
+        <div className="w-12 h-12 rounded-full bg-[#F1F1EF] dark:bg-[#20232A] flex items-center justify-center text-[#737373] dark:text-[#9CA3AF] mb-4">
           <SearchX size={22} strokeWidth={1.8} />
         </div>
-        <h3 className="font-sans font-semibold text-base text-[#171717] mb-1">
+        <h3 className="font-sans font-semibold text-base text-[#171717] dark:text-[#F3F4F6] mb-1">
           Nenhuma referência encontrada
         </h3>
-        <p className="font-sans text-xs text-[#737373] max-w-sm mb-5">
+        <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF] max-w-sm mb-5">
           Não encontramos referências correspondentes aos termos de busca ou filtros aplicados.
         </p>
         {onClearFilters && (
@@ -66,14 +66,14 @@ export const ReferenceGrid: React.FC<ReferenceGridProps> = ({
   // Case 2: Library is completely empty (EMPTY_INBOX)
   if (references.length === 0) {
     return (
-      <div className="w-full py-24 px-4 flex flex-col items-center justify-center text-center bg-white border border-[#E7E7E5] rounded-sm">
-        <div className="w-12 h-12 rounded-full bg-[#F1F1EF] flex items-center justify-center text-[#737373] mb-4">
+      <div className="w-full py-24 px-4 flex flex-col items-center justify-center text-center bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm transition-colors">
+        <div className="w-12 h-12 rounded-full bg-[#F1F1EF] dark:bg-[#20232A] flex items-center justify-center text-[#737373] dark:text-[#9CA3AF] mb-4">
           <Inbox size={22} strokeWidth={1.8} />
         </div>
-        <h3 className="font-sans font-semibold text-base text-[#171717] mb-1">
+        <h3 className="font-sans font-semibold text-base text-[#171717] dark:text-[#F3F4F6] mb-1">
           Sua biblioteca está vazia
         </h3>
-        <p className="font-sans text-xs text-[#737373] max-w-sm mb-5">
+        <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF] max-w-sm mb-5">
           Capture e preserve referências visuais de layouts, tipografia, micro-interações e produtos digitais.
         </p>
         {onOpenAddModal && (

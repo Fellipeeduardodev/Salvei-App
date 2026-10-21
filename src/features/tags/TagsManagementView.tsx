@@ -177,14 +177,14 @@ export const TagsManagementView: React.FC<TagsManagementViewProps> = ({
                   className={`group inline-flex items-center gap-1.5 pl-3 pr-2 py-1 rounded-full text-xs font-mono transition-colors border select-none cursor-pointer ${
                     isSelected
                       ? 'bg-[#4355DB] text-white border-[#4355DB] font-semibold shadow-xs'
-                      : 'bg-[#F8F8F6] hover:bg-[#EDEDEA] border-[#E7E7E5] text-[#171717]'
+                      : 'bg-[#F8F8F6] dark:bg-[#20232A] hover:bg-[#EDEDEA] dark:hover:bg-[#2A2E37] border-[#E7E7E5] dark:border-[#2D3139] text-[#171717] dark:text-[#F3F4F6]'
                   }`}
                   title={`Clique para ver referências com #${tag}`}
                 >
                   <span>#{tag}</span>
                   <span
                     className={`text-[10px] tabular-nums ${
-                      isSelected ? 'text-white/80' : 'text-[#737373]'
+                      isSelected ? 'text-white/80' : 'text-[#737373] dark:text-[#9CA3AF]'
                     }`}
                   >
                     ({count})
@@ -192,14 +192,14 @@ export const TagsManagementView: React.FC<TagsManagementViewProps> = ({
 
                   {/* Rename and Delete Actions */}
                   <div
-                    className="flex items-center gap-0.5 ml-1 pl-1 border-l border-black/10"
+                    className="flex items-center gap-0.5 ml-1 pl-1 border-l border-black/10 dark:border-white/10"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <button
                       type="button"
                       onClick={(e) => handleStartRename(tag, e)}
-                      className={`p-0.5 rounded hover:bg-black/15 transition-colors cursor-pointer ${
-                        isSelected ? 'text-white' : 'text-[#A8A8A6] hover:text-[#171717]'
+                      className={`p-0.5 rounded hover:bg-black/15 dark:hover:bg-white/15 transition-colors cursor-pointer ${
+                        isSelected ? 'text-white' : 'text-[#A8A8A6] dark:text-[#6B7280] hover:text-[#171717] dark:hover:text-[#F3F4F6]'
                       }`}
                       title={`Renomear #${tag}`}
                     >
@@ -212,7 +212,7 @@ export const TagsManagementView: React.FC<TagsManagementViewProps> = ({
                         setDeletingTag(tag);
                       }}
                       className={`p-0.5 rounded hover:bg-[#EF4444] hover:text-white transition-colors cursor-pointer ${
-                        isSelected ? 'text-white' : 'text-[#A8A8A6] hover:text-[#EF4444]'
+                        isSelected ? 'text-white' : 'text-[#A8A8A6] dark:text-[#6B7280] hover:text-[#EF4444]'
                       }`}
                       title={`Excluir #${tag}`}
                     >
@@ -229,15 +229,15 @@ export const TagsManagementView: React.FC<TagsManagementViewProps> = ({
       {/* Filtered References Results Section */}
       {activeTag && (
         <div className="flex flex-col gap-4 animate-in fade-in duration-100">
-          <div className="flex items-center justify-between pb-2 border-b border-[#E7E7E5]">
+          <div className="flex items-center justify-between pb-2 border-b border-[#E7E7E5] dark:border-[#2D3139]">
             <div className="flex items-center gap-2">
-              <span className="font-mono text-xs font-bold text-[#4355DB] uppercase tracking-wider">
+              <span className="font-mono text-xs font-bold text-[#4355DB] dark:text-[#6375F1] uppercase tracking-wider">
                 FILTRANDO POR:
               </span>
               <span className="px-2 py-0.5 rounded-full bg-[#4355DB] text-white text-xs font-mono font-bold">
                 #{activeTag}
               </span>
-              <span className="text-xs text-[#737373] font-mono">
+              <span className="text-xs text-[#737373] dark:text-[#9CA3AF] font-mono">
                 ({matchingReferences.length} {matchingReferences.length === 1 ? 'referência' : 'referências'})
               </span>
             </div>
@@ -245,7 +245,7 @@ export const TagsManagementView: React.FC<TagsManagementViewProps> = ({
             <button
               type="button"
               onClick={() => onSelectTag(null)}
-              className="text-xs text-[#737373] hover:text-[#EF4444] flex items-center gap-1 cursor-pointer font-medium"
+              className="text-xs text-[#737373] dark:text-[#9CA3AF] hover:text-[#EF4444] flex items-center gap-1 cursor-pointer font-medium"
             >
               <X size={13} />
               <span>Limpar filtro de etiqueta</span>
@@ -253,7 +253,7 @@ export const TagsManagementView: React.FC<TagsManagementViewProps> = ({
           </div>
 
           {matchingReferences.length === 0 ? (
-            <div className="py-16 text-center text-xs text-[#737373] bg-white border border-[#E7E7E5] rounded-sm">
+            <div className="py-16 text-center text-xs text-[#737373] dark:text-[#9CA3AF] bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm">
               Nenhuma referência associada a esta etiqueta no momento.
             </div>
           ) : (
@@ -281,28 +281,28 @@ export const TagsManagementView: React.FC<TagsManagementViewProps> = ({
           />
           <form
             onSubmit={handleSaveRename}
-            className="relative w-full max-w-sm bg-white border border-[#E7E7E5] rounded-sm p-6 shadow-2xl z-10 flex flex-col gap-4 animate-in fade-in zoom-in-95"
+            className="relative w-full max-w-sm bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm p-6 shadow-2xl z-10 flex flex-col gap-4 animate-in fade-in zoom-in-95"
           >
             <div>
-              <h3 className="font-sans font-bold text-base text-[#171717]">
+              <h3 className="font-sans font-bold text-base text-[#171717] dark:text-[#F3F4F6]">
                 Renomear etiqueta #{renamingTag}
               </h3>
-              <p className="font-sans text-xs text-[#737373] mt-1">
+              <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF] mt-1">
                 A alteração atualizará automaticamente todas as referências vinculadas a esta etiqueta.
               </p>
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-[#171717]">Novo nome</label>
+              <label className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">Novo nome</label>
               <div className="relative">
-                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-mono text-xs text-[#A8A8A6]">#</span>
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-mono text-xs text-[#A8A8A6] dark:text-[#6B7280]">#</span>
                 <input
                   type="text"
                   value={renameInput}
                   onChange={(e) => setRenameInput(e.target.value)}
                   autoFocus
                   required
-                  className="w-full pl-6 pr-3 py-2 text-xs font-mono rounded bg-[#F8F8F6] border border-[#E7E7E5] focus:bg-white focus:border-[#4355DB] outline-none"
+                  className="w-full pl-6 pr-3 py-2 text-xs font-mono rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-[#171717] dark:text-[#F3F4F6] focus:bg-white dark:focus:bg-[#15171C] focus:border-[#4355DB] outline-none"
                 />
               </div>
             </div>
@@ -331,11 +331,11 @@ export const TagsManagementView: React.FC<TagsManagementViewProps> = ({
             onClick={() => setDeletingTag(null)}
             className="fixed inset-0 bg-[#0F0F0F]/50 backdrop-blur-xs"
           />
-          <div className="relative w-full max-w-sm bg-white border border-[#E7E7E5] rounded-sm p-6 shadow-2xl z-10 flex flex-col gap-3 animate-in fade-in zoom-in-95">
-            <h3 className="font-sans font-bold text-base text-[#171717]">
+          <div className="relative w-full max-w-sm bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm p-6 shadow-2xl z-10 flex flex-col gap-3 animate-in fade-in zoom-in-95">
+            <h3 className="font-sans font-bold text-base text-[#171717] dark:text-[#F3F4F6]">
               Excluir etiqueta #{deletingTag}?
             </h3>
-            <p className="font-sans text-xs text-[#737373] leading-relaxed">
+            <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF] leading-relaxed">
               A etiqueta será removida das referências associadas. <strong>Nenhuma referência da sua biblioteca será excluída.</strong>
             </p>
             <div className="flex justify-end gap-2 pt-3">

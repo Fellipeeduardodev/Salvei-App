@@ -77,46 +77,46 @@ export const BulkAssociateModal: React.FC<BulkAssociateModalProps> = ({
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0F0F0F]/50 backdrop-blur-xs animate-in fade-in duration-150"
     >
       <div
-        className="w-full max-w-md bg-white border border-[#E7E7E5] rounded-sm p-6 shadow-2xl flex flex-col gap-4 relative animate-in zoom-in-95 duration-150"
+        className="w-full max-w-md bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm p-6 shadow-2xl flex flex-col gap-4 relative animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer"
+          className="absolute top-4 right-4 p-1.5 rounded text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer"
           aria-label="Fechar diálogo de associação"
         >
           <X size={16} />
         </button>
 
-        <div className="flex items-center gap-2.5 text-[#4355DB] font-mono text-[11px] font-bold uppercase tracking-wider">
+        <div className="flex items-center gap-2.5 text-[#4355DB] dark:text-[#6375F1] font-mono text-[11px] font-bold uppercase tracking-wider">
           {isCollection ? <Layers size={15} /> : <Briefcase size={15} />}
           <span>{typeLabel.toUpperCase()} EM LOTE</span>
         </div>
 
         <h3
           id="bulk-associate-title"
-          className="font-sans font-bold text-base text-[#171717] -mt-1 leading-snug"
+          className="font-sans font-bold text-base text-[#171717] dark:text-[#F3F4F6] -mt-1 leading-snug"
         >
           {action === 'add' ? 'Adicionar' : 'Remover'} {count}{' '}
           {count === 1 ? 'referência selecionada' : 'referências selecionadas'}
         </h3>
 
         {availableItems.length === 0 ? (
-          <div className="p-4 bg-[#F8F8F6] rounded border border-[#E7E7E5] text-xs text-[#737373] text-center">
+          <div className="p-4 bg-[#F8F8F6] dark:bg-[#20232A] rounded border border-[#E7E7E5] dark:border-[#2D3139] text-xs text-[#737373] dark:text-[#9CA3AF] text-center">
             Nenhum {typeLabel.toLowerCase()} cadastrado ainda no workspace. Crie um {typeLabel.toLowerCase()} antes de associar referências.
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* Action Toggle */}
-            <div className="flex items-center gap-2 p-1 bg-[#F1F1EF] rounded-sm border border-[#E7E7E5]">
+            <div className="flex items-center gap-2 p-1 bg-[#F1F1EF] dark:bg-[#15171C] rounded-sm border border-[#E7E7E5] dark:border-[#2D3139]">
               <button
                 type="button"
                 onClick={() => setAction('add')}
                 className={`flex-1 py-1.5 px-3 rounded text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
                   action === 'add'
-                    ? 'bg-white text-[#171717] shadow-2xs font-semibold'
-                    : 'text-[#737373] hover:text-[#171717]'
+                    ? 'bg-white dark:bg-[#20232A] text-[#171717] dark:text-[#F3F4F6] shadow-2xs font-semibold'
+                    : 'text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6]'
                 }`}
               >
                 <Plus size={13} />
@@ -127,8 +127,8 @@ export const BulkAssociateModal: React.FC<BulkAssociateModalProps> = ({
                 onClick={() => setAction('remove')}
                 className={`flex-1 py-1.5 px-3 rounded text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
                   action === 'remove'
-                    ? 'bg-white text-[#171717] shadow-2xs font-semibold'
-                    : 'text-[#737373] hover:text-[#171717]'
+                    ? 'bg-white dark:bg-[#20232A] text-[#171717] dark:text-[#F3F4F6] shadow-2xs font-semibold'
+                    : 'text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6]'
                 }`}
               >
                 <Minus size={13} />
@@ -140,7 +140,7 @@ export const BulkAssociateModal: React.FC<BulkAssociateModalProps> = ({
             <div className="flex flex-col gap-1.5">
               <label
                 htmlFor="target-select"
-                className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#737373]"
+                className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#9CA3AF]"
               >
                 Selecione o {typeLabel} de destino:
               </label>
@@ -149,7 +149,7 @@ export const BulkAssociateModal: React.FC<BulkAssociateModalProps> = ({
                 ref={selectRef}
                 value={selectedItemId}
                 onChange={(e) => setSelectedItemId(e.target.value)}
-                className="w-full h-9 px-3 rounded-md border border-[#E7E7E5] bg-white text-xs text-[#171717] outline-none focus:border-[#4355DB] focus:ring-1 focus:ring-[#4355DB]"
+                className="w-full h-9 px-3 rounded-md border border-[#E7E7E5] dark:border-[#2D3139] bg-white dark:bg-[#20232A] text-xs text-[#171717] dark:text-[#F3F4F6] outline-none focus:border-[#4355DB] focus:ring-1 focus:ring-[#4355DB]"
               >
                 {availableItems.map((item) => (
                   <option key={item.id} value={item.id}>
@@ -159,7 +159,7 @@ export const BulkAssociateModal: React.FC<BulkAssociateModalProps> = ({
               </select>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E7E7E5]">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E7E7E5] dark:border-[#2D3139]">
               <Button
                 type="button"
                 variant="secondary"

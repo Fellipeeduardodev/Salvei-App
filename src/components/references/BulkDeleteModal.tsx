@@ -55,13 +55,13 @@ export const BulkDeleteModal: React.FC<BulkDeleteModalProps> = ({
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0F0F0F]/50 backdrop-blur-xs animate-in fade-in duration-150"
     >
       <div
-        className="w-full max-w-md bg-white border border-[#E7E7E5] rounded-sm p-6 shadow-2xl flex flex-col gap-4 relative animate-in zoom-in-95 duration-150"
+        className="w-full max-w-md bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm p-6 shadow-2xl flex flex-col gap-4 relative animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer"
+          className="absolute top-4 right-4 p-1.5 rounded text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer"
           aria-label="Fechar diálogo de confirmação"
         >
           <X size={16} />
@@ -74,17 +74,17 @@ export const BulkDeleteModal: React.FC<BulkDeleteModalProps> = ({
           <div className="flex-1">
             <h3
               id="bulk-delete-title"
-              className="font-sans font-bold text-base text-[#171717] leading-tight"
+              className="font-sans font-bold text-base text-[#171717] dark:text-[#F3F4F6] leading-tight"
             >
               Excluir {count} {count === 1 ? 'referência' : 'referências'}?
             </h3>
-            <p className="font-sans text-xs text-[#737373] mt-1.5 leading-relaxed">
+            <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF] mt-1.5 leading-relaxed">
               Esta ação excluirá permanentemente do Supabase as referências selecionadas, suas associações e anexos. Esta ação não poderá ser desfeita.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E7E7E5]">
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E7E7E5] dark:border-[#2D3139]">
           <Button
             type="button"
             variant="secondary"
