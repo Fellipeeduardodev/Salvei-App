@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-describe('CURATOR — CORREÇÃO CRÍTICA DO LAYOUT MOBILE (AUDITORIA ESTRUCTURAL)', () => {
+describe('SALVEI — CORREÇÃO CRÍTICA DO LAYOUT MOBILE (AUDITORIA ESTRUTURAL)', () => {
   describe('1. Cabeçalho Estrutural (Topbar)', () => {
     it('remove os botões largos de adicionar da visualização mobile (< md)', () => {
       // Regra estrutural do Topbar: botões largos "Adicionar imagem" e "Adicionar por URL"
@@ -23,7 +23,7 @@ describe('CURATOR — CORREÇÃO CRÍTICA DO LAYOUT MOBILE (AUDITORIA ESTRUCTURA
       expect(searchContainerClass).toContain('max-w-full');
     });
 
-    it('mantém o logotipo Curator e botão de atalhos acessíveis no mobile', () => {
+    it('mantém o logotipo Salvei e botão de atalhos acessíveis no mobile', () => {
       const brandClass = 'flex items-center gap-1.5 shrink-0';
       const shortcutsBtnClass = 'p-1.5 min-h-[34px] min-w-[34px] shrink-0';
       expect(brandClass).toContain('shrink-0');

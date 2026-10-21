@@ -1,4 +1,4 @@
-# Product: Curator
+# Product: Salvei
 
 <!-- impeccable:product-schema 1 -->
 
@@ -24,13 +24,12 @@ Decisão de implementação inicial formalizada para o protótipo:
 
 ## Product Purpose
 
-Curator é um workspace privado para salvar, organizar e redescobrir referências da web. Conecta capturas visuais em alta resolução (screenshots), URLs canônicas, anotações editoriais em Markdown, trechos de código executável e arquivos complementares a uma única entidade central de referência.
+Salvei é um workspace privado para salvar, organizar e redescobrir referências da web. Conecta capturas visuais em alta resolução (screenshots), URLs canônicas, anotações editoriais em Markdown, trechos de código executável e arquivos complementares a uma única entidade central de referência.
 
-O produto resolve a fragmentação caótica de links perdidos em favoritos do navegador, capturas de tela anônimas na pasta de downloads, canais de mensagens e notas dispersas. O Curator centraliza todo o repertório visual do criativo em uma biblioteca estruturada, rápida e visualmente reconhecível.
+O produto resolve a fragmentação caótica de links perdidos em favoritos do navegador, capturas de tela anônimas na pasta de downloads, canais de mensagens e notas dispersas. O Salvei centraliza todo o repertório visual do criativo em uma biblioteca estruturada, rápida e visualmente reconhecível.
 
 **Princípio Nuclear:**
-> *"Capture now. Organize later. Find it when needed."*  
-> (Capture no calor do momento. Organize quando for conveniente. Reencontre no instante exato da criação.)
+> *"Capture agora. Organize depois. Encontre quando precisar."*
 
 O produto é otimizado obsessivamente para três momentos fundamentais:
 1. **Capturar** uma referência com fricção zero (apenas colar a URL e salvar).
@@ -39,13 +38,13 @@ O produto é otimizado obsessivamente para três momentos fundamentais:
 
 ## Positioning
 
-Curator é uma ferramenta de ateliê digital de alto padrão. Posiciona-se na interseção entre:
+Salvei é uma ferramenta de ateliê digital de alto padrão. Posiciona-se na interseção entre:
 - A precisão milimétrica e a velocidade operacional do **Linear**;
 - A contenção visual, sobriedade e fluidez tátil do **Raycast**;
 - A mentalidade de descoberta visual pura e respeito ao objeto curado do **Are.na**;
 - A autoridade e elegância tipográfica de um arquivo editorial contemporâneo.
 
-**O que o Curator recusa categoricamente:**
+**O que o Salvei recusa categoricamente:**
 - Não é um agregador social nem possui feeds públicos de seguidores ou curtidas.
 - Não possui mecanismos de gamificação, métricas de vaidade, sequências de uso ou emblemas.
 - Não é um gerenciador de favoritos tradicional baseado em listas densas de links azuis e textos intermináveis.
@@ -54,11 +53,11 @@ Curator é uma ferramenta de ateliê digital de alto padrão. Posiciona-se na in
 
 ## Operating Context
 
-O Curator é operado prioritariamente em navegadores de computadores desktop e notebooks (telas amplas de design e desenvolvimento), oferecendo adaptação responsiva elegante para tablets e smartphones. 
+O Salvei é operado prioritariamente em navegadores de computadores desktop e notebooks (telas amplas de design e desenvolvimento), oferecendo adaptação responsiva elegante para tablets e smartphones. 
 
 É utilizado em duas situações de rotina:
 1. **Modo Coleta Passiva / Ativa:** O usuário está navegando pela web ou redes de design, encontra uma referência notável e precisa arquivá-la em menos de 3 segundos sem interromper seu raciocínio.
-2. **Modo Criação / Produção:** O usuário está no Figma ou no VS Code desenvolvendo um novo projeto e abre o Curator para resgatar referências de layouts específicos, padrões de formulários, paletas ou trechos de código arquivados semanas ou meses antes.
+2. **Modo Criação / Produção:** O usuário está no Figma ou no VS Code desenvolvendo um novo projeto e abre o Salvei para resgatar referências de layouts específicos, padrões de formulários, paletas ou trechos de código arquivados semanas ou meses antes.
 
 ## Capabilities and Constraints
 
@@ -80,7 +79,7 @@ O Curator é operado prioritariamente em navegadores de computadores desktop e n
 
 ## Brand Commitments
 
-- **Nome Oficial:** Curator.
+- **Nome Oficial:** Salvei.
 - **Categoria de Marca:** Workspace visual privado para referências web.
 - **Tom de Voz:** Seguro, técnico, focado, silencioso e editorial. Mensagens de interface concisas, livres de exclamações desnecessárias, jargões publicitários ou antropomorfizações ("assistente").
 - **Idioma Padrão da Interface:** Português do Brasil (`pt-BR`).
@@ -100,7 +99,7 @@ O Curator é operado prioritariamente em navegadores de computadores desktop e n
 3. **Recuperação Rápida por Busca sobre Taxonomia Rígida (Searchability over Complex Filing):** O usuário não deve ser obrigado a navegar por árvores complexas de pastas. A busca global em tempo real é onipresente, tolerante e instantânea.
 4. **Relacionamento Flexível sem Duplicação (Many-to-Many Associations):** Uma referência pode pertencer simultaneamente a múltiplos projetos (ex: *Projeto Fintech* e *Design System 2026*) e coleções (ex: *Minimalismo*, *Dark Mode*, *Tipografia Bold*) sem nunca clonar o registro de dados.
 5. **Unidade de Contexto Integrada (All-in-One Reference):** Screenshots, link de origem, anotações de design, trechos de código e especificações de assets coexistem no mesmo cartão/painel da referência.
-6. **Espaço Privado e Silencioso:** A ferramenta serve exclusivamente ao usuário. O foco deve repousar sobre as referências arquivadas, e não sobre elementos gráficos invasivos da própria interface do Curator.
+6. **Espaço Privado e Silencioso:** A ferramenta serve exclusivamente ao usuário. O foco deve repousar sobre as referências arquivadas, e não sobre elementos gráficos invasivos da própria interface do Salvei.
 
 ## Accessibility & Inclusion
 
@@ -114,7 +113,7 @@ O Curator é operado prioritariamente em navegadores de computadores desktop e n
 
 ## Core Data Concepts (Entidades e Relações)
 
-O modelo de dados do Curator é deliberadamente normalizado e relacional, garantindo que referências permaneçam instâncias únicas no armazenamento local:
+O modelo de dados do Salvei é deliberadamente normalizado e relacional, garantindo que referências permaneçam instâncias únicas no armazenamento local:
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -202,7 +201,7 @@ Metadados para anexos vinculados à referência (paletas de cores exportadas, PD
 
 ## MVP Scope (Escopo do Protótipo)
 
-O protótipo inicial do Curator implementa integralmente os seguintes 12 blocos de funcionalidade:
+O protótipo inicial do Salvei implementa integralmente os seguintes 12 blocos de funcionalidade:
 
 1. **Caixa de Entrada / Biblioteca Principal (Inbox):** Ponto de entrada padrão da aplicação com listagem de todas as referências salvas, organizadas ou não, ordenadas por padrão das mais recentes para as mais antigas.
 2. **Busca Global Integrada:** Campo de busca com filtragem reativa instantânea enquanto o usuário digita.
@@ -244,7 +243,7 @@ O ato de salvar uma referência precisa ser mais rápido do que criar um favorit
 
 ## Search Behavior (Comportamento de Busca e Filtragem)
 
-A busca é um dos pilares de maior valor utilitário do Curator:
+A busca é um dos pilares de maior valor utilitário do Salvei:
 
 - **Campos Indexados:** A busca analisa em tempo real os títulos das referências, domínios, URLs, etiquetas, conteúdo das anotações em Markdown, títulos de snippets de código e nomes de arquivos anexados.
 - **Filtragem Reativa (Live Filtering):** A listagem atualiza instantaneamente a cada caractere digitado, sem necessidade de pressionar Enter.
@@ -297,7 +296,7 @@ Para preservar o foco absoluto na experiência central de captura e redescoberta
 
 ## Success Criteria (Critérios Observáveis de Sucesso)
 
-O protótipo do Curator será considerado bem-sucedido e pronto para implementação quando atender rigorosamente aos seguintes critérios:
+O protótipo do Salvei será considerado bem-sucedido e pronto para implementação quando atender rigorosamente aos seguintes critérios:
 1. **Navegação Inicial:** O usuário acessa a Caixa de entrada e visualiza imediatamente a coleção de referências de demonstração com screenshots carregadas com elegância e proporções consistentes.
 2. **Busca e Filtro em Tempo Real:** O usuário pesquisa termos parciais ou combina etiquetas e visualiza a filtragem imediata do grid sem travamentos ou quebras de layout.
 3. **Captura sem Atrito:** O usuário consegue colar uma URL, salvar em um único clique e acompanhar o ciclo de vida visual da captura simulada (`pending` -> `ready`).

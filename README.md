@@ -1,8 +1,8 @@
 <div align="center">
 
-  <img src="public/favicon.svg" alt="Curator Logo" width="76" height="76" />
+  <img src="public/favicon.svg" alt="Salvei Logo" width="76" height="76" />
 
-  # CURATOR
+  # SALVEI
 
   **O workspace editorial de alta performance para curadoria visual, referências de design e interfaces digitais.**
 
@@ -31,7 +31,7 @@
   </p>
 
   <p align="center">
-    <a href="https://salvei.tech/"><b>🚀 Acessar o Curator Online</b></a> •
+    <a href="https://salvei.tech/"><b>🚀 Acessar o Salvei Online</b></a> •
     <a href="#-funcionalidades-chave"><b>✨ Funcionalidades</b></a> •
     <a href="#️-produtividade-teclado-first--atalhos"><b>⌨️ Atalhos</b></a> •
     <a href="#-arquitetura--tecnologias"><b>🏗️ Arquitetura</b></a> •
@@ -51,7 +51,7 @@ Designers de produto, desenvolvedores frontend e líderes criativos consomem cen
 - Pastas no Notion ou boards no Figma tornam-se pesados, dispersos e lentos.
 - Ferramentas de bookmarking comuns não foram feitas para o ritmo ágil de quem trabalha no teclado.
 
-O **Curator** foi construído do zero para resolver esse problema. Ele combina uma **estética editorial sofisticada** (paleta monocromática com tons `#171717`, base `#F8F8F6` e acento cobalto `#4355DB`), navegação **100% orientada a teclado (Command Palette `Cmd+K`)**, suporte a **área de transferência nativa (`Ctrl + V`)**, experiência **mobile ergonômica tipo app** e a robustez de um backend relacional seguro no **Supabase (PostgreSQL 15 com RLS estrito)**.
+O **Salvei** foi construído do zero para resolver esse problema. Ele combina uma **estética editorial sofisticada** (paleta monocromática com tons `#171717`, base `#F8F8F6` e acento cobalto `#4355DB`), navegação **100% orientada a teclado (Command Palette `Cmd+K`)**, suporte a **área de transferência nativa (`Ctrl + V`)**, experiência **mobile ergonômica tipo app** e a robustez de um backend relacional seguro no **Supabase (PostgreSQL 15 com RLS estrito)**.
 
 ---
 
@@ -94,7 +94,7 @@ O **Curator** foi construído do zero para resolver esse problema. Ele combina u
 
 ## ⌨️ Produtividade Teclado-First & Atalhos
 
-O Curator foi pensado para que você nunca precise tirar as mãos do teclado durante a curadoria:
+O Salvei foi pensado para que você nunca precise tirar as mãos do teclado durante a curadoria:
 
 | Tecla / Combinação | Ação Executada |
 | :--- | :--- |
@@ -181,7 +181,7 @@ VITE_SUPABASE_PUBLISHABLE_KEY=sua-chave-anon-aqui
 VITE_SUPABASE_STORAGE_BUCKET=curator-media
 ```
 
-> **Nota de Segurança:** O Curator foi arquitetado para funcionar apenas com a chave pública/anon no cliente. Nunca utilize ou versione a chave `service_role`.
+> **Nota de Segurança:** O Salvei foi arquitetado para funcionar apenas com a chave pública/anon no cliente. Nunca utilize ou versione a chave `service_role`.
 
 ### 3. Executar o Servidor de Desenvolvimento
 ```bash
@@ -205,7 +205,7 @@ Acesse a aplicação no navegador em [http://localhost:3000](http://localhost:30
 
 ## 🧪 Qualidade & Testes
 
-A estabilidade do Curator é garantida por uma bateria automatizada de testes no **Vitest**:
+A estabilidade do Salvei é garantida por uma bateria automatizada de testes no **Vitest**:
 
 ```text
 ✓ tests/auth.test.ts (24 tests)

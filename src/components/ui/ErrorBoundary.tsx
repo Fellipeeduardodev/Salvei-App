@@ -23,7 +23,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Curator UI ErrorBoundary capturou um erro não tratado:', error, errorInfo);
+    console.error('Salvei UI ErrorBoundary capturou um erro não tratado:', error, errorInfo);
   }
 
   private handleReset = () => {
@@ -53,7 +53,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <div className="flex flex-col gap-1.5">
               <span className="font-mono text-[10px] font-bold text-[#4355DB] uppercase tracking-wider">
-                CURATOR • ESTABILIDADE DO SISTEMA
+                SALVEI • ESTABILIDADE DO SISTEMA
               </span>
               <h1 className="font-sans font-bold text-lg text-[#171717]">
                 Ocorreu uma falha inesperada na visualização

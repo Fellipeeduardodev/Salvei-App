@@ -1,7 +1,7 @@
 {
-  "name": "Curator — Workspace de Referências",
-  "short_name": "Curator",
-  "description": "Workspace de curadoria visual e referências digitais em nuvem",
+  "name": "Salvei — Workspace de Referências",
+  "short_name": "Salvei",
+  "description": "Salvei — sua biblioteca visual para guardar, organizar e reencontrar referências de design.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait-primary",

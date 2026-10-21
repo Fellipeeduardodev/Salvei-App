@@ -1,6 +1,6 @@
-# GUIA DE PUBLICAÇÃO E DEPLOY — CURATOR
+# GUIA DE PUBLICAÇÃO E DEPLOY — SALVEI
 
-Este documento descreve o procedimento passo a passo para publicar o **Curator** na **Vercel** conectado ao **Supabase Cloud**.
+Este documento descreve o procedimento passo a passo para publicar o **Salvei** na **Vercel** conectado ao **Supabase Cloud**.
 
 ---
 
@@ -20,7 +20,7 @@ Esta é a abordagem mais segura e automatizada para ambientes de produção.
 ```bash
 git init
 git add .
-git commit -m "feat: release candidate - Curator Fase 8"
+git commit -m "feat: release candidate - Salvei Fase 8"
 git branch -M main
 git remote add origin https://github.com/<SEU_USUARIO>/<SEU_REPOSITORIO>.git
 git push -u origin main

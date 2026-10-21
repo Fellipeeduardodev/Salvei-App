@@ -1436,7 +1436,7 @@ export function App() {
       <div className="min-h-screen bg-[#0F0F10] text-white flex flex-col items-center justify-center p-6 gap-3 font-sans">
         <Loader2 size={32} className="animate-spin text-[#4355DB]" />
         <p className="text-xs text-[#A1A1AA] font-mono tracking-wider uppercase">
-          Verificando sessão do Curator...
+          Verificando sessão do Salvei...
         </p>
       </div>
     );
@@ -1452,7 +1452,7 @@ export function App() {
           </div>
           <h2 className="font-bold text-lg text-white">Configuração do Supabase Ausente</h2>
           <p className="text-xs text-[#A1A1AA] leading-relaxed">
-            O Curator opera exclusivamente conectado ao Supabase na nuvem. Defina as variáveis <code className="text-amber-300 bg-amber-950/40 px-1 py-0.5 rounded">VITE_SUPABASE_URL</code> e <code className="text-amber-300 bg-amber-950/40 px-1 py-0.5 rounded">VITE_SUPABASE_PUBLISHABLE_KEY</code> no arquivo <code className="text-white">.env.local</code> para inicializar a aplicação.
+            O Salvei opera exclusivamente conectado ao Supabase na nuvem. Defina as variáveis <code className="text-amber-300 bg-amber-950/40 px-1 py-0.5 rounded">VITE_SUPABASE_URL</code> e <code className="text-amber-300 bg-amber-950/40 px-1 py-0.5 rounded">VITE_SUPABASE_PUBLISHABLE_KEY</code> no arquivo <code className="text-white">.env.local</code> para inicializar a aplicação.
           </p>
         </div>
       </div>
@@ -1588,7 +1588,7 @@ export function App() {
           <div className="flex items-center gap-2">
             <WifiOff size={15} className="text-amber-600 flex-shrink-0" />
             <span className="font-medium">
-              Sem conexão com a internet. O Curator reconectará e sincronizará com o banco assim que a rede for restabelecida.
+              Sem conexão com a internet. O Salvei reconectará e sincronizará com o banco assim que a rede for restabelecida.
             </span>
           </div>
           <button
@@ -1777,7 +1777,7 @@ export function App() {
               Configurações
             </h1>
             <p className="font-sans text-xs md:text-sm text-[#737373]">
-              Gestão de persistência em nuvem, segurança e preferências do Curator.
+              Gestão de persistência em nuvem, segurança e preferências do Salvei.
             </p>
           </div>
 

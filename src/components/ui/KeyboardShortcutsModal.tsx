@@ -112,7 +112,7 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
           id="shortcuts-modal-title"
           className="font-sans font-bold text-lg text-[#171717] -mt-1 leading-snug"
         >
-          Atalhos de Teclado do Curator
+          Atalhos de Teclado do Salvei
         </h3>
 
         <p className="font-sans text-xs text-[#737373] leading-relaxed">

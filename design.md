@@ -1,5 +1,5 @@
 ---
-name: Curator
+name: Salvei
 description: Sistema de design de alta precisão e ateliê editorial para o workspace privado de gestão de referências visuais da web.
 colors:
   background: "#F8F8F6"
@@ -82,20 +82,20 @@ components:
     rounded: "{rounded.sm}"
 ---
 
-# Design System: Curator
+# Design System: Salvei
 
 ## 1. Visão Geral & Direção Visual
 
 **Creative North Star: "A Precisão do Ateliê Digital"**
 
-O Curator é um workspace visual privado construído com a convicção de que referências criativas merecem respeito arquitetônico e clareza absoluta. A identidade visual nasce da síntese rigorosa de quatro referências contemporâneas de excelência:
+O Salvei é um workspace visual privado construído com a convicção de que referências criativas merecem respeito arquitetônico e clareza absoluta. A identidade visual nasce da síntese rigorosa de quatro referências contemporâneas de excelência:
 
 - **A precisão e a disciplina operacional do Linear:** Densidade de informação calibrada, atalhos de teclado ágeis, alinhamentos matemáticos e ausência de supérfluos.
 - **A contenção, sobriedade e refinamento do Raycast:** Superfícies neutras de apoio, tipografia de suporte monoespacada legível e foco na tarefa sem distrações cromáticas.
 - **A primazia do objeto visual do Are.na:** A captura de tela (screenshot) é a peça central da composição; a interface recua para que o trabalho curado seja a estrela absoluta da página.
 - **A autoridade e o rigor editorial do portfólio de Fellipe Eduardo:** Tensão controlada entre escalas tipográficas, entrelinhas compactas nos títulos display (*The Tight Display Rule*), micro-legendas técnicas monospaçadas (*The Mono Micro-Anchor Rule*) e contraste formal deliberado (*The Dual Form Rule*).
 
-### O que o Design do Curator Recusa Categoricamente (Anti-Patterns)
+### O que o Design do Salvei Recusa Categoricamente (Anti-Patterns)
 - **Sem painéis de controle administrativos genéricos:** Nada de cards multicoloridos de KPI, gráficos de rosca sem valor ou widgets inflados.
 - **Sem estética de landing page promocional:** Sem ilustrações 3D de plástico, avatares flutuantes ou textos com gradientes chamativos.
 - **Sem cards hiper-arredondados com sombras pesadas:** Bordas com raios desproporcionais (`rounded-3xl`) e sombras difusas artificiais degradam a atmosfera profissional de ferramenta de trabalho.
@@ -106,7 +106,7 @@ O Curator é um workspace visual privado construído com a convicção de que re
 
 ## 2. Tokens de Cor & Regras Cromáticas
 
-O sistema de cores do Curator é tonal, calmo e de alto contraste funcional. As variáveis CSS operam como fonte única da verdade (*single source of truth*) e são consumidas pelos utilitários do Tailwind CSS v4.
+O sistema de cores do Salvei é tonal, calmo e de alto contraste funcional. As variáveis CSS operam como fonte única da verdade (*single source of truth*) e são consumidas pelos utilitários do Tailwind CSS v4.
 
 ### Tabela de Tokens Principais (Light Theme de Base)
 
@@ -148,7 +148,7 @@ O sistema tipográfico equilibra a neutralidade refinada da fonte sem serifa con
    - Utilizada para todo o corpo de texto, títulos de cartões, formulários e elementos de controle.
 2. **Monospace / Coordenadas Técnicas:** `JetBrains Mono` (com fallback para `SFMono-Regular`, `ui-monospace`, `monospace`).
    - Utilizada para contadores, metadados de domínio, datas, tags de status e blocos de código.
-3. **Display Opcional:** `Outfit` (utilizada pontualmente para títulos monumentais de abertura em coleções e na marca Curator).
+3. **Display Opcional:** `Outfit` (utilizada pontualmente para títulos monumentais de abertura em coleções e na marca Salvei).
 
 ### Escala Tipográfica (Typographic Hierarchy)
 
@@ -173,7 +173,7 @@ O sistema tipográfico equilibra a neutralidade refinada da fonte sem serifa con
 ## 4. Espaçamento, Grid & Geometria
 
 ### Sistema de Espaçamento Base 8
-O ritmo espacial do Curator baseia-se em múltiplos de **8px**, permitindo passos finos de **4px** para alinhamentos ópticos de ícones e inputs:
+O ritmo espacial do Salvei baseia-se em múltiplos de **8px**, permitindo passos finos de **4px** para alinhamentos ópticos de ícones e inputs:
 
 - `4px` (`spacing-xs`): Espaçamento interno de micro-chips, separação entre ícones e textos curtos.
 - `8px` (`spacing-sm`): Espaçamento entre campos adjacentes, padding de botões compactos.
@@ -202,7 +202,7 @@ A grade da Caixa de entrada adapta-se ao espaço disponível:
 ## 5. Formas, Elevação & Sombras
 
 ### The Dual Form Rule (A Regra da Forma Dupla)
-Seguindo o rigor da sua marca, o Curator equilibra exclusivamente **duas famílias geométricas**:
+Seguindo o rigor da sua marca, o Salvei equilibra exclusivamente **duas famílias geométricas**:
 
 1. **Forma Arquitetônica / Contida (`rounded-sm: 4px` ou `rounded-none: 0px`):**
    - Aplicada a cartões de referência, molduras de screenshot, painéis laterais, diálogos e divisores estruturais.
@@ -213,7 +213,7 @@ Seguindo o rigor da sua marca, o Curator equilibra exclusivamente **duas famíli
    - **Proibição Absoluta:** Jamais utilize cantos excessivamente arredondados (`rounded-2xl` ou `rounded-3xl` / 16px–24px) em cartões de referência ou containers de mídia.
 
 ### Vocabulário de Elevação & Profundidade
-O Curator adota **Profundidade por Borda e Tonalidade** como padrão. Sombras só surgem quando uma camada flutua ativamente sobre outra:
+O Salvei adota **Profundidade por Borda e Tonalidade** como padrão. Sombras só surgem quando uma camada flutua ativamente sobre outra:
 
 - **Borda de Contorno Padrão:** `1px solid var(--border-subtle)` em todos os cartões, inputs e painéis em repouso.
 - **Sombra de Painel Flutuante (Side Panel Shadow):** `-10px 0 30px rgba(0, 0, 0, 0.04)` para delimitar o painel sobre a biblioteca.
@@ -282,7 +282,7 @@ O cartão é o elemento mais importante da experiência. O screenshot lidera a n
 
 ## 7. Motion & Transições
 
-A cinemática do Curator segue a premissa de que a animação serve para orientar o foco e confirmar interações, nunca para atrasar o usuário:
+A cinemática do Salvei segue a premissa de que a animação serve para orientar o foco e confirmar interações, nunca para atrasar o usuário:
 
 - **Duração das Transições:** Rápidas e ágeis, entre `150ms` e `250ms`.
 - **Função de Temporização:** `cubic-bezier(0.16, 1, 0.3, 1)` (curva de amortecimento suave e responsivo de alta precisão).
@@ -326,14 +326,14 @@ A cinemática do Curator segue a premissa de que a animação serve para orienta
 
 - **Centralização de Tokens:** Nunca utilize valores de cores ou espaçamentos arbitrários (`bg-[#232323]` ou `p-[17px]`) espalhados pelo código; consuma os tokens padronizados definidos no `@theme` do Tailwind CSS v4.
 - **Composição sobre Monólitos:** Prefira criar componentes pequenos, especializados e composíveis em vez de componentes gigantescos repletos de dezenas de propriedades booleanas.
-- **Manutenção de Consistência:** Não instale bibliotecas conflitantes de componentes visuais; utilize os primitivos do Radix UI estilizados rigorosamente com as classes do Curator.
+- **Manutenção de Consistência:** Não instale bibliotecas conflitantes de componentes visuais; utilize os primitivos do Radix UI estilizados rigorosamente com as classes do Salvei.
 - **Integridade da Marca:** Preserve o equilíbrio entre autoridade monocromática e a vibração pura dos screenshots capturados.
 
 ---
 
 ## 11. Direção Técnica Formalizada & Arquitetura Frontend
 
-Conforme estabelecido para a inicialização do projeto Curator, a stack tecnológica e a arquitetura inicial estão formalizadas abaixo:
+Conforme estabelecido para a inicialização do projeto Salvei, a stack tecnológica e a arquitetura inicial estão formalizadas abaixo:
 
 ### Stack Tecnológica Decidida
 - **Core:** React 19 + TypeScript 5.8 + Vite 6.

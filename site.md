@@ -1,17 +1,17 @@
-# Arquitetura de Informação e Navegação: Curator
+# Arquitetura de Informação e Navegação: Salvei
 
 <!-- impeccable:site-schema 1 -->
 
 ## Visão Geral da Estrutura da Aplicação
 
-O Curator foi concebido como uma aplicação web privada do tipo workspace, focada em produtividade visual para designers e engenheiros frontend. Não se comporta como uma página de marketing ou portal de conteúdo estático, mas sim como um ateliê de alta precisão.
+O Salvei foi concebido como uma aplicação web privada do tipo workspace, focada em produtividade visual para designers e engenheiros frontend. Não se comporta como uma página de marketing ou portal de conteúdo estático, mas sim como um ateliê de alta precisão.
 
 ### Layout Mestre (Application Shell)
 A interface é composta por cinco regiões arquiteturais primárias:
 
 1. **Barra Lateral Esquerda Persistente (Sidebar):**
    - Largura fixa de 240px no desktop (com capacidade de recolhimento para modo compacto de 64px ou gaveta em telas estreitas).
-   - Identidade visual sóbria do Curator no topo.
+   - Identidade visual sóbria do Salvei no topo.
    - Navegação primária por destinos de primeiro nível.
    - Acesso rápido a Projetos e Coleções fixadas.
    - Ponto de entrada para Configurações na base.
@@ -51,7 +51,7 @@ A navegação da barra lateral estrutura o produto em torno de cinco destinos es
 
 ## Telas Obrigatórias do Protótipo
 
-Abaixo estão detalhadas as nove telas e superfícies que formam a experiência do Curator:
+Abaixo estão detalhadas as nove telas e superfícies que formam a experiência do Salvei:
 
 ### 1. Caixa de Entrada / Biblioteca Geral (`/inbox`)
 - **Propósito:** Ponto central de recepção e consulta do acervo. Onde o criativo navega para redescobrir materiais recentes e revisar itens recém-capturados.
@@ -184,7 +184,7 @@ Abaixo estão detalhadas as nove telas e superfícies que formam a experiência 
       - Botão *"Limpar todas as referências"* (ação protegida com diálogo de confirmação dupla).
     - **Preferências de Interface:**
       - Alternância de tema visual (Claro, Escuro ou Seguir Sistema).
-      - Informações de versão e arquitetura do Curator.
+      - Informações de versão e arquitetura do Salvei.
 
 ---
 

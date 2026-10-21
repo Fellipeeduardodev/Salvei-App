@@ -107,7 +107,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
             <div className="hidden lg:flex items-baseline gap-1.5">
               <span className="font-display font-bold text-base tracking-tight text-[#171717]">
-                Curator
+                Salvei
               </span>
               <span className="font-mono text-[10px] font-semibold text-[#A8A8A6] tracking-wider uppercase">
                 v0.3

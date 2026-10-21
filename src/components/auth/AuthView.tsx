@@ -90,7 +90,7 @@ export const AuthView: React.FC = () => {
           setErrorMessage(error);
         } else {
           setSuccessMessage(
-            'Conta criada com sucesso! Você está autenticado no Curator.'
+            'Conta criada com sucesso! Você está autenticado no Salvei.'
           );
         }
       } else if (mode === 'forgot_password') {
@@ -122,7 +122,7 @@ export const AuthView: React.FC = () => {
           </div>
           <div className="flex flex-col gap-1">
             <h1 className="font-display font-bold text-2xl tracking-tight text-[#F5F5F7]">
-              Curator
+              Salvei
             </h1>
             <p className="font-sans text-xs text-[#8E8E93]">
               Biblioteca visual online com persistência em nuvem

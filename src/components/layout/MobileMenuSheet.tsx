@@ -109,7 +109,7 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
               <Compass size={14} strokeWidth={2.2} />
             </div>
             <h2 id="mobile-menu-title" className="font-display font-bold text-sm tracking-tight text-[#171717]">
-              Curator <span className="font-mono text-[10px] text-[#A8A8A6] font-normal uppercase">Menu</span>
+              Salvei <span className="font-mono text-[10px] text-[#A8A8A6] font-normal uppercase">Menu</span>
             </h2>
           </div>
 

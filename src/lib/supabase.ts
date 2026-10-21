@@ -19,7 +19,7 @@ export const isSupabaseConfigured = (): boolean => {
 
 if (!isSupabaseConfigured()) {
   console.warn(
-    '[Curator] Supabase não configurado ou variáveis de ambiente ausentes. A aplicação requer conexão ativa com o backend na nuvem.'
+    '[Salvei] Supabase não configurado ou variáveis de ambiente ausentes. A aplicação requer conexão ativa com o backend na nuvem.'
   );
 }
 

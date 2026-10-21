@@ -61,7 +61,7 @@ export const Topbar: React.FC<TopbarProps> = ({
             <Compass size={15} strokeWidth={2.2} />
           </div>
           <span className="font-display font-bold text-sm tracking-tight text-[#171717]">
-            Curator
+            Salvei
           </span>
         </div>
 

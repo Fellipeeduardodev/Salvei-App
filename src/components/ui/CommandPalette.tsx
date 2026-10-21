@@ -364,7 +364,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             <span>↑↓ para navegar</span>
             <span>↵ para executar</span>
           </div>
-          <span>Curator Productivity</span>
+          <span>Salvei Productivity</span>
         </div>
       </div>
     </div>
