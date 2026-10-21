@@ -47,7 +47,7 @@ Na seção **Environment Variables**, adicione as seguintes variáveis:
 > **Importante:** Marque essas variáveis para os ambientes **Production**, **Preview** e **Development**.
 
 ### Passo 4: Concluir o Deploy
-Clique em **"Deploy"**. A Vercel executará a compilação do TypeScript e do Vite em ~30 segundos e fornecerá a URL pública oficial (ex: `https://curator-<seu-time>.vercel.app`).
+Clique em **"Deploy"**. A Vercel executará a compilação do TypeScript e do Vite em ~30 segundos e fornecerá a URL pública oficial (ex: `https://salvei-<seu-time>.vercel.app` ou seu domínio próprio como `https://salvei.tech`).
 
 ---
 
@@ -66,7 +66,7 @@ npx vercel login
 ```bash
 npx vercel link
 ```
-*Responda às perguntas interativas confirmando o escopo da sua conta e o nome do projeto (`curator`).*
+*Responda às perguntas interativas confirmando o escopo da sua conta e o nome do projeto (`salvei`).*
 
 ### Passo 3: Adicionar as Variáveis de Ambiente via CLI
 ```bash
@@ -92,11 +92,12 @@ Para que a autenticação (login, cadastro, confirmações e redefinição de se
 2. Selecione o seu projeto e navegue até **Authentication > URL Configuration**.
 3. No campo **Site URL**, informe a URL da sua aplicação publicada:
    ```
-   https://curator-<seu-time>.vercel.app
+   https://salvei.tech
    ```
 4. Em **Redirect URLs**, adicione:
    ```
-   https://curator-<seu-time>.vercel.app/**
+   https://salvei.tech/**
+   https://www.salvei.tech/**
    http://localhost:3000/**
    ```
 5. Clique em **Save**.
