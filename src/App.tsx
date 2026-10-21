@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useTheme } from './contexts/ThemeContext';
 import { AppShell } from './components/layout/AppShell';
 import { InboxView } from './features/library/InboxView';
 import { ProjectsListView } from './features/projects/ProjectsListView';
@@ -67,6 +68,7 @@ const DOMAIN_SCREENSHOTS: Record<string, string> = {
 
 export function App() {
   const { user, loading: authLoading, isConfigured, signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
   const isOnline = useOnlineStatus();
 
   // 1. Domain Entities State (Loaded exclusively from Supabase, transient in-memory)
@@ -74,17 +76,21 @@ export function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
 
-  // 2. User Profile & Onboarding State (Fase 9)
+  // 2. User Profile & Onboarding State (Fase 9 & 10)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
-  const [hasPromptedOnboarding, setHasPromptedOnboarding] = useState(false);
 
-  // 3. Cloud Loading and Communication States
-  const [isCloudLoading, setIsCloudLoading] = useState(false);
+  // 3. User Cloud & Session Loading State (Fase 10: Separated for Fluid Navigation)
+  const [hasInitialLoadCompleted, setHasInitialLoadCompleted] = useState(false);
+  const [isInitialSessionLoading, setIsInitialSessionLoading] = useState(true);
+  const [isBackgroundSyncing, setIsBackgroundSyncing] = useState(false);
   const [cloudError, setCloudError] = useState<string | null>(null);
   const [isMigratingLegacy, setIsMigratingLegacy] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const lastLoadedUserIdRef = useRef<string | null>(null);
+  const hasPromptedOnboardingRef = useRef(false);
 
   const showToast = useCallback((msg: string) => {
     setToastMessage(msg);
@@ -93,39 +99,67 @@ export function App() {
     }, 3500);
   }, []);
 
-  // 4. Load user data and profile strictly from Supabase
-  const loadUserCloudData = useCallback(async () => {
-    if (!user) return;
-    setIsCloudLoading(true);
-    setCloudError(null);
-    try {
-      const [cloudData, profileData] = await Promise.all([
-        supabaseService.fetchUserData(user.id),
-        supabaseService.fetchUserProfile(user.id),
-      ]);
-      setReferences(cloudData.references);
-      setProjects(cloudData.projects);
-      setCollections(cloudData.collections);
-      setUserProfile(profileData);
+  // 4. Load user data strictly from Supabase with background sync separation
+  const loadUserCloudData = useCallback(
+    async (options?: { background?: boolean }) => {
+      if (!user) return;
+      const isBackground = options?.background || hasInitialLoadCompleted;
 
-      // Auto-launch Onboarding Tutorial on first login if not completed
-      if (profileData && !profileData.onboarding_completed && !hasPromptedOnboarding) {
-        setIsOnboardingModalOpen(true);
-        setHasPromptedOnboarding(true);
+      if (!isBackground) {
+        setIsInitialSessionLoading(true);
+      } else {
+        setIsBackgroundSyncing(true);
       }
-    } catch (err: any) {
-      console.error('Falha ao carregar dados do Salvei:', err);
-      setCloudError(
-        'Não foi possível conectar ao seu acervo em nuvem. Verifique sua conexão com a internet.'
-      );
-    } finally {
-      setIsCloudLoading(false);
-    }
-  }, [user, hasPromptedOnboarding]);
+      setCloudError(null);
+
+      try {
+        const [cloudData, profileData] = await Promise.all([
+          supabaseService.fetchUserData(user.id),
+          supabaseService.fetchUserProfile(user.id),
+        ]);
+        setReferences(cloudData.references);
+        setProjects(cloudData.projects);
+        setCollections(cloudData.collections);
+        setUserProfile(profileData);
+        setHasInitialLoadCompleted(true);
+        lastLoadedUserIdRef.current = user.id;
+
+        // Sync theme preference from profile if available
+        if (profileData?.preferences?.theme) {
+          setTheme(profileData.preferences.theme);
+        }
+
+        // Auto-launch Onboarding Tutorial on first login if not completed
+        if (
+          profileData &&
+          !profileData.onboarding_completed &&
+          !hasPromptedOnboardingRef.current
+        ) {
+          hasPromptedOnboardingRef.current = true;
+          setIsOnboardingModalOpen(true);
+        }
+      } catch (err: any) {
+        console.error('Falha ao carregar dados do Salvei:', err);
+        if (!hasInitialLoadCompleted) {
+          setCloudError(
+            'Não foi possível conectar ao seu acervo em nuvem. Verifique sua conexão com a internet.'
+          );
+        } else {
+          showToast('Não foi possível sincronizar suas alterações com a nuvem.');
+        }
+      } finally {
+        setIsInitialSessionLoading(false);
+        setIsBackgroundSyncing(false);
+      }
+    },
+    [user, hasInitialLoadCompleted, setTheme, showToast]
+  );
 
   useEffect(() => {
     if (user) {
-      loadUserCloudData();
+      if (lastLoadedUserIdRef.current !== user.id) {
+        loadUserCloudData({ background: false });
+      }
     } else {
       // Clear private state upon logout
       setReferences([]);
@@ -138,7 +172,11 @@ export function App() {
       setActiveCollectionId(null);
       setActiveTag(null);
       setSelectedBatchIds([]);
-      setHasPromptedOnboarding(false);
+      setHasInitialLoadCompleted(false);
+      setIsInitialSessionLoading(true);
+      setIsBackgroundSyncing(false);
+      lastLoadedUserIdRef.current = null;
+      hasPromptedOnboardingRef.current = false;
     }
   }, [user, loadUserCloudData]);
 
@@ -755,6 +793,11 @@ export function App() {
     setActiveCollectionId(null);
     setActiveTag(null);
     setSelectedBatchIds([]);
+    setHasInitialLoadCompleted(false);
+    setIsInitialSessionLoading(true);
+    setIsBackgroundSyncing(false);
+    lastLoadedUserIdRef.current = null;
+    hasPromptedOnboardingRef.current = false;
     setIsProfileModalOpen(false);
     setIsOnboardingModalOpen(false);
     // 2. Perform secure auth sign out
@@ -1481,7 +1524,7 @@ export function App() {
       // Clear legacy storage key to avoid confusion
       localStorage.removeItem('curator_references_v2');
       localStorage.removeItem('curator_references_v1');
-      await loadUserCloudData();
+      await loadUserCloudData({ background: false });
     } catch (err: any) {
       console.error('Erro ao importar dados legados:', err);
       showToast(`Erro ao importar: ${err.message || 'Falha na migração'}`);
@@ -1539,23 +1582,23 @@ export function App() {
     return <AuthView />;
   }
 
-  // Gate 4: Cloud error screen with Retry action (Requirement 5: No silent fallback to local)
-  if (cloudError) {
+  // Gate 4: Cloud error screen with Retry action (Requirement 5: Shown ONLY if initial fetch failed completely)
+  if (cloudError && !hasInitialLoadCompleted) {
     return (
-      <div className="min-h-screen bg-[#F8F8F6] text-[#171717] flex flex-col items-center justify-center p-6 font-sans">
-        <div className="max-w-md w-full bg-white border border-[#E7E7E5] rounded-xl p-8 flex flex-col items-center text-center gap-4 shadow-xl">
-          <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8F8F6] dark:bg-[#111214] text-[#171717] dark:text-[#F3F4F6] flex flex-col items-center justify-center p-6 font-sans">
+        <div className="max-w-md w-full bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-xl p-8 flex flex-col items-center text-center gap-4 shadow-xl">
+          <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center">
             <AlertCircle size={24} />
           </div>
-          <h2 className="font-bold text-lg text-[#171717]">Não foi possível conectar ao seu acervo</h2>
-          <p className="text-xs text-[#737373] leading-relaxed">
+          <h2 className="font-bold text-lg text-[#171717] dark:text-[#F3F4F6]">Não foi possível conectar ao seu acervo</h2>
+          <p className="text-xs text-[#737373] dark:text-[#9CA3AF] leading-relaxed">
             {cloudError}
           </p>
           <div className="flex gap-3 pt-2">
             <Button
               variant="primary"
               size="sm"
-              onClick={loadUserCloudData}
+              onClick={() => loadUserCloudData({ background: false })}
               iconLeft={<RotateCcw size={14} />}
             >
               Tentar novamente
@@ -1574,12 +1617,12 @@ export function App() {
     );
   }
 
-  // Gate 5: Initial cloud fetch in progress
-  if (isCloudLoading && references.length === 0 && projects.length === 0 && collections.length === 0) {
+  // Gate 5: Initial cloud fetch in progress (ONLY shown before initial data has ever loaded for this session)
+  if (isInitialSessionLoading && !hasInitialLoadCompleted) {
     return (
-      <div className="min-h-screen bg-[#F8F8F6] text-[#171717] flex flex-col items-center justify-center p-6 gap-3 font-sans">
+      <div className="min-h-screen bg-[#F8F8F6] dark:bg-[#111214] text-[#171717] dark:text-[#F3F4F6] flex flex-col items-center justify-center p-6 gap-3 font-sans transition-colors">
         <Loader2 size={32} className="animate-spin text-[#4355DB]" />
-        <p className="text-xs text-[#737373] font-mono tracking-wider uppercase">
+        <p className="text-xs text-[#737373] dark:text-[#9CA3AF] font-mono tracking-wider uppercase">
           Carregando suas referências...
         </p>
       </div>
@@ -1674,7 +1717,7 @@ export function App() {
           </div>
           <button
             type="button"
-            onClick={loadUserCloudData}
+            onClick={() => loadUserCloudData({ background: false })}
             className="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 rounded text-[11px] font-semibold text-amber-950 transition-colors cursor-pointer flex-shrink-0"
           >
             Tentar reconectar
@@ -1858,8 +1901,8 @@ export function App() {
           onOpenProfileModal={() => setIsProfileModalOpen(true)}
           onOpenTutorial={() => setIsOnboardingModalOpen(true)}
           onOpenShortcuts={() => setIsKeyboardShortcutsModalOpen(true)}
-          onReloadCloudData={loadUserCloudData}
-          isCloudLoading={isCloudLoading}
+          onReloadCloudData={() => loadUserCloudData({ background: true })}
+          isCloudLoading={isBackgroundSyncing}
           onSignOut={handleSafeLogout}
           showToast={showToast}
           onPreferencesUpdated={(newPrefs) => {

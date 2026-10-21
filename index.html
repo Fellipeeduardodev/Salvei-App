@@ -6,6 +6,21 @@
     <title>Salvei — Workspace de Referências Web</title>
     <meta name="description" content="Salvei — sua biblioteca visual para guardar, organizar e reencontrar referências de design." />
     <meta name="theme-color" content="#171717" />
+    <script>
+      (function() {
+        try {
+          var t = localStorage.getItem('salvei_theme');
+          var isDark = t === 'dark' || (t !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.style.colorScheme = 'dark';
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.style.colorScheme = 'light';
+          }
+        } catch (e) {}
+      })();
+    </script>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Salvei" />

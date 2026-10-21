@@ -82,10 +82,10 @@ export const InboxView: React.FC<InboxViewProps> = ({
     <div className="flex flex-col gap-3.5 sm:gap-6 w-full min-w-0 max-w-full box-border">
       {/* Editorial Header */}
       <div className="flex flex-col gap-1 min-w-0">
-        <h1 className="font-sans font-bold text-xl sm:text-2xl md:text-3xl text-[#171717] tracking-tight">
+        <h1 className="font-sans font-bold text-xl sm:text-2xl md:text-3xl text-[#171717] dark:text-[#F3F4F6] tracking-tight">
           Caixa de entrada
         </h1>
-        <p className="font-sans text-xs sm:text-sm text-[#737373] max-w-xl leading-relaxed">
+        <p className="font-sans text-xs sm:text-sm text-[#737373] dark:text-[#9CA3AF] max-w-xl leading-relaxed">
           Todas as suas referências visuais e URLs reunidas com busca global, seleção em lote e ações rápidas.
         </p>
       </div>

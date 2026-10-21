@@ -64,10 +64,10 @@ export const ProjectsListView: React.FC<ProjectsListViewProps> = ({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-sans font-bold text-2xl md:text-3xl text-[#171717] tracking-tight">
+          <h1 className="font-sans font-bold text-2xl md:text-3xl text-[#171717] dark:text-[#F3F4F6] tracking-tight">
             Projetos
           </h1>
-          <p className="font-sans text-xs md:text-sm text-[#737373] mt-0.5">
+          <p className="font-sans text-xs md:text-sm text-[#737373] dark:text-[#9CA3AF] mt-0.5">
             Organize referências direcionadas a produtos, sprints e entregáveis de clientes.
           </p>
         </div>
@@ -87,16 +87,16 @@ export const ProjectsListView: React.FC<ProjectsListViewProps> = ({
       {isCreating && (
         <form
           onSubmit={handleSaveCreate}
-          className="p-5 bg-white border border-[#4355DB] rounded-sm flex flex-col gap-3 shadow-xs animate-in fade-in duration-100"
+          className="p-5 bg-white dark:bg-[#191B20] border border-[#4355DB] dark:border-[#6375F1] rounded-sm flex flex-col gap-3 shadow-xs animate-in fade-in duration-100"
         >
           <div className="flex items-center justify-between">
-            <span className="font-sans font-bold text-sm text-[#171717]">
+            <span className="font-sans font-bold text-sm text-[#171717] dark:text-[#F3F4F6]">
               Criar Novo Projeto
             </span>
             <button
               type="button"
               onClick={() => setIsCreating(false)}
-              className="text-xs text-[#737373] hover:text-[#171717] cursor-pointer"
+              className="text-xs text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] cursor-pointer"
             >
               Cancelar
             </button>
@@ -109,7 +109,7 @@ export const ProjectsListView: React.FC<ProjectsListViewProps> = ({
             placeholder="Nome do projeto (ex: Redesign App Mobile, Dashboard 2026)"
             autoFocus
             required
-            className="w-full text-sm font-semibold text-[#171717] px-3 py-2 rounded bg-[#F8F8F6] border border-[#E7E7E5] focus:bg-white focus:border-[#4355DB] outline-none"
+            className="w-full text-sm font-semibold text-[#171717] dark:text-[#F3F4F6] px-3 py-2 rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] focus:bg-white dark:focus:bg-[#15171C] focus:border-[#4355DB] outline-none"
           />
 
           <textarea
@@ -117,7 +117,7 @@ export const ProjectsListView: React.FC<ProjectsListViewProps> = ({
             onChange={(e) => setNewDescription(e.target.value)}
             placeholder="Descrição ou contexto opcional..."
             rows={2}
-            className="w-full text-xs text-[#171717] p-3 rounded bg-[#F8F8F6] border border-[#E7E7E5] focus:bg-white focus:border-[#4355DB] outline-none resize-none"
+            className="w-full text-xs text-[#171717] dark:text-[#F3F4F6] p-3 rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] focus:bg-white dark:focus:bg-[#15171C] focus:border-[#4355DB] outline-none resize-none"
           />
 
           <div className="flex justify-end gap-2 pt-1">
@@ -138,11 +138,11 @@ export const ProjectsListView: React.FC<ProjectsListViewProps> = ({
 
       {/* Projects Grid */}
       {projects.length === 0 ? (
-        <div className="py-20 bg-white border border-[#E7E7E5] rounded-sm p-8 text-center flex flex-col items-center justify-center">
-          <div className="w-12 h-12 rounded-full bg-[#F1F1EF] text-[#737373] flex items-center justify-center mb-3">
+        <div className="py-20 bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm p-8 text-center flex flex-col items-center justify-center">
+          <div className="w-12 h-12 rounded-full bg-[#F1F1EF] dark:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF] flex items-center justify-center mb-3">
             <Briefcase size={22} strokeWidth={1.8} />
           </div>
-          <h3 className="font-sans font-semibold text-base text-[#171717] mb-1">
+          <h3 className="font-sans font-semibold text-base text-[#171717] dark:text-[#F3F4F6] mb-1">
             Nenhum projeto criado ainda
           </h3>
           <p className="font-sans text-xs text-[#737373] max-w-sm mb-4">
@@ -165,7 +165,7 @@ export const ProjectsListView: React.FC<ProjectsListViewProps> = ({
               <div
                 key={project.id}
                 onClick={() => onSelectProject(project.id)}
-                className="group relative bg-white border border-[#E7E7E5] hover:border-[#D4D4D0] rounded-sm p-5 cursor-pointer transition-all duration-150 flex flex-col justify-between h-48 select-none outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+                className="group relative bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] hover:border-[#D4D4D0] dark:hover:border-[#3E434D] rounded-sm p-5 cursor-pointer transition-all duration-150 flex flex-col justify-between h-48 select-none outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
                 tabIndex={0}
                 role="button"
                 onKeyDown={(e) => {
@@ -177,9 +177,9 @@ export const ProjectsListView: React.FC<ProjectsListViewProps> = ({
               >
                 <div>
                   {/* Top row */}
-                  <div className="flex items-center justify-between text-[#737373] mb-2">
-                    <div className="flex items-center gap-1.5 font-mono text-[10px] text-[#A8A8A6] uppercase tracking-wider">
-                      <Briefcase size={13} className="text-[#4355DB]" />
+                  <div className="flex items-center justify-between text-[#737373] dark:text-[#9CA3AF] mb-2">
+                    <div className="flex items-center gap-1.5 font-mono text-[10px] text-[#A8A8A6] dark:text-[#6B7280] uppercase tracking-wider">
+                      <Briefcase size={13} className="text-[#4355DB] dark:text-[#6375F1]" />
                       <span>PROJETO</span>
                     </div>
 
@@ -188,7 +188,7 @@ export const ProjectsListView: React.FC<ProjectsListViewProps> = ({
                       <button
                         type="button"
                         onClick={(e) => handleStartEdit(project, e)}
-                        className="p-1 rounded text-[#A8A8A6] hover:text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer"
+                        className="p-1 rounded text-[#A8A8A6] dark:text-[#6B7280] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer"
                         title="Editar nome e descrição"
                       >
                         <Edit3 size={13} />
@@ -199,7 +199,7 @@ export const ProjectsListView: React.FC<ProjectsListViewProps> = ({
                           e.stopPropagation();
                           setDeletingProjectId(project.id);
                         }}
-                        className="p-1 rounded text-[#A8A8A6] hover:text-[#EF4444] hover:bg-[#FEF2F2] transition-colors cursor-pointer"
+                        className="p-1 rounded text-[#A8A8A6] dark:text-[#6B7280] hover:text-[#EF4444] dark:hover:text-[#F87171] hover:bg-[#FEF2F2] dark:hover:bg-[#EF4444]/10 transition-colors cursor-pointer"
                         title="Excluir projeto"
                       >
                         <Trash2 size={13} />
@@ -208,17 +208,17 @@ export const ProjectsListView: React.FC<ProjectsListViewProps> = ({
                   </div>
 
                   {/* Title & Description */}
-                  <h3 className="font-sans font-bold text-base text-[#171717] group-hover:text-[#4355DB] transition-colors truncate">
+                  <h3 className="font-sans font-bold text-base text-[#171717] dark:text-[#F3F4F6] group-hover:text-[#4355DB] dark:group-hover:text-[#6375F1] transition-colors truncate">
                     {project.name}
                   </h3>
-                  <p className="font-sans text-xs text-[#737373] mt-1.5 line-clamp-2 leading-relaxed">
+                  <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF] mt-1.5 line-clamp-2 leading-relaxed">
                     {project.description || 'Nenhuma descrição fornecida.'}
                   </p>
                 </div>
 
                 {/* Bottom row */}
-                <div className="flex items-center justify-between pt-3 border-t border-[#E7E7E5]/60 text-[#A8A8A6] font-mono text-[11px]">
-                  <span className="font-semibold text-[#171717] tabular-nums">
+                <div className="flex items-center justify-between pt-3 border-t border-[#E7E7E5]/60 dark:border-[#2D3139]/60 text-[#A8A8A6] dark:text-[#6B7280] font-mono text-[11px]">
+                  <span className="font-semibold text-[#171717] dark:text-[#F3F4F6] tabular-nums">
                     [ {count} {count === 1 ? 'referência' : 'referências'} ]
                   </span>
                   <span className="flex items-center gap-1 text-[10px]">

@@ -84,7 +84,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     contentTypes.length > 0;
 
   return (
-    <div className="w-full min-w-0 max-w-full flex flex-col gap-2.5 sm:gap-3 pb-3 sm:pb-5 pt-0.5 border-b border-[#E7E7E5]/70 select-none box-border">
+    <div className="w-full min-w-0 max-w-full flex flex-col gap-2.5 sm:gap-3 pb-3 sm:pb-5 pt-0.5 border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70 select-none box-border">
       {/* 1. Quick Tags Chips Row (Bounded horizontal scroll, zero page expansion) */}
       <div className="w-full min-w-0 max-w-full overflow-x-auto no-scrollbar py-0.5">
         <div className="flex items-center gap-1.5 w-max">
@@ -96,8 +96,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             }}
             className={`h-7 px-3 rounded-full text-xs font-mono font-medium tracking-wider transition-colors whitespace-nowrap cursor-pointer border ${
               selectedTags.length === 0
-                ? 'bg-[#4355DB] text-white font-semibold border-[#4355DB]'
-                : 'bg-white border-[#E7E7E5] text-[#737373] hover:text-[#171717] hover:border-[#D4D4D0]'
+                ? 'bg-[#4355DB] dark:bg-[#6375F1] text-white font-semibold border-[#4355DB] dark:border-[#6375F1]'
+                : 'bg-white dark:bg-[#191B20] border-[#E7E7E5] dark:border-[#2D3139] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:border-[#D4D4D0] dark:hover:border-[#3E434D]'
             }`}
           >
             TODAS AS TAGS
@@ -111,8 +111,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 onClick={() => onToggleTag(tag)}
                 className={`h-7 px-3 rounded-full text-xs font-mono font-medium tracking-wider transition-colors whitespace-nowrap cursor-pointer border ${
                   isSelected
-                    ? 'bg-[#4355DB] text-white font-semibold border-[#4355DB]'
-                    : 'bg-white border-[#E7E7E5] text-[#737373] hover:text-[#171717] hover:border-[#D4D4D0]'
+                    ? 'bg-[#4355DB] dark:bg-[#6375F1] text-white font-semibold border-[#4355DB] dark:border-[#6375F1]'
+                    : 'bg-white dark:bg-[#191B20] border-[#E7E7E5] dark:border-[#2D3139] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:border-[#D4D4D0] dark:hover:border-[#3E434D]'
                 }`}
                 title={`Alternar filtro #${tag} (combinação OR com outras tags)`}
               >
@@ -131,8 +131,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             onClick={() => setIsAdvancedFiltersOpen((prev) => !prev)}
             className={`h-7 sm:h-7 px-2.5 rounded-md text-xs font-medium border flex items-center gap-1.5 transition-colors cursor-pointer min-h-[34px] sm:min-h-auto ${
               isAdvancedFiltersOpen || hasActiveFilters
-                ? 'bg-[#171717] text-white border-[#171717]'
-                : 'bg-white border-[#E7E7E5] text-[#737373] hover:border-[#D4D4D0] hover:text-[#171717]'
+                ? 'bg-[#171717] dark:bg-[#4355DB] text-white border-[#171717] dark:border-[#4355DB]'
+                : 'bg-white dark:bg-[#191B20] border-[#E7E7E5] dark:border-[#2D3139] text-[#737373] dark:text-[#9CA3AF] hover:border-[#D4D4D0] dark:hover:border-[#3E434D] hover:text-[#171717] dark:hover:text-[#F3F4F6]'
             }`}
             title="Expandir filtros facetados de projeto, coleção e tipo de mídia"
           >
@@ -150,7 +150,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           </button>
 
           {/* Dynamic Counter Badge (Compact on mobile, descriptive on tablet/desktop) */}
-          <span className="font-mono text-[10px] sm:text-[11px] font-semibold text-[#737373] uppercase tracking-wider tabular-nums shrink-0">
+          <span className="font-mono text-[10px] sm:text-[11px] font-semibold text-[#737373] dark:text-[#9CA3AF] uppercase tracking-wider tabular-nums shrink-0">
             {isFiltered || hasActiveFilters ? (
               <>
                 <span className="sm:hidden">[ {filteredCount}/{totalCount} ]</span>
@@ -167,17 +167,17 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
         {/* Right: Sort Select Dropdown */}
         <div className="flex items-center min-w-0 shrink-0">
-          <div className="flex items-center gap-1.5 h-7 px-2 sm:px-2.5 rounded-md bg-white border border-[#E7E7E5] text-xs font-medium text-[#737373] hover:border-[#D4D4D0] transition-colors cursor-pointer min-h-[34px] sm:min-h-auto">
-            <ArrowDownUp size={12} className="text-[#A8A8A6] shrink-0" />
+          <div className="flex items-center gap-1.5 h-7 px-2 sm:px-2.5 rounded-md bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] text-xs font-medium text-[#737373] dark:text-[#9CA3AF] hover:border-[#D4D4D0] dark:hover:border-[#3E434D] transition-colors cursor-pointer min-h-[34px] sm:min-h-auto">
+            <ArrowDownUp size={12} className="text-[#A8A8A6] dark:text-[#6B7280] shrink-0" />
             <select
               id="sort-select"
               value={sortOption}
               onChange={(e) => onSortChange(e.target.value as SortOption)}
-              className="bg-transparent text-[#171717] text-xs font-medium outline-none cursor-pointer pr-0.5 sm:pr-1"
+              className="bg-transparent text-[#171717] dark:text-[#F3F4F6] text-xs font-medium outline-none cursor-pointer pr-0.5 sm:pr-1"
             >
-              <option value="newest">Mais recentes</option>
-              <option value="oldest">Mais antigas</option>
-              <option value="alphabetical">Título A–Z</option>
+              <option value="newest" className="dark:bg-[#191B20] dark:text-[#F3F4F6]">Mais recentes</option>
+              <option value="oldest" className="dark:bg-[#191B20] dark:text-[#F3F4F6]">Mais antigas</option>
+              <option value="alphabetical" className="dark:bg-[#191B20] dark:text-[#F3F4F6]">Título A–Z</option>
             </select>
           </div>
         </div>
@@ -185,16 +185,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
       {/* Advanced Faceted Filter Panel */}
       {isAdvancedFiltersOpen && (
-        <div className="p-4 bg-white border border-[#E7E7E5] rounded-sm flex flex-col gap-4 animate-in fade-in duration-100 shadow-2xs">
+        <div className="p-4 bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm flex flex-col gap-4 animate-in fade-in duration-100 shadow-2xs">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Category 1: Projects Filter */}
             <div className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] font-bold text-[#A8A8A6] uppercase tracking-wider flex items-center gap-1.5">
+              <span className="font-mono text-[10px] font-bold text-[#A8A8A6] dark:text-[#6B7280] uppercase tracking-wider flex items-center gap-1.5">
                 <Briefcase size={12} /> Projetos
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {availableProjects.length === 0 ? (
-                  <span className="text-xs text-[#A8A8A6] italic">Nenhum projeto cadastrado</span>
+                  <span className="text-xs text-[#A8A8A6] dark:text-[#6B7280] italic">Nenhum projeto cadastrado</span>
                 ) : (
                   availableProjects.map((p) => {
                     const isSelected = selectedProjectIds.includes(p.id);
@@ -205,8 +205,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         onClick={() => onToggleProject(p.id)}
                         className={`px-2 py-1 rounded text-xs transition-colors cursor-pointer border ${
                           isSelected
-                            ? 'bg-[#171717] text-white border-[#171717] font-semibold'
-                            : 'bg-[#F8F8F6] border-[#E7E7E5] text-[#737373] hover:text-[#171717]'
+                            ? 'bg-[#171717] dark:bg-[#4355DB] text-white border-[#171717] dark:border-[#4355DB] font-semibold'
+                            : 'bg-[#F8F8F6] dark:bg-[#20232A] border-[#E7E7E5] dark:border-[#2D3139] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6]'
                         }`}
                       >
                         {p.name}
@@ -219,12 +219,12 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
             {/* Category 2: Collections Filter */}
             <div className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] font-bold text-[#A8A8A6] uppercase tracking-wider flex items-center gap-1.5">
+              <span className="font-mono text-[10px] font-bold text-[#A8A8A6] dark:text-[#6B7280] uppercase tracking-wider flex items-center gap-1.5">
                 <Layers size={12} /> Coleções
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {availableCollections.length === 0 ? (
-                  <span className="text-xs text-[#A8A8A6] italic">Nenhuma coleção cadastrada</span>
+                  <span className="text-xs text-[#A8A8A6] dark:text-[#6B7280] italic">Nenhuma coleção cadastrada</span>
                 ) : (
                   availableCollections.map((c) => {
                     const isSelected = selectedCollectionIds.includes(c.id);
@@ -235,8 +235,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         onClick={() => onToggleCollection(c.id)}
                         className={`px-2 py-1 rounded text-xs transition-colors cursor-pointer border ${
                           isSelected
-                            ? 'bg-[#171717] text-white border-[#171717] font-semibold'
-                            : 'bg-[#F8F8F6] border-[#E7E7E5] text-[#737373] hover:text-[#171717]'
+                            ? 'bg-[#171717] dark:bg-[#4355DB] text-white border-[#171717] dark:border-[#4355DB] font-semibold'
+                            : 'bg-[#F8F8F6] dark:bg-[#20232A] border-[#E7E7E5] dark:border-[#2D3139] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6]'
                         }`}
                       >
                         {c.name}
@@ -249,7 +249,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
             {/* Category 3: Content Types Filter */}
             <div className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] font-bold text-[#A8A8A6] uppercase tracking-wider flex items-center gap-1.5">
+              <span className="font-mono text-[10px] font-bold text-[#A8A8A6] dark:text-[#6B7280] uppercase tracking-wider flex items-center gap-1.5">
                 Tipo de Conteúdo
               </span>
               <div className="flex flex-wrap gap-1.5">
@@ -263,8 +263,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                       onClick={() => onToggleContentType(type)}
                       className={`px-2.5 py-1 rounded text-xs flex items-center gap-1.5 transition-colors cursor-pointer border ${
                         isSelected
-                          ? 'bg-[#4355DB] text-white border-[#4355DB] font-semibold'
-                          : 'bg-[#F8F8F6] border-[#E7E7E5] text-[#737373] hover:text-[#171717]'
+                          ? 'bg-[#4355DB] dark:bg-[#6375F1] text-white border-[#4355DB] dark:border-[#6375F1] font-semibold'
+                          : 'bg-[#F8F8F6] dark:bg-[#20232A] border-[#E7E7E5] dark:border-[#2D3139] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6]'
                       }`}
                     >
                       {icon}
@@ -281,13 +281,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       {/* Active Filter Chips Bar (Visually Identifiable & Individually Removable) */}
       {hasActiveFilters && (
         <div className="flex flex-wrap items-center gap-1.5 pt-1">
-          <span className="font-mono text-[10px] text-[#A8A8A6] uppercase tracking-wider mr-1">
+          <span className="font-mono text-[10px] text-[#A8A8A6] dark:text-[#6B7280] uppercase tracking-wider mr-1">
             Filtros ativos:
           </span>
 
           {/* Search Query Chip */}
           {searchQuery && searchQuery.trim().length > 0 && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#171717] text-white text-[11px] font-sans">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#171717] dark:bg-[#4355DB] text-white text-[11px] font-sans">
               <span>Busca: "{searchQuery}"</span>
               {onClearSearchQuery && (
                 <button
@@ -306,7 +306,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           {selectedTags.map((t) => (
             <span
               key={t}
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#4355DB]/10 text-[#4355DB] border border-[#4355DB]/20 text-[11px] font-mono"
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#4355DB]/10 dark:bg-[#4355DB]/20 text-[#4355DB] dark:text-[#818CF8] border border-[#4355DB]/20 dark:border-[#4355DB]/40 text-[11px] font-mono"
             >
               <Tag size={10} />
               <span>#{t}</span>
@@ -327,9 +327,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             return (
               <span
                 key={pId}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F1F1EF] text-[#171717] border border-[#E7E7E5] text-[11px] font-sans font-medium"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F1F1EF] dark:bg-[#20232A] text-[#171717] dark:text-[#F3F4F6] border border-[#E7E7E5] dark:border-[#2D3139] text-[11px] font-sans font-medium"
               >
-                <Briefcase size={10} className="text-[#737373]" />
+                <Briefcase size={10} className="text-[#737373] dark:text-[#9CA3AF]" />
                 <span>Projeto: {project ? project.name : pId}</span>
                 <button
                   type="button"
@@ -349,9 +349,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             return (
               <span
                 key={cId}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F1F1EF] text-[#171717] border border-[#E7E7E5] text-[11px] font-sans font-medium"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F1F1EF] dark:bg-[#20232A] text-[#171717] dark:text-[#F3F4F6] border border-[#E7E7E5] dark:border-[#2D3139] text-[11px] font-sans font-medium"
               >
-                <Layers size={10} className="text-[#737373]" />
+                <Layers size={10} className="text-[#737373] dark:text-[#9CA3AF]" />
                 <span>Coleção: {col ? col.name : cId}</span>
                 <button
                   type="button"
@@ -369,7 +369,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           {contentTypes.map((type) => (
             <span
               key={type}
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F1F1EF] text-[#171717] border border-[#E7E7E5] text-[11px] font-sans"
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F1F1EF] dark:bg-[#20232A] text-[#171717] dark:text-[#F3F4F6] border border-[#E7E7E5] dark:border-[#2D3139] text-[11px] font-sans"
             >
               {CONTENT_TYPE_LABELS[type].icon}
               <span>{CONTENT_TYPE_LABELS[type].label}</span>
@@ -388,7 +388,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           <button
             type="button"
             onClick={onClearAllFilters}
-            className="text-[11px] font-semibold text-[#EF4444] hover:underline ml-1 cursor-pointer"
+            className="text-[11px] font-semibold text-[#EF4444] dark:text-[#F87171] hover:underline ml-1 cursor-pointer"
           >
             Limpar todos os filtros
           </button>

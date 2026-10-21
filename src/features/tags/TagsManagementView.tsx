@@ -104,10 +104,10 @@ export const TagsManagementView: React.FC<TagsManagementViewProps> = ({
       {/* Editorial Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-sans font-bold text-2xl md:text-3xl text-[#171717] tracking-tight">
+          <h1 className="font-sans font-bold text-2xl md:text-3xl text-[#171717] dark:text-[#F3F4F6] tracking-tight">
             Etiquetas
           </h1>
-          <p className="font-sans text-xs md:text-sm text-[#737373] mt-0.5">
+          <p className="font-sans text-xs md:text-sm text-[#737373] dark:text-[#9CA3AF] mt-0.5">
             Índice taxonômico transversal. Gerencie, renomeie e filtre referências por marcadores livres.
           </p>
         </div>
@@ -115,13 +115,13 @@ export const TagsManagementView: React.FC<TagsManagementViewProps> = ({
         {/* Quick Tag Creation Form */}
         <form onSubmit={handleCreateSubmit} className="flex items-center gap-2 self-start sm:self-auto">
           <div className="relative">
-            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-mono text-xs text-[#A8A8A6]">#</span>
+            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-mono text-xs text-[#A8A8A6] dark:text-[#6B7280]">#</span>
             <input
               type="text"
               value={newTagInput}
               onChange={(e) => setNewTagInput(e.target.value)}
               placeholder="nova-etiqueta"
-              className="h-8 pl-6 pr-3 rounded bg-white border border-[#E7E7E5] text-xs font-mono focus:border-[#4355DB] outline-none text-[#171717] w-40"
+              className="h-8 pl-6 pr-3 rounded bg-white dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-xs font-mono focus:border-[#4355DB] outline-none text-[#171717] dark:text-[#F3F4F6] w-40"
             />
           </div>
           <Button
@@ -137,24 +137,24 @@ export const TagsManagementView: React.FC<TagsManagementViewProps> = ({
       </div>
 
       {/* Tags Directory Box */}
-      <div className="p-5 bg-white border border-[#E7E7E5] rounded-sm flex flex-col gap-4">
+      <div className="p-5 bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm flex flex-col gap-4">
         {/* Search filter for tags */}
-        <div className="flex items-center justify-between gap-3 pb-3 border-b border-[#E7E7E5]/70">
-          <div className="flex items-center gap-2 text-xs font-mono text-[#737373]">
-            <Tag size={13} className="text-[#4355DB]" />
+        <div className="flex items-center justify-between gap-3 pb-3 border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70">
+          <div className="flex items-center gap-2 text-xs font-mono text-[#737373] dark:text-[#9CA3AF]">
+            <Tag size={13} className="text-[#4355DB] dark:text-[#6375F1]" />
             <span>
-              TOTAL: <strong className="text-[#171717]">{allUniqueTags.length}</strong> ETIQUETAS ATIVAS
+              TOTAL: <strong className="text-[#171717] dark:text-[#F3F4F6]">{allUniqueTags.length}</strong> ETIQUETAS ATIVAS
             </span>
           </div>
 
           <div className="relative w-48 sm:w-64">
-            <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#A8A8A6]" />
+            <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#A8A8A6] dark:text-[#6B7280]" />
             <input
               type="text"
               value={tagSearch}
               onChange={(e) => setTagSearch(e.target.value)}
               placeholder="Filtrar etiquetas..."
-              className="w-full h-7 pl-7 pr-3 text-xs bg-[#F8F8F6] border border-[#E7E7E5] rounded focus:bg-white focus:border-[#4355DB] outline-none"
+              className="w-full h-7 pl-7 pr-3 text-xs bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] rounded text-[#171717] dark:text-[#F3F4F6] focus:bg-white dark:focus:bg-[#15171C] focus:border-[#4355DB] outline-none"
             />
           </div>
         </div>

@@ -70,22 +70,22 @@ export const Topbar: React.FC<TopbarProps> = ({
   const initialLetter = (profile?.full_name || profile?.email || userEmail || 'U').charAt(0).toUpperCase();
 
   return (
-    <header className="sticky top-0 z-30 w-full min-w-0 max-w-full bg-white/95 backdrop-blur-md border-b border-[#E7E7E5] px-3 sm:px-4 md:px-8 transition-colors box-border">
+    <header className="sticky top-0 z-30 w-full min-w-0 max-w-full bg-white/95 dark:bg-[#191B20]/95 backdrop-blur-md border-b border-[#E7E7E5] dark:border-[#2D3139] px-3 sm:px-4 md:px-8 transition-colors box-border">
       {/* 1. MOBILE HEADER (< md) — Compact, clean, zero overflow */}
       <div className="flex md:hidden items-center justify-between gap-2 h-13 w-full min-w-0">
         {/* Brand */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <div className="w-7 h-7 rounded-md bg-[#171717] flex items-center justify-center text-white shadow-2xs">
+        <div data-tour="brand-header" className="flex items-center gap-1.5 shrink-0">
+          <div className="w-7 h-7 rounded-md bg-[#171717] dark:bg-[#4355DB] flex items-center justify-center text-white shadow-2xs">
             <Compass size={15} strokeWidth={2.2} />
           </div>
-          <span className="font-display font-bold text-sm tracking-tight text-[#171717]">
+          <span className="font-display font-bold text-sm tracking-tight text-[#171717] dark:text-[#F3F4F6]">
             Salvei
           </span>
         </div>
 
         {/* Search Input (Expands to fill available width) */}
         <div className="flex-1 min-w-0 max-w-full relative flex items-center" role="search">
-          <div className="absolute left-2.5 flex items-center pointer-events-none text-[#737373]" aria-hidden="true">
+          <div className="absolute left-2.5 flex items-center pointer-events-none text-[#737373] dark:text-[#9CA3AF]" aria-hidden="true">
             <Search size={13} strokeWidth={2} />
           </div>
 
@@ -106,14 +106,14 @@ export const Topbar: React.FC<TopbarProps> = ({
             }}
             aria-label="Buscar por título, domínio ou etiqueta"
             placeholder="Buscar referências..."
-            className="w-full h-8.5 pl-8 pr-7 rounded-md bg-[#F8F8F6] text-[#171717] placeholder-[#A8A8A6] text-xs border border-[#E7E7E5] focus:bg-white focus:border-[#4355DB] focus:ring-1 focus:ring-[#4355DB]/20 transition-all outline-none"
+            className="w-full h-8.5 pl-8 pr-7 rounded-md bg-[#F8F8F6] dark:bg-[#20232A] text-[#171717] dark:text-[#F3F4F6] placeholder-[#A8A8A6] dark:placeholder-[#6B7280] text-xs border border-[#E7E7E5] dark:border-[#2D3139] focus:bg-white dark:focus:bg-[#1E222A] focus:border-[#4355DB] focus:ring-1 focus:ring-[#4355DB]/20 transition-all outline-none"
           />
 
           {draftQuery && (
             <button
               type="button"
               onClick={handleClear}
-              className="absolute right-2 p-0.5 rounded text-[#737373] hover:text-[#171717] transition-colors cursor-pointer"
+              className="absolute right-2 p-0.5 rounded text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] transition-colors cursor-pointer"
               aria-label="Limpar pesquisa"
             >
               <X size={13} />
@@ -126,7 +126,7 @@ export const Topbar: React.FC<TopbarProps> = ({
           <button
             type="button"
             onClick={onOpenShortcutsModal}
-            className="p-1.5 min-h-[34px] min-w-[34px] flex items-center justify-center rounded text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+            className="p-1.5 min-h-[34px] min-w-[34px] flex items-center justify-center rounded text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
             title="Guia de atalhos de teclado (?)"
             aria-label="Atalhos de teclado"
           >
@@ -136,11 +136,11 @@ export const Topbar: React.FC<TopbarProps> = ({
 
         {/* Mobile User Avatar Trigger */}
         {profile && (
-          <div className="relative shrink-0">
+          <div data-tour="user-menu" className="relative shrink-0">
             <button
               type="button"
               onClick={() => setIsMobileUserMenuOpen(!isMobileUserMenuOpen)}
-              className="w-8 h-8 rounded-full border border-[#E7E7E5] flex items-center justify-center overflow-hidden cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB] bg-[#171717] text-white shadow-xs"
+              className="w-8 h-8 rounded-full border border-[#E7E7E5] dark:border-[#2D3139] flex items-center justify-center overflow-hidden cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB] bg-[#171717] text-white shadow-xs"
               aria-label="Abrir menu do perfil"
               aria-expanded={isMobileUserMenuOpen}
             >
@@ -170,9 +170,9 @@ export const Topbar: React.FC<TopbarProps> = ({
       {/* 2. DESKTOP & TABLET HEADER (>= md) — Preserved desktop experience */}
       <div className="hidden md:flex items-center justify-between gap-4 h-14 w-full min-w-0">
         {/* Center: Global Search Bar & Command Menu Trigger */}
-        <div className="flex-1 max-w-xl mx-auto min-w-0" role="search">
+        <div data-tour="global-search" className="flex-1 max-w-xl mx-auto min-w-0" role="search">
           <div className="relative flex items-center w-full">
-            <div className="absolute left-3 flex items-center pointer-events-none text-[#737373]" aria-hidden="true">
+            <div className="absolute left-3 flex items-center pointer-events-none text-[#737373] dark:text-[#9CA3AF]" aria-hidden="true">
               <Search size={15} strokeWidth={2} />
             </div>
 
@@ -191,7 +191,7 @@ export const Topbar: React.FC<TopbarProps> = ({
               }}
               aria-label="Buscar por título, domínio ou etiqueta"
               placeholder="Buscar por título, domínio, etiqueta... (/ ou Ctrl+K)"
-              className="w-full h-9 pl-9 pr-14 rounded-md bg-[#F8F8F6] hover:bg-white text-[#171717] placeholder-[#A8A8A6] text-[13px] border border-[#E7E7E5] hover:border-[#D4D4D0] focus:bg-white focus:border-[#4355DB] focus:ring-2 focus:ring-[#4355DB]/15 transition-all duration-150 outline-none"
+              className="w-full h-9 pl-9 pr-14 rounded-md bg-[#F8F8F6] dark:bg-[#20232A] hover:bg-white dark:hover:bg-[#282C35] text-[#171717] dark:text-[#F3F4F6] placeholder-[#A8A8A6] dark:placeholder-[#6B7280] text-[13px] border border-[#E7E7E5] dark:border-[#2D3139] hover:border-[#D4D4D0] dark:hover:border-[#3E434D] focus:bg-white dark:focus:bg-[#1E222A] focus:border-[#4355DB] focus:ring-2 focus:ring-[#4355DB]/15 transition-all duration-150 outline-none"
             />
 
             <div className="absolute right-2.5 flex items-center gap-1.5">
@@ -199,7 +199,7 @@ export const Topbar: React.FC<TopbarProps> = ({
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="p-1 rounded text-[#737373] hover:text-[#171717] hover:bg-[#E7E7E5]/60 transition-colors cursor-pointer"
+                  className="p-1 rounded text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#E7E7E5]/60 dark:hover:bg-[#2D3139] transition-colors cursor-pointer"
                   title="Limpar pesquisa (Esc)"
                   aria-label="Limpar pesquisa"
                 >
@@ -213,7 +213,7 @@ export const Topbar: React.FC<TopbarProps> = ({
                   title="Abrir menu de comandos e busca rápida (Ctrl+K)"
                   aria-label="Abrir menu de comandos"
                 >
-                  <kbd className="px-1.5 py-0.5 rounded border border-[#E7E7E5] bg-white hover:bg-[#F1F1EF] text-[10px] font-mono text-[#737373] hover:text-[#171717] tracking-tighter flex items-center gap-0.5 shadow-2xs transition-colors">
+                  <kbd className="px-1.5 py-0.5 rounded border border-[#E7E7E5] dark:border-[#2D3139] bg-white dark:bg-[#191B20] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] text-[10px] font-mono text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] tracking-tighter flex items-center gap-0.5 shadow-2xs transition-colors">
                     <Command size={10} />
                     <span>K</span>
                   </kbd>
@@ -229,7 +229,7 @@ export const Topbar: React.FC<TopbarProps> = ({
             <button
               type="button"
               onClick={onOpenShortcutsModal}
-              className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+              className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
               title="Guia de atalhos de teclado (?)"
               aria-label="Atalhos de teclado"
             >
@@ -237,35 +237,37 @@ export const Topbar: React.FC<TopbarProps> = ({
             </button>
           )}
 
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => onOpenAddModal('image')}
-            iconLeft={<ImageIcon size={14} />}
-            className="font-medium text-xs whitespace-nowrap cursor-pointer"
-            title="Importar imagens locais (arraste ou cole com Ctrl+V)"
-          >
-            <span>Adicionar imagem</span>
-          </Button>
+          <div data-tour="quick-capture" className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => onOpenAddModal('image')}
+              iconLeft={<ImageIcon size={14} />}
+              className="font-medium text-xs whitespace-nowrap cursor-pointer"
+              title="Importar imagens locais (arraste ou cole com Ctrl+V)"
+            >
+              <span>Adicionar imagem</span>
+            </Button>
 
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => onOpenAddModal('url')}
-            iconLeft={<Globe size={14} />}
-            className="font-semibold text-xs whitespace-nowrap cursor-pointer min-h-[36px]"
-            title="Salvar referência por endereço URL (N)"
-          >
-            <span>Adicionar por URL</span>
-          </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => onOpenAddModal('url')}
+              iconLeft={<Globe size={14} />}
+              className="font-semibold text-xs whitespace-nowrap cursor-pointer min-h-[36px]"
+              title="Salvar referência por endereço URL (N)"
+            >
+              <span>Adicionar por URL</span>
+            </Button>
+          </div>
 
           {/* Desktop User Avatar & Menu */}
           {profile && (
-            <div className="relative shrink-0 ml-1">
+            <div data-tour="user-menu" className="relative shrink-0 ml-1">
               <button
                 type="button"
                 onClick={() => setIsDesktopUserMenuOpen(!isDesktopUserMenuOpen)}
-                className="flex items-center gap-2 p-1 pl-1 pr-2.5 rounded-full border border-[#E7E7E5] bg-[#F8F8F6] hover:bg-white hover:border-[#D4D4D0] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+                className="flex items-center gap-2 p-1 pl-1 pr-2.5 rounded-full border border-[#E7E7E5] dark:border-[#2D3139] bg-[#F8F8F6] dark:bg-[#20232A] hover:bg-white dark:hover:bg-[#282C35] hover:border-[#D4D4D0] dark:hover:border-[#3E434D] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
                 aria-label="Menu do usuário"
                 aria-expanded={isDesktopUserMenuOpen}
               >
@@ -273,14 +275,14 @@ export const Topbar: React.FC<TopbarProps> = ({
                   <img
                     src={profile.avatar_url}
                     alt=""
-                    className="w-7 h-7 rounded-full object-cover bg-white border border-[#E7E7E5]"
+                    className="w-7 h-7 rounded-full object-cover bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139]"
                   />
                 ) : (
-                  <span className="w-7 h-7 rounded-full bg-[#171717] text-white flex items-center justify-center font-display font-bold text-xs shadow-2xs">
+                  <span className="w-7 h-7 rounded-full bg-[#171717] dark:bg-[#4355DB] text-white flex items-center justify-center font-display font-bold text-xs shadow-2xs">
                     {initialLetter}
                   </span>
                 )}
-                <span className="text-xs font-semibold text-[#171717] max-w-[120px] truncate">
+                <span className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6] max-w-[120px] truncate">
                   {profile.full_name || userEmail?.split('@')[0] || 'Perfil'}
                 </span>
               </button>

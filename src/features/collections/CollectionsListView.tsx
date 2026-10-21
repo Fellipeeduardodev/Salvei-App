@@ -64,10 +64,10 @@ export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-sans font-bold text-2xl md:text-3xl text-[#171717] tracking-tight">
+          <h1 className="font-sans font-bold text-2xl md:text-3xl text-[#171717] dark:text-[#F3F4F6] tracking-tight">
             Coleções
           </h1>
-          <p className="font-sans text-xs md:text-sm text-[#737373] mt-0.5">
+          <p className="font-sans text-xs md:text-sm text-[#737373] dark:text-[#9CA3AF] mt-0.5">
             Curadorias temáticas de linguagens visuais, padrões de UI e arquivos de design.
           </p>
         </div>
@@ -87,16 +87,16 @@ export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
       {isCreating && (
         <form
           onSubmit={handleSaveCreate}
-          className="p-5 bg-white border border-[#4355DB] rounded-sm flex flex-col gap-3 shadow-xs animate-in fade-in duration-100"
+          className="p-5 bg-white dark:bg-[#191B20] border border-[#4355DB] dark:border-[#6375F1] rounded-sm flex flex-col gap-3 shadow-xs animate-in fade-in duration-100"
         >
           <div className="flex items-center justify-between">
-            <span className="font-sans font-bold text-sm text-[#171717]">
+            <span className="font-sans font-bold text-sm text-[#171717] dark:text-[#F3F4F6]">
               Criar Nova Coleção
             </span>
             <button
               type="button"
               onClick={() => setIsCreating(false)}
-              className="text-xs text-[#737373] hover:text-[#171717] cursor-pointer"
+              className="text-xs text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] cursor-pointer"
             >
               Cancelar
             </button>
@@ -109,7 +109,7 @@ export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
             placeholder="Nome da coleção (ex: Minimalismo Editorial, Dark Mode Devtools)"
             autoFocus
             required
-            className="w-full text-sm font-semibold text-[#171717] px-3 py-2 rounded bg-[#F8F8F6] border border-[#E7E7E5] focus:bg-white focus:border-[#4355DB] outline-none"
+            className="w-full text-sm font-semibold text-[#171717] dark:text-[#F3F4F6] px-3 py-2 rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] focus:bg-white dark:focus:bg-[#15171C] focus:border-[#4355DB] outline-none"
           />
 
           <textarea
@@ -117,7 +117,7 @@ export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
             onChange={(e) => setNewDescription(e.target.value)}
             placeholder="Conceito, padrão visual ou anotações temáticas da coleção..."
             rows={2}
-            className="w-full text-xs text-[#171717] p-3 rounded bg-[#F8F8F6] border border-[#E7E7E5] focus:bg-white focus:border-[#4355DB] outline-none resize-none"
+            className="w-full text-xs text-[#171717] dark:text-[#F3F4F6] p-3 rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] focus:bg-white dark:focus:bg-[#15171C] focus:border-[#4355DB] outline-none resize-none"
           />
 
           <div className="flex justify-end gap-2 pt-1">
@@ -138,11 +138,11 @@ export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
 
       {/* Collections Grid */}
       {collections.length === 0 ? (
-        <div className="py-20 bg-white border border-[#E7E7E5] rounded-sm p-8 text-center flex flex-col items-center justify-center">
-          <div className="w-12 h-12 rounded-full bg-[#F1F1EF] text-[#737373] flex items-center justify-center mb-3">
+        <div className="py-20 bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm p-8 text-center flex flex-col items-center justify-center">
+          <div className="w-12 h-12 rounded-full bg-[#F1F1EF] dark:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF] flex items-center justify-center mb-3">
             <Layers size={22} strokeWidth={1.8} />
           </div>
-          <h3 className="font-sans font-semibold text-base text-[#171717] mb-1">
+          <h3 className="font-sans font-semibold text-base text-[#171717] dark:text-[#F3F4F6] mb-1">
             Nenhuma coleção criada ainda
           </h3>
           <p className="font-sans text-xs text-[#737373] max-w-sm mb-4">
@@ -166,7 +166,7 @@ export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
               <div
                 key={col.id}
                 onClick={() => onSelectCollection(col.id)}
-                className="group relative bg-white border border-[#E7E7E5] hover:border-[#D4D4D0] rounded-sm overflow-hidden cursor-pointer transition-all duration-150 flex flex-col justify-between select-none outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+                className="group relative bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] hover:border-[#D4D4D0] dark:hover:border-[#3E434D] rounded-sm overflow-hidden cursor-pointer transition-all duration-150 flex flex-col justify-between select-none outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
                 tabIndex={0}
                 role="button"
                 onKeyDown={(e) => {
@@ -177,13 +177,13 @@ export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
                 }}
               >
                 {/* Visual Mosaic Preview of Top References (16:9 ratio) */}
-                <div className="w-full aspect-[16/9] bg-[#F1F1EF] border-b border-[#E7E7E5] relative overflow-hidden flex">
+                <div className="w-full aspect-[16/9] bg-[#F1F1EF] dark:bg-[#15171C] border-b border-[#E7E7E5] dark:border-[#2D3139] relative overflow-hidden flex">
                   {topThumbs.length > 0 ? (
                     <div className="w-full h-full flex">
                       {topThumbs.map((thumbUrl, idx) => (
                         <div
                           key={idx}
-                          className="h-full flex-1 overflow-hidden border-r last:border-r-0 border-[#E7E7E5]"
+                          className="h-full flex-1 overflow-hidden border-r last:border-r-0 border-[#E7E7E5] dark:border-[#2D3139]"
                         >
                           <img
                             src={thumbUrl!}
@@ -194,7 +194,7 @@ export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
                       ))}
                     </div>
                   ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-[#A8A8A6] gap-1 bg-[#FAFAF8]">
+                    <div className="w-full h-full flex flex-col items-center justify-center text-[#A8A8A6] dark:text-[#6B7280] gap-1 bg-[#FAFAF8] dark:bg-[#15171C]">
                       <Layers size={22} strokeWidth={1.5} />
                       <span className="font-mono text-[9px] uppercase tracking-wider">
                         Coleção vazia
@@ -210,7 +210,7 @@ export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
                     <button
                       type="button"
                       onClick={(e) => handleStartEdit(col, e)}
-                      className="p-1 rounded bg-white/90 hover:bg-white text-[#737373] hover:text-[#171717] border border-[#E7E7E5] shadow-2xs transition-colors cursor-pointer"
+                      className="p-1 rounded bg-white/90 dark:bg-[#191B20]/90 hover:bg-white dark:hover:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] border border-[#E7E7E5] dark:border-[#2D3139] shadow-2xs transition-colors cursor-pointer"
                       title="Editar coleção"
                     >
                       <Edit3 size={12} />
@@ -221,7 +221,7 @@ export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
                         e.stopPropagation();
                         setDeletingCollectionId(col.id);
                       }}
-                      className="p-1 rounded bg-white/90 hover:bg-white text-[#737373] hover:text-[#EF4444] border border-[#E7E7E5] shadow-2xs transition-colors cursor-pointer"
+                      className="p-1 rounded bg-white/90 dark:bg-[#191B20]/90 hover:bg-white dark:hover:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF] hover:text-[#EF4444] dark:hover:text-[#F87171] border border-[#E7E7E5] dark:border-[#2D3139] shadow-2xs transition-colors cursor-pointer"
                       title="Excluir coleção"
                     >
                       <Trash2 size={12} />
@@ -232,19 +232,19 @@ export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
                 {/* Content info */}
                 <div className="p-4 flex flex-col justify-between flex-1 gap-2">
                   <div>
-                    <h3 className="font-sans font-bold text-sm text-[#171717] group-hover:text-[#4355DB] transition-colors truncate">
+                    <h3 className="font-sans font-bold text-sm text-[#171717] dark:text-[#F3F4F6] group-hover:text-[#4355DB] dark:group-hover:text-[#6375F1] transition-colors truncate">
                       {col.name}
                     </h3>
-                    <p className="font-sans text-xs text-[#737373] mt-1 line-clamp-2 leading-relaxed">
+                    <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF] mt-1 line-clamp-2 leading-relaxed">
                       {col.description || 'Nenhum descritor editorial cadastrado.'}
                     </p>
                   </div>
 
-                  <div className="pt-2 flex items-center justify-between text-[#A8A8A6] font-mono text-[11px] border-t border-[#E7E7E5]/50">
-                    <span className="font-semibold text-[#171717] tabular-nums">
+                  <div className="pt-2 flex items-center justify-between text-[#A8A8A6] dark:text-[#6B7280] font-mono text-[11px] border-t border-[#E7E7E5]/50 dark:border-[#2D3139]/50">
+                    <span className="font-semibold text-[#171717] dark:text-[#F3F4F6] tabular-nums">
                       [ {count} {count === 1 ? 'referência' : 'referências'} ]
                     </span>
-                    <span className="text-[10px] uppercase tracking-wider text-[#4355DB]">
+                    <span className="text-[10px] uppercase tracking-wider text-[#4355DB] dark:text-[#6375F1]">
                       Ver acervo →
                     </span>
                   </div>

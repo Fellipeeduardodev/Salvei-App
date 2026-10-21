@@ -78,11 +78,11 @@ export const AppShell: React.FC<AppShellProps> = ({
   };
 
   return (
-    <div className="min-h-screen w-full min-w-0 max-w-full bg-[#F8F8F6] text-[#171717] flex flex-col font-sans selection:bg-[#171717] selection:text-white box-border">
+    <div className="min-h-screen w-full min-w-0 max-w-full bg-[#F8F8F6] dark:bg-[#111214] text-[#171717] dark:text-[#F3F4F6] flex flex-col font-sans selection:bg-[#171717] selection:text-white dark:selection:bg-[#F3F4F6] dark:selection:text-[#111214] box-border transition-colors duration-150">
       {/* Skip to Content for WCAG 2.2 AA Keyboard Navigation */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#171717] focus:text-white focus:rounded focus:outline-none focus:ring-2 focus:ring-[#4355DB] font-sans text-xs font-semibold shadow-xl"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#171717] focus:text-white dark:focus:bg-[#F3F4F6] dark:focus:text-[#111214] focus:rounded focus:outline-none focus:ring-2 focus:ring-[#4355DB] font-sans text-xs font-semibold shadow-xl"
       >
         Pular para o conteúdo principal
       </a>

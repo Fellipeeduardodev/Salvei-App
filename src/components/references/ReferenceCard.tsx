@@ -95,7 +95,7 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
     if (!hasImage && reference.screenshotStatus === 'none') {
       return (
         <span
-          className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#F1F1EF] text-[#737373] border border-[#E7E7E5]"
+          className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#F1F1EF] dark:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF] border border-[#E7E7E5] dark:border-[#2D3139]"
           title="Salvo apenas por URL. Nenhuma imagem anexada."
         >
           Apenas URL
@@ -106,7 +106,7 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
     if (reference.sourceType === 'image' && !hasUrl) {
       return (
         <span
-          className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#F1F1EF] text-[#737373] border border-[#E7E7E5]"
+          className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#F1F1EF] dark:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF] border border-[#E7E7E5] dark:border-[#2D3139]"
           title="Imagem importada diretamente"
         >
           Imagem
@@ -171,16 +171,16 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
       aria-label={`Referência: ${reference.title}, origem: ${displaySubtitle}`}
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
-      className={`group relative flex flex-col w-full min-w-0 max-w-full box-border bg-white border rounded-sm overflow-hidden cursor-pointer select-none transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB] focus-visible:ring-offset-2 ${
+      className={`group relative flex flex-col w-full min-w-0 max-w-full box-border bg-white dark:bg-[#191B20] border rounded-sm overflow-hidden cursor-pointer select-none transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB] focus-visible:ring-offset-2 ${
         isChecked
-          ? 'border-[#4355DB] ring-2 ring-[#4355DB]/25 bg-[#F9FAFF] shadow-xs'
+          ? 'border-[#4355DB] dark:border-[#6375F1] ring-2 ring-[#4355DB]/25 dark:ring-[#6375F1]/25 bg-[#F9FAFF] dark:bg-[#1C2030] shadow-xs'
           : isSelected
-          ? 'border-[#171717] ring-2 ring-[#171717]/15 shadow-xs'
-          : 'border-[#E7E7E5] hover:border-[#D4D4D0] shadow-[0_1px_2px_rgba(0,0,0,0.02)]'
+          ? 'border-[#171717] dark:border-[#F3F4F6] ring-2 ring-[#171717]/15 dark:ring-[#F3F4F6]/15 shadow-xs'
+          : 'border-[#E7E7E5] dark:border-[#2D3139] hover:border-[#D4D4D0] dark:hover:border-[#3E434D] shadow-[0_1px_2px_rgba(0,0,0,0.02)]'
       }`}
     >
       {/* Frame Visual: Imagem ou Estado Editorial Tipográfico para URL-only */}
-      <div className="relative w-full aspect-[16/10] bg-[#F1F1EF] overflow-hidden border-b border-[#E7E7E5]/70">
+      <div className="relative w-full aspect-[16/10] bg-[#F1F1EF] dark:bg-[#15171C] overflow-hidden border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70">
         {hasImage ? (
           <img
             src={reference.screenshotUrl}
@@ -191,18 +191,18 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
           />
         ) : (
           /* Estado Visual Elegante para Referência Apenas com URL (sem captura prévia) */
-          <div className="w-full h-full flex flex-col items-center justify-center p-5 text-center bg-[#FAFAF8] relative transition-colors group-hover:bg-[#F5F5F2]">
-            <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#171717_1px,transparent_1px)] [background-size:12px_12px]" />
+          <div className="w-full h-full flex flex-col items-center justify-center p-5 text-center bg-[#FAFAF8] dark:bg-[#15171C] relative transition-colors group-hover:bg-[#F5F5F2] dark:group-hover:bg-[#1A1D24]">
+            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.08] bg-[radial-gradient(#171717_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:12px_12px]" />
 
-            <div className="w-10 h-10 rounded-md bg-white border border-[#E7E7E5] flex items-center justify-center text-[#4355DB] shadow-2xs z-10 mb-2">
+            <div className="w-10 h-10 rounded-md bg-white dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] flex items-center justify-center text-[#4355DB] dark:text-[#6375F1] shadow-2xs z-10 mb-2">
               <Globe size={18} strokeWidth={1.75} />
             </div>
 
             <div className="flex flex-col items-center gap-0.5 z-10 max-w-[85%]">
-              <span className="font-mono text-[11px] font-bold text-[#171717] uppercase tracking-wider truncate w-full">
+              <span className="font-mono text-[11px] font-bold text-[#171717] dark:text-[#F3F4F6] uppercase tracking-wider truncate w-full">
                 {reference.domain || 'URL Sem Imagem'}
               </span>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-[#A8A8A6]">
+              <span className="font-mono text-[9px] uppercase tracking-widest text-[#A8A8A6] dark:text-[#6B7280]">
                 [ SEM CAPTURA VISUAL ]
               </span>
             </div>
@@ -215,7 +215,7 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
                   e.stopPropagation();
                   onAttachImageClick(reference.id);
                 }}
-                className="mt-2.5 z-10 px-2 py-1 rounded bg-white hover:bg-[#F1F1EF] border border-[#E7E7E5] font-mono text-[10px] text-[#737373] hover:text-[#171717] inline-flex items-center gap-1 shadow-2xs transition-colors cursor-pointer"
+                className="mt-2.5 z-10 px-2 py-1 rounded bg-white dark:bg-[#20232A] hover:bg-[#F1F1EF] dark:hover:bg-[#282C35] border border-[#E7E7E5] dark:border-[#2D3139] font-mono text-[10px] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] inline-flex items-center gap-1 shadow-2xs transition-colors cursor-pointer"
                 title="Adicionar imagem a esta referência"
               >
                 <Plus size={11} strokeWidth={2.5} />
@@ -242,10 +242,10 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
             }}
             className={`absolute top-2.5 left-2.5 z-20 w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center transition-all duration-150 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB] ${
               isChecked
-                ? 'bg-[#4355DB] text-white shadow-xs opacity-100 scale-100'
+                ? 'bg-[#4355DB] dark:bg-[#6375F1] text-white shadow-xs opacity-100 scale-100'
                 : isSelectionModeActive
-                ? 'bg-white/90 border border-[#D4D4D0] text-transparent hover:border-[#4355DB] hover:bg-white opacity-100'
-                : 'bg-white/90 border border-[#D4D4D0] text-transparent hover:border-[#4355DB] hover:bg-white max-sm:opacity-80 sm:opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
+                ? 'bg-white/90 dark:bg-[#191B20]/90 border border-[#D4D4D0] dark:border-[#3E434D] text-transparent hover:border-[#4355DB] hover:bg-white opacity-100'
+                : 'bg-white/90 dark:bg-[#191B20]/90 border border-[#D4D4D0] dark:border-[#3E434D] text-transparent hover:border-[#4355DB] hover:bg-white max-sm:opacity-80 sm:opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
             }`}
             title={isChecked ? 'Desmarcar seleção' : 'Selecionar (Shift+Clique)'}
           >
@@ -265,8 +265,8 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
               }}
               className={`p-1.5 min-h-[30px] min-w-[30px] sm:min-h-[28px] sm:min-w-[28px] flex items-center justify-center rounded transition-all duration-150 cursor-pointer border shadow-2xs outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB] ${
                 isFavorite
-                  ? 'bg-white text-[#F59E0B] border-[#F59E0B]/30 opacity-100'
-                  : 'bg-white/90 hover:bg-white text-[#737373] hover:text-[#171717] border-[#E7E7E5] max-sm:opacity-80 sm:opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
+                  ? 'bg-white dark:bg-[#20232A] text-[#F59E0B] border-[#F59E0B]/30 opacity-100'
+                  : 'bg-white/90 dark:bg-[#191B20]/90 hover:bg-white dark:hover:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] border-[#E7E7E5] dark:border-[#2D3139] max-sm:opacity-80 sm:opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
               }`}
               title={isFavorite ? 'Remover dos favoritos' : 'Favoritar referência'}
               aria-label={isFavorite ? 'Remover dos favoritos' : 'Favoritar referência'}
@@ -286,7 +286,7 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="p-1.5 min-h-[30px] min-w-[30px] sm:min-h-[28px] sm:min-w-[28px] flex items-center justify-center rounded bg-white/90 hover:bg-white text-[#737373] hover:text-[#171717] max-sm:opacity-80 sm:opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150 shadow-2xs border border-[#E7E7E5]"
+              className="p-1.5 min-h-[30px] min-w-[30px] sm:min-h-[28px] sm:min-w-[28px] flex items-center justify-center rounded bg-white/90 dark:bg-[#191B20]/90 hover:bg-white dark:hover:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] max-sm:opacity-80 sm:opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150 shadow-2xs border border-[#E7E7E5] dark:border-[#2D3139]"
               title={`Visitar ${displaySubtitle} (abre em nova aba)`}
               aria-label={`Visitar ${displaySubtitle} externamente`}
             >
@@ -304,8 +304,8 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
               }}
               className={`p-1.5 min-h-[30px] min-w-[30px] sm:min-h-[28px] sm:min-w-[28px] flex items-center justify-center rounded transition-all duration-150 cursor-pointer border shadow-2xs outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB] ${
                 isMenuOpen
-                  ? 'bg-white text-[#171717] border-[#171717] opacity-100'
-                  : 'bg-white/90 hover:bg-white text-[#737373] hover:text-[#171717] border-[#E7E7E5] max-sm:opacity-80 sm:opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
+                  ? 'bg-white dark:bg-[#20232A] text-[#171717] dark:text-[#F3F4F6] border-[#171717] dark:border-[#F3F4F6] opacity-100'
+                  : 'bg-white/90 dark:bg-[#191B20]/90 hover:bg-white dark:hover:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] border-[#E7E7E5] dark:border-[#2D3139] max-sm:opacity-80 sm:opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
               }`}
               title="Ações rápidas da referência"
               aria-label="Ações rápidas"
@@ -317,7 +317,7 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
             {/* Dropdown Menu */}
             {isMenuOpen && (
               <div
-                className="absolute right-0 top-full mt-1.5 w-48 bg-white border border-[#E7E7E5] rounded-md shadow-xl py-1 z-30 flex flex-col text-xs text-[#171717] animate-in fade-in zoom-in-95 duration-100"
+                className="absolute right-0 top-full mt-1.5 w-48 bg-white dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] rounded-md shadow-xl py-1 z-30 flex flex-col text-xs text-[#171717] dark:text-[#F3F4F6] animate-in fade-in zoom-in-95 duration-100"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Abrir detalhes */}
@@ -328,9 +328,9 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
                     setIsMenuOpen(false);
                     onClick?.();
                   }}
-                  className="w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-[#F1F1EF] transition-colors cursor-pointer"
+                  className="w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-[#F1F1EF] dark:hover:bg-[#282C35] transition-colors cursor-pointer"
                 >
-                  <Eye size={13} className="text-[#737373]" />
+                  <Eye size={13} className="text-[#737373] dark:text-[#9CA3AF]" />
                   <span>Abrir detalhes</span>
                 </button>
 
@@ -343,11 +343,11 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
                       setIsMenuOpen(false);
                       onToggleFavorite(reference.id, !isFavorite);
                     }}
-                    className="w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-[#F1F1EF] transition-colors cursor-pointer"
+                    className="w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-[#F1F1EF] dark:hover:bg-[#282C35] transition-colors cursor-pointer"
                   >
                     <Star
                       size={13}
-                      className={isFavorite ? 'fill-[#F59E0B] text-[#F59E0B]' : 'text-[#737373]'}
+                      className={isFavorite ? 'fill-[#F59E0B] text-[#F59E0B]' : 'text-[#737373] dark:text-[#9CA3AF]'}
                     />
                     <span>{isFavorite ? 'Desfavoritar' : 'Favoritar'}</span>
                   </button>
@@ -362,9 +362,9 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
                       setIsMenuOpen(false);
                       onQuickAssociateCollection(reference);
                     }}
-                    className="w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-[#F1F1EF] transition-colors cursor-pointer"
+                    className="w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-[#F1F1EF] dark:hover:bg-[#282C35] transition-colors cursor-pointer"
                   >
-                    <Layers size={13} className="text-[#737373]" />
+                    <Layers size={13} className="text-[#737373] dark:text-[#9CA3AF]" />
                     <span>Gerenciar coleções...</span>
                   </button>
                 )}
@@ -378,9 +378,9 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
                       setIsMenuOpen(false);
                       onQuickAssociateProject(reference);
                     }}
-                    className="w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-[#F1F1EF] transition-colors cursor-pointer"
+                    className="w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-[#F1F1EF] dark:hover:bg-[#282C35] transition-colors cursor-pointer"
                   >
-                    <Briefcase size={13} className="text-[#737373]" />
+                    <Briefcase size={13} className="text-[#737373] dark:text-[#9CA3AF]" />
                     <span>Associar a projeto...</span>
                   </button>
                 )}
@@ -394,9 +394,9 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
                       setIsMenuOpen(false);
                       onQuickEdit(reference);
                     }}
-                    className="w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-[#F1F1EF] transition-colors cursor-pointer"
+                    className="w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-[#F1F1EF] dark:hover:bg-[#282C35] transition-colors cursor-pointer"
                   >
-                    <Edit3 size={13} className="text-[#737373]" />
+                    <Edit3 size={13} className="text-[#737373] dark:text-[#9CA3AF]" />
                     <span>Editar metadados</span>
                   </button>
                 )}
@@ -405,15 +405,15 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-[#F1F1EF] transition-colors cursor-pointer"
+                  className="w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-[#F1F1EF] dark:hover:bg-[#282C35] transition-colors cursor-pointer"
                 >
-                  <Copy size={13} className="text-[#737373]" />
+                  <Copy size={13} className="text-[#737373] dark:text-[#9CA3AF]" />
                   <span>{copiedLink ? 'Link copiado!' : 'Copiar URL / link'}</span>
                 </button>
 
                 {/* Excluir (Destructive) */}
                 {onQuickDelete && (
-                  <div className="pt-1 mt-1 border-t border-[#E7E7E5]">
+                  <div className="pt-1 mt-1 border-t border-[#E7E7E5] dark:border-[#2D3139]">
                     <button
                       type="button"
                       onClick={(e) => {
@@ -438,11 +438,11 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
       <div className="p-3 sm:p-3.5 flex flex-col gap-1.5 w-full min-w-0 max-w-full box-border">
         {/* Domain / Filename & Status Badge */}
         <div className="flex items-center justify-between gap-2 w-full min-w-0">
-          <span className="font-mono text-[11px] font-semibold text-[#737373] uppercase tracking-wider truncate flex items-center gap-1.5 min-w-0 flex-1">
+          <span className="font-mono text-[11px] font-semibold text-[#737373] dark:text-[#9CA3AF] uppercase tracking-wider truncate flex items-center gap-1.5 min-w-0 flex-1">
             {hasUrl ? (
-              <Globe size={11} className="text-[#A8A8A6] flex-shrink-0" />
+              <Globe size={11} className="text-[#A8A8A6] dark:text-[#6B7280] flex-shrink-0" />
             ) : (
-              <ImageIcon size={11} className="text-[#A8A8A6] flex-shrink-0" />
+              <ImageIcon size={11} className="text-[#A8A8A6] dark:text-[#6B7280] flex-shrink-0" />
             )}
             <span className="truncate">{displaySubtitle}</span>
           </span>
@@ -457,7 +457,7 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
         </div>
 
         {/* Title */}
-        <h3 className="font-sans font-semibold text-[13px] leading-snug text-[#171717] group-hover:text-[#4355DB] transition-colors truncate w-full min-w-0">
+        <h3 className="font-sans font-semibold text-[13px] leading-snug text-[#171717] dark:text-[#F3F4F6] group-hover:text-[#4355DB] dark:group-hover:text-[#6375F1] transition-colors truncate w-full min-w-0">
           {reference.title}
         </h3>
 
@@ -472,14 +472,14 @@ export const ReferenceCard: React.FC<ReferenceCardProps> = ({
                   e.stopPropagation();
                   onTagClick?.(tag);
                 }}
-                className="font-mono text-[10px] font-medium text-[#737373] hover:text-[#171717] bg-[#F1F1EF] hover:bg-[#EDEDEA] px-2 py-1 min-h-[26px] inline-flex items-center rounded border border-[#E7E7E5]/70 tracking-wider transition-colors cursor-pointer shrink-0"
+                className="font-mono text-[10px] font-medium text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] bg-[#F1F1EF] dark:bg-[#20232A] hover:bg-[#EDEDEA] dark:hover:bg-[#282C35] px-2 py-1 min-h-[26px] inline-flex items-center rounded border border-[#E7E7E5]/70 dark:border-[#2D3139]/70 tracking-wider transition-colors cursor-pointer shrink-0"
                 title={`Filtrar por #${tag}`}
               >
                 #{tag}
               </button>
             ))}
             {reference.tags.length > 3 && (
-              <span className="font-mono text-[10px] text-[#A8A8A6] shrink-0">
+              <span className="font-mono text-[10px] text-[#A8A8A6] dark:text-[#6B7280] shrink-0">
                 +{reference.tags.length - 3}
               </span>
             )}

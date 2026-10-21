@@ -112,29 +112,29 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
       {/* Sheet Content Card */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-h-[85vh] bg-white border-t border-[#E7E7E5] rounded-t-2xl shadow-2xl flex flex-col z-10 animate-in slide-in-from-bottom duration-200 overflow-hidden"
+        className="relative w-full max-h-[85vh] bg-white dark:bg-[#191B20] border-t border-[#E7E7E5] dark:border-[#2D3139] rounded-t-2xl shadow-2xl flex flex-col z-10 animate-in slide-in-from-bottom duration-200 overflow-hidden"
         style={{ paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom, 0px))' }}
       >
         {/* Pull Indicator Bar */}
         <div className="w-full flex items-center justify-center pt-3 pb-1 cursor-grab" onClick={onClose}>
-          <div className="w-10 h-1.5 rounded-full bg-[#D4D4D0]" />
+          <div className="w-10 h-1.5 rounded-full bg-[#D4D4D0] dark:bg-[#3E434D]" />
         </div>
 
         {/* Sheet Header */}
-        <div className="px-5 py-3 border-b border-[#E7E7E5]/70 flex items-center justify-between">
+        <div className="px-5 py-3 border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-[#171717] flex items-center justify-center text-white">
+            <div className="w-6 h-6 rounded-md bg-[#171717] dark:bg-[#4355DB] flex items-center justify-center text-white">
               <Compass size={14} strokeWidth={2.2} />
             </div>
-            <h2 id="mobile-menu-title" className="font-display font-bold text-sm tracking-tight text-[#171717]">
-              Salvei <span className="font-mono text-[10px] text-[#A8A8A6] font-normal uppercase">Menu</span>
+            <h2 id="mobile-menu-title" className="font-display font-bold text-sm tracking-tight text-[#171717] dark:text-[#F3F4F6]">
+              Salvei <span className="font-mono text-[10px] text-[#A8A8A6] dark:text-[#6B7280] font-normal uppercase">Menu</span>
             </h2>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-md text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+            className="p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
             aria-label="Fechar menu"
           >
             <X size={17} />
@@ -149,8 +149,8 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
             onClick={() => handleSelectDestination('projects')}
             className={`w-full flex items-center justify-between p-3 rounded-lg text-left transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB] ${
               currentDestination === 'projects'
-                ? 'bg-[#EDEDEA] text-[#171717] font-semibold'
-                : 'text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF]'
+                ? 'bg-[#EDEDEA] dark:bg-[#2A303C] text-[#171717] dark:text-[#F3F4F6] font-semibold'
+                : 'text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A]'
             }`}
           >
             <div className="flex items-center gap-3">
@@ -158,17 +158,17 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
                 className={`w-8 h-8 rounded-md flex items-center justify-center ${
                   currentDestination === 'projects'
                     ? 'bg-[#4355DB] text-white'
-                    : 'bg-[#F1F1EF] text-[#737373]'
+                    : 'bg-[#F1F1EF] dark:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF]'
                 }`}
               >
                 <Briefcase size={16} />
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-semibold text-[#171717]">Projetos</span>
-                <span className="text-[11px] text-[#737373]">Sprints, produtos e entregáveis</span>
+                <span className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">Projetos</span>
+                <span className="text-[11px] text-[#737373] dark:text-[#9CA3AF]">Sprints, produtos e entregáveis</span>
               </div>
             </div>
-            <span className="font-mono text-xs text-[#737373] bg-white px-2 py-0.5 rounded border border-[#E7E7E5]">
+            <span className="font-mono text-xs text-[#737373] dark:text-[#9CA3AF] bg-white dark:bg-[#20232A] px-2 py-0.5 rounded border border-[#E7E7E5] dark:border-[#2D3139]">
               {projectCount}
             </span>
           </button>
@@ -179,8 +179,8 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
             onClick={() => handleSelectDestination('collections')}
             className={`w-full flex items-center justify-between p-3 rounded-lg text-left transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB] ${
               currentDestination === 'collections'
-                ? 'bg-[#EDEDEA] text-[#171717] font-semibold'
-                : 'text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF]'
+                ? 'bg-[#EDEDEA] dark:bg-[#2A303C] text-[#171717] dark:text-[#F3F4F6] font-semibold'
+                : 'text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A]'
             }`}
           >
             <div className="flex items-center gap-3">
@@ -188,17 +188,17 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
                 className={`w-8 h-8 rounded-md flex items-center justify-center ${
                   currentDestination === 'collections'
                     ? 'bg-[#4355DB] text-white'
-                    : 'bg-[#F1F1EF] text-[#737373]'
+                    : 'bg-[#F1F1EF] dark:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF]'
                 }`}
               >
                 <Layers size={16} />
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-semibold text-[#171717]">Coleções</span>
-                <span className="text-[11px] text-[#737373]">Curadorias temáticas de design</span>
+                <span className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">Coleções</span>
+                <span className="text-[11px] text-[#737373] dark:text-[#9CA3AF]">Curadorias temáticas de design</span>
               </div>
             </div>
-            <span className="font-mono text-xs text-[#737373] bg-white px-2 py-0.5 rounded border border-[#E7E7E5]">
+            <span className="font-mono text-xs text-[#737373] dark:text-[#9CA3AF] bg-white dark:bg-[#20232A] px-2 py-0.5 rounded border border-[#E7E7E5] dark:border-[#2D3139]">
               {collectionCount}
             </span>
           </button>
@@ -209,20 +209,20 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
             onClick={handleSelectFavorites}
             className={`w-full flex items-center justify-between p-3 rounded-lg text-left transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB] ${
               isFavoritesFilterActive
-                ? 'bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] font-semibold'
-                : 'text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF]'
+                ? 'bg-[#FFFBEB] dark:bg-[#2D2412] border border-[#FDE68A] dark:border-[#78350F] text-[#92400E] dark:text-[#FDE68A] font-semibold'
+                : 'text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A]'
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-md bg-[#FEF3C7] text-[#D97706] flex items-center justify-center">
-                <Star size={16} className="fill-[#D97706]" />
+              <div className="w-8 h-8 rounded-md bg-[#FEF3C7] dark:bg-[#78350F]/40 text-[#D97706] dark:text-[#FBBF24] flex items-center justify-center">
+                <Star size={16} className="fill-[#D97706] dark:fill-[#FBBF24]" />
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-semibold text-[#171717]">Favoritos</span>
-                <span className="text-[11px] text-[#737373]">Filtrar apenas itens favoritados</span>
+                <span className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">Favoritos</span>
+                <span className="text-[11px] text-[#737373] dark:text-[#9CA3AF]">Filtrar apenas itens favoritados</span>
               </div>
             </div>
-            <span className="font-mono text-[10px] text-[#B45309] font-semibold uppercase tracking-wider">
+            <span className="font-mono text-[10px] text-[#B45309] dark:text-[#FBBF24] font-semibold uppercase tracking-wider">
               {isFavoritesFilterActive ? 'ATIVADO' : 'VER TODOS'}
             </span>
           </button>
@@ -233,8 +233,8 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
             onClick={() => handleSelectDestination('tags')}
             className={`w-full flex items-center justify-between p-3 rounded-lg text-left transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB] ${
               currentDestination === 'tags'
-                ? 'bg-[#EDEDEA] text-[#171717] font-semibold'
-                : 'text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF]'
+                ? 'bg-[#EDEDEA] dark:bg-[#2A303C] text-[#171717] dark:text-[#F3F4F6] font-semibold'
+                : 'text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A]'
             }`}
           >
             <div className="flex items-center gap-3">
@@ -242,17 +242,17 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
                 className={`w-8 h-8 rounded-md flex items-center justify-center ${
                   currentDestination === 'tags'
                     ? 'bg-[#4355DB] text-white'
-                    : 'bg-[#F1F1EF] text-[#737373]'
+                    : 'bg-[#F1F1EF] dark:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF]'
                 }`}
               >
                 <Tag size={16} />
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-semibold text-[#171717]">Etiquetas</span>
-                <span className="text-[11px] text-[#737373]">Gerenciamento de taxonomia</span>
+                <span className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">Etiquetas</span>
+                <span className="text-[11px] text-[#737373] dark:text-[#9CA3AF]">Gerenciamento de taxonomia</span>
               </div>
             </div>
-            <span className="font-mono text-xs text-[#737373] bg-white px-2 py-0.5 rounded border border-[#E7E7E5]">
+            <span className="font-mono text-xs text-[#737373] dark:text-[#9CA3AF] bg-white dark:bg-[#20232A] px-2 py-0.5 rounded border border-[#E7E7E5] dark:border-[#2D3139]">
               {tagCount}
             </span>
           </button>
@@ -262,18 +262,18 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
             <button
               type="button"
               onClick={handleSelectShortcuts}
-              className="w-full flex items-center justify-between p-3 rounded-lg text-left transition-colors cursor-pointer text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF] outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+              className="w-full flex items-center justify-between p-3 rounded-lg text-left transition-colors cursor-pointer text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-md bg-[#F1F1EF] text-[#737373] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-md bg-[#F1F1EF] dark:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF] flex items-center justify-center">
                   <HelpCircle size={16} />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-[#171717]">Atalhos de teclado</span>
-                  <span className="text-[11px] text-[#737373]">Guia completo de atalhos (?)</span>
+                  <span className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">Atalhos de teclado</span>
+                  <span className="text-[11px] text-[#737373] dark:text-[#9CA3AF]">Guia completo de atalhos (?)</span>
                 </div>
               </div>
-              <ChevronRight size={15} className="text-[#A8A8A6]" />
+              <ChevronRight size={15} className="text-[#A8A8A6] dark:text-[#6B7280]" />
             </button>
           )}
 
@@ -283,8 +283,8 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
             onClick={() => handleSelectDestination('settings')}
             className={`w-full flex items-center justify-between p-3 rounded-lg text-left transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB] ${
               currentDestination === 'settings'
-                ? 'bg-[#EDEDEA] text-[#171717] font-semibold'
-                : 'text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF]'
+                ? 'bg-[#EDEDEA] dark:bg-[#2A303C] text-[#171717] dark:text-[#F3F4F6] font-semibold'
+                : 'text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A]'
             }`}
           >
             <div className="flex items-center gap-3">
@@ -292,23 +292,23 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
                 className={`w-8 h-8 rounded-md flex items-center justify-center ${
                   currentDestination === 'settings'
                     ? 'bg-[#4355DB] text-white'
-                    : 'bg-[#F1F1EF] text-[#737373]'
+                    : 'bg-[#F1F1EF] dark:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF]'
                 }`}
               >
                 <SlidersHorizontal size={16} />
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-semibold text-[#171717]">Configurações</span>
-                <span className="text-[11px] text-[#737373]">Preferências do workspace</span>
+                <span className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">Configurações</span>
+                <span className="text-[11px] text-[#737373] dark:text-[#9CA3AF]">Preferências do workspace</span>
               </div>
             </div>
-            <ChevronRight size={15} className="text-[#A8A8A6]" />
+            <ChevronRight size={15} className="text-[#A8A8A6] dark:text-[#6B7280]" />
           </button>
         </div>
 
         {/* User Account & Profile Access Card */}
         {user && (
-          <div className="mx-4 mt-2 p-3 rounded-xl bg-[#F8F8F6] border border-[#E7E7E5] flex flex-col gap-2.5">
+          <div className="mx-4 mt-2 p-3 rounded-xl bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] flex flex-col gap-2.5">
             <div className="flex items-center justify-between gap-2">
               <button
                 type="button"
@@ -319,7 +319,7 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
                 className="flex items-center gap-2.5 min-w-0 text-left hover:opacity-80 transition-opacity flex-1 cursor-pointer outline-none"
                 title="Abrir perfil"
               >
-                <div className="w-9 h-9 rounded-full bg-[#171717] text-white flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden border border-[#E7E7E5]">
+                <div className="w-9 h-9 rounded-full bg-[#171717] dark:bg-[#4355DB] text-white flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden border border-[#E7E7E5] dark:border-[#2D3139]">
                   {profile?.avatar_url ? (
                     <img
                       src={profile.avatar_url}
@@ -335,10 +335,10 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
                   )}
                 </div>
                 <div className="flex flex-col min-w-0">
-                  <span className="text-xs font-semibold text-[#171717] truncate">
+                  <span className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6] truncate">
                     {profile?.full_name || user.email?.split('@')[0] || 'Usuário'}
                   </span>
-                  <span className="text-[11px] text-[#737373] truncate">
+                  <span className="text-[11px] text-[#737373] dark:text-[#9CA3AF] truncate">
                     {user.email}
                   </span>
                 </div>
@@ -348,7 +348,7 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
                 type="button"
                 onClick={handleLogout}
                 title="Encerrar sessão"
-                className="p-2 rounded-lg text-[#737373] hover:text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors cursor-pointer shrink-0"
+                className="p-2 rounded-lg text-[#737373] dark:text-[#9CA3AF] hover:text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors cursor-pointer shrink-0"
                 aria-label="Encerrar sessão"
               >
                 <LogOut size={16} />
@@ -356,16 +356,16 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
             </div>
 
             {/* Quick actions for Profile & Tutorial */}
-            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#E7E7E5]/70">
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#E7E7E5]/70 dark:border-[#2D3139]/70">
               <button
                 type="button"
                 onClick={() => {
                   onClose();
                   onOpenProfile?.();
                 }}
-                className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium bg-white border border-[#E7E7E5] text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer"
+                className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] text-[#171717] dark:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#282C35] transition-colors cursor-pointer"
               >
-                <UserIcon size={13} className="text-[#737373]" />
+                <UserIcon size={13} className="text-[#737373] dark:text-[#9CA3AF]" />
                 <span>Meu perfil</span>
               </button>
               {onOpenTutorial && (
@@ -375,9 +375,9 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
                     onClose();
                     onOpenTutorial();
                   }}
-                  className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium bg-white border border-[#E7E7E5] text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer"
+                  className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] text-[#171717] dark:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#282C35] transition-colors cursor-pointer"
                 >
-                  <BookOpen size={13} className="text-[#4355DB]" />
+                  <BookOpen size={13} className="text-[#4355DB] dark:text-[#6375F1]" />
                   <span>Tutorial</span>
                 </button>
               )}

@@ -143,18 +143,18 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
         if (e.key === 'Escape') onClose();
       }}
     >
-      <div className="w-full max-w-lg bg-white border border-[#E7E7E5] rounded-xl shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
+      <div className="w-full max-w-lg bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-xl shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-[#E7E7E5] flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-[#E7E7E5] dark:border-[#2D3139] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#171717] text-white flex items-center justify-center shadow-xs">
+            <div className="w-8 h-8 rounded-lg bg-[#171717] dark:bg-[#4355DB] text-white flex items-center justify-center shadow-xs">
               <UserIcon size={16} />
             </div>
             <div>
-              <h2 id="profile-modal-title" className="font-sans font-bold text-base text-[#171717]">
+              <h2 id="profile-modal-title" className="font-sans font-bold text-base text-[#171717] dark:text-[#F3F4F6]">
                 Meu Perfil
               </h2>
-              <p className="font-sans text-xs text-[#737373]">
+              <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF]">
                 Gerencie sua identidade visual e dados da conta
               </p>
             </div>
@@ -163,7 +163,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-md text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+            className="p-1.5 rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
             aria-label="Fechar"
           >
             <X size={18} />
@@ -173,16 +173,16 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
         {/* Modal Body */}
         <div className="p-6 overflow-y-auto flex flex-col gap-6">
           {/* Section 1: Avatar Management */}
-          <div className="flex flex-col sm:flex-row items-center gap-5 p-4 rounded-xl bg-[#F8F8F6] border border-[#E7E7E5]">
+          <div className="flex flex-col sm:flex-row items-center gap-5 p-4 rounded-xl bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139]">
             <div className="relative group shrink-0">
               {profile.avatar_url ? (
                 <img
                   src={profile.avatar_url}
                   alt={fullName || 'Foto de perfil'}
-                  className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md bg-white"
+                  className="w-20 h-20 rounded-full object-cover border-2 border-white dark:border-[#2D3139] shadow-md bg-white dark:bg-[#191B20]"
                 />
               ) : (
-                <div className="w-20 h-20 rounded-full bg-[#171717] text-white flex items-center justify-center font-display font-bold text-2xl shadow-md border-2 border-white">
+                <div className="w-20 h-20 rounded-full bg-[#171717] dark:bg-[#4355DB] text-white flex items-center justify-center font-display font-bold text-2xl shadow-md border-2 border-white dark:border-[#2D3139]">
                   {initialLetter}
                 </div>
               )}
@@ -196,10 +196,10 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             </div>
 
             <div className="flex flex-col items-center sm:items-start gap-2 flex-1 text-center sm:text-left">
-              <span className="font-sans font-semibold text-sm text-[#171717]">
+              <span className="font-sans font-semibold text-sm text-[#171717] dark:text-[#F3F4F6]">
                 Foto de Perfil
               </span>
-              <p className="font-sans text-xs text-[#737373] leading-relaxed">
+              <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF] leading-relaxed">
                 Envie uma foto em PNG, JPG ou WebP de até 5 MB para personalizar sua experiência.
               </p>
 
@@ -241,7 +241,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                         <Trash2 size={13} className="text-rose-500" />
                       )
                     }
-                    className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                    className="text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-700 dark:hover:text-rose-300"
                   >
                     Remover
                   </Button>
@@ -251,8 +251,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           </div>
 
           {photoError && (
-            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg flex items-start gap-2">
-              <AlertCircle size={15} className="text-rose-600 shrink-0 mt-0.5" />
+            <div className="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 text-rose-800 dark:text-rose-300 text-xs rounded-lg flex items-start gap-2">
+              <AlertCircle size={15} className="text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
               <span>{photoError}</span>
             </div>
           )}
@@ -262,7 +262,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             <div>
               <label
                 htmlFor="profile-fullname"
-                className="block text-xs font-semibold text-[#171717] mb-1.5"
+                className="block text-xs font-semibold text-[#171717] dark:text-[#F3F4F6] mb-1.5"
               >
                 Nome de Exibição
               </label>
@@ -277,18 +277,18 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   }}
                   maxLength={50}
                   placeholder="Seu nome ou apelido profissional"
-                  className={`w-full h-10 px-3.5 rounded-lg bg-[#F8F8F6] border text-xs text-[#171717] outline-none transition-colors ${
+                  className={`w-full h-10 px-3.5 rounded-lg bg-[#F8F8F6] dark:bg-[#20232A] border text-xs text-[#171717] dark:text-[#F3F4F6] outline-none transition-colors ${
                     nameError
-                      ? 'border-rose-400 focus:border-rose-500 bg-rose-50/20'
-                      : 'border-[#E7E7E5] focus:border-[#4355DB] focus:bg-white focus:ring-2 focus:ring-[#4355DB]/15'
+                      ? 'border-rose-400 focus:border-rose-500 bg-rose-50/20 dark:bg-rose-950/20'
+                      : 'border-[#E7E7E5] dark:border-[#2D3139] focus:border-[#4355DB] focus:bg-white dark:focus:bg-[#15171C] focus:ring-2 focus:ring-[#4355DB]/15'
                   }`}
                 />
-                <span className="absolute right-3 top-3 text-[10px] font-mono text-[#A8A8A6]">
+                <span className="absolute right-3 top-3 text-[10px] font-mono text-[#A8A8A6] dark:text-[#6B7280]">
                   {fullName.length}/50
                 </span>
               </div>
               {nameError && (
-                <p className="mt-1 text-xs text-rose-600 flex items-center gap-1">
+                <p className="mt-1 text-xs text-rose-600 dark:text-rose-400 flex items-center gap-1">
                   <AlertCircle size={12} />
                   <span>{nameError}</span>
                 </p>
@@ -297,17 +297,17 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
             {/* Email (Read-only) */}
             <div>
-              <label className="block text-xs font-semibold text-[#171717] mb-1.5">
+              <label className="block text-xs font-semibold text-[#171717] dark:text-[#F3F4F6] mb-1.5">
                 Endereço de E-mail
               </label>
-              <div className="flex items-center gap-2 h-10 px-3.5 rounded-lg bg-[#F1F1EF] border border-[#E7E7E5] text-xs text-[#737373] cursor-not-allowed">
-                <Mail size={14} className="text-[#A8A8A6] shrink-0" />
+              <div className="flex items-center gap-2 h-10 px-3.5 rounded-lg bg-[#F1F1EF] dark:bg-[#15171C] border border-[#E7E7E5] dark:border-[#2D3139] text-xs text-[#737373] dark:text-[#9CA3AF] cursor-not-allowed">
+                <Mail size={14} className="text-[#A8A8A6] dark:text-[#6B7280] shrink-0" />
                 <span className="truncate select-all">{emailDisplay}</span>
-                <span className="ml-auto text-[10px] font-mono text-[#737373] bg-[#E7E7E5] px-1.5 py-0.5 rounded">
+                <span className="ml-auto text-[10px] font-mono text-[#737373] dark:text-[#9CA3AF] bg-[#E7E7E5] dark:bg-[#2D3139] px-1.5 py-0.5 rounded">
                   Autenticado
                 </span>
               </div>
-              <p className="mt-1 text-[11px] text-[#A8A8A6]">
+              <p className="mt-1 text-[11px] text-[#A8A8A6] dark:text-[#6B7280]">
                 O e-mail é vinculado à sua conta de autenticação e não pode ser alterado por aqui.
               </p>
             </div>

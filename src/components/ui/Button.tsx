@@ -32,13 +32,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variantStyles = {
       primary:
-        'bg-[#171717] hover:bg-[#262626] text-white border border-transparent shadow-sm',
+        'bg-[#171717] hover:bg-[#262626] dark:bg-[#F3F4F6] dark:hover:bg-[#E5E7EB] text-white dark:text-[#111214] border border-transparent shadow-sm',
       accent:
         'bg-[#4355DB] hover:bg-[#3646B8] text-white border border-transparent shadow-sm',
       secondary:
-        'bg-white hover:bg-[#F1F1EF] text-[#171717] border border-[#E7E7E5] hover:border-[#D4D4D0] shadow-[0_1px_2px_rgba(0,0,0,0.02)]',
+        'bg-white dark:bg-[#191B20] hover:bg-[#F1F1EF] dark:hover:bg-[#242832] text-[#171717] dark:text-[#F3F4F6] border border-[#E7E7E5] dark:border-[#2D3139] hover:border-[#D4D4D0] dark:hover:border-[#3E434D] shadow-[0_1px_2px_rgba(0,0,0,0.02)]',
       ghost:
-        'bg-transparent hover:bg-[#F1F1EF] text-[#737373] hover:text-[#171717] border border-transparent',
+        'bg-transparent hover:bg-[#F1F1EF] dark:hover:bg-[#242832] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] border border-transparent',
       destructive:
         'bg-[#EF4444] hover:bg-[#DC2626] text-white border border-transparent shadow-sm',
     };

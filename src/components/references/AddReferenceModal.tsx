@@ -411,21 +411,21 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="relative w-full max-w-[620px] max-h-[92vh] bg-white border border-[#E7E7E5] rounded-sm shadow-2xl flex flex-col z-10 animate-in fade-in zoom-in-95 duration-150 overflow-hidden"
+        className="relative w-full max-w-[620px] max-h-[92vh] bg-white dark:bg-[#191B20] text-[#171717] dark:text-[#F3F4F6] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm shadow-2xl flex flex-col z-10 animate-in fade-in zoom-in-95 duration-150 overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-[#E7E7E5]/70 flex-shrink-0">
+        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70 flex-shrink-0">
           <div>
-            <h2 id="modal-title" className="font-sans font-bold text-base text-[#171717]">
+            <h2 id="modal-title" className="font-sans font-bold text-base text-[#171717] dark:text-[#F3F4F6]">
               Adicionar referência
             </h2>
-            <p className="font-sans text-xs text-[#737373] mt-0.5">
+            <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF] mt-0.5">
               Importe capturas visuais locais ou cadastre referências a partir de URLs.
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-md text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer"
+            className="p-1 rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer"
             aria-label="Fechar diálogo"
           >
             <X size={17} />
@@ -433,14 +433,14 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
         </div>
 
         {/* Mode Switcher Tabs */}
-        <div className="flex border-b border-[#E7E7E5] px-6 bg-[#F8F8F6]/60 flex-shrink-0">
+        <div className="flex border-b border-[#E7E7E5] dark:border-[#2D3139] px-6 bg-[#F8F8F6]/60 dark:bg-[#15171C]/60 flex-shrink-0">
           <button
             type="button"
             onClick={() => setMode('image')}
             className={`flex items-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
               mode === 'image'
-                ? 'border-[#4355DB] text-[#4355DB]'
-                : 'border-transparent text-[#737373] hover:text-[#171717]'
+                ? 'border-[#4355DB] dark:border-[#6375F1] text-[#4355DB] dark:text-[#6375F1]'
+                : 'border-transparent text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6]'
             }`}
           >
             <ImageIcon size={14} />
@@ -457,8 +457,8 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
             onClick={() => setMode('url')}
             className={`flex items-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
               mode === 'url'
-                ? 'border-[#4355DB] text-[#4355DB]'
-                : 'border-transparent text-[#737373] hover:text-[#171717]'
+                ? 'border-[#4355DB] dark:border-[#6375F1] text-[#4355DB] dark:text-[#6375F1]'
+                : 'border-transparent text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6]'
             }`}
           >
             <Globe size={14} />

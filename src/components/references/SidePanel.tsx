@@ -341,20 +341,20 @@ export const SidePanel: React.FC<SidePanelProps> = ({
         role="dialog"
         aria-modal="true"
         aria-label={`Detalhes da referência: ${reference.title}`}
-        className="fixed top-0 right-0 bottom-0 z-50 w-full sm:w-[460px] md:w-[440px] lg:w-[460px] bg-white border-l border-[#E7E7E5] shadow-[-10px_0_30px_rgba(0,0,0,0.04)] flex flex-col transition-transform duration-200 ease-out animate-in slide-in-from-right"
+        className="fixed top-0 right-0 bottom-0 z-50 w-full sm:w-[460px] md:w-[440px] lg:w-[460px] bg-white dark:bg-[#191B20] text-[#171717] dark:text-[#F3F4F6] border-l border-[#E7E7E5] dark:border-[#2D3139] shadow-[-10px_0_30px_rgba(0,0,0,0.15)] flex flex-col transition-transform duration-200 ease-out animate-in slide-in-from-right"
       >
         {/* Panel Header */}
-        <div className="h-14 px-5 border-b border-[#E7E7E5] flex items-center justify-between gap-3 bg-white flex-shrink-0">
+        <div className="h-14 px-5 border-b border-[#E7E7E5] dark:border-[#2D3139] flex items-center justify-between gap-3 bg-white dark:bg-[#191B20] flex-shrink-0">
           <div className="flex items-center gap-1.5">
             <button
               onClick={onExpand}
-              className="p-1.5 rounded-md text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+              className="p-1.5 rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
               title="Expandir visualização (quase tela cheia)"
               aria-label="Expandir visualização da referência"
             >
               <Maximize2 size={16} strokeWidth={1.8} />
             </button>
-            <span className="font-mono text-[10px] text-[#A8A8A6] uppercase tracking-wider hidden sm:inline">
+            <span className="font-mono text-[10px] text-[#A8A8A6] dark:text-[#6B7280] uppercase tracking-wider hidden sm:inline">
               [ DETALHES ]
             </span>
           </div>
@@ -366,7 +366,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({
                 href={reference.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-1.5 rounded-md text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+                className="p-1.5 rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
                 title="Abrir site original (abre em nova aba)"
                 aria-label={`Abrir ${reference.domain || reference.url} em nova aba`}
               >
@@ -378,7 +378,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({
             {hasUrl && (
               <button
                 onClick={handleCopyUrl}
-                className="p-1.5 rounded-md text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+                className="p-1.5 rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
                 title="Copiar link"
                 aria-label="Copiar link da referência"
               >
@@ -398,7 +398,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({
                 }
                 onClose();
               }}
-              className="p-1.5 rounded-md text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+              className="p-1.5 rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
               title="Fechar painel (Esc)"
               aria-label="Fechar painel de detalhes"
             >

@@ -301,16 +301,16 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
       />
 
       {/* Main Overlay Card */}
-      <div className="relative w-full h-full max-w-[1600px] sm:max-h-[94vh] bg-white border-0 sm:border border-[#E7E7E5] rounded-none sm:rounded-sm shadow-2xl flex flex-col z-10 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="relative w-full h-full max-w-[1600px] sm:max-h-[94vh] bg-white dark:bg-[#191B20] text-[#171717] dark:text-[#F3F4F6] border-0 sm:border border-[#E7E7E5] dark:border-[#2D3139] rounded-none sm:rounded-sm shadow-2xl flex flex-col z-10 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Topbar of Expanded View */}
-        <header className="h-14 px-5 sm:px-6 border-b border-[#E7E7E5] bg-white flex items-center justify-between gap-4 flex-shrink-0">
+        <header className="h-14 px-5 sm:px-6 border-b border-[#E7E7E5] dark:border-[#2D3139] bg-white dark:bg-[#191B20] flex items-center justify-between gap-4 flex-shrink-0">
           {/* Left Title & Domain */}
           <div className="flex items-center gap-3 overflow-hidden">
-            <span className="font-mono text-xs font-bold text-[#4355DB] uppercase tracking-wider flex-shrink-0">
+            <span className="font-mono text-xs font-bold text-[#4355DB] dark:text-[#6375F1] uppercase tracking-wider flex-shrink-0">
               {displaySubtitle}
             </span>
-            <span className="text-[#E7E7E5] hidden sm:inline">|</span>
-            <h2 className="font-sans font-bold text-sm text-[#171717] truncate">
+            <span className="text-[#E7E7E5] dark:text-[#2D3139] hidden sm:inline">|</span>
+            <h2 className="font-sans font-bold text-sm text-[#171717] dark:text-[#F3F4F6] truncate">
               {reference.title}
             </h2>
           </div>
@@ -322,7 +322,7 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
                 href={reference.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-white hover:bg-[#F1F1EF] text-[#171717] text-xs font-medium border border-[#E7E7E5] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-white dark:bg-[#20232A] hover:bg-[#F1F1EF] dark:hover:bg-[#282C35] text-[#171717] dark:text-[#F3F4F6] text-xs font-medium border border-[#E7E7E5] dark:border-[#2D3139] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
                 title="Abrir site original em nova aba"
               >
                 <span className="hidden sm:inline">Visitar site</span>
@@ -333,7 +333,7 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
             {hasUrl && (
               <button
                 onClick={handleCopyUrl}
-                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-white hover:bg-[#F1F1EF] text-[#171717] text-xs font-medium border border-[#E7E7E5] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-white dark:bg-[#20232A] hover:bg-[#F1F1EF] dark:hover:bg-[#282C35] text-[#171717] dark:text-[#F3F4F6] text-xs font-medium border border-[#E7E7E5] dark:border-[#2D3139] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
                 title="Copiar URL"
               >
                 {copiedUrl ? (
@@ -352,7 +352,7 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
 
             <button
               onClick={onClose}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#737373] hover:text-[#171717] hover:bg-[#F1F1EF] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
               title="Voltar ao painel lateral (Esc)"
               aria-label="Fechar visualização expandida e voltar ao painel"
             >
