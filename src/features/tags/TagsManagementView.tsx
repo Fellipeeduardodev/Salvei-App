@@ -14,6 +14,7 @@ interface TagsManagementViewProps {
   onDeleteTag: (tagToDelete: string) => void;
   onSelectReference: (ref: Reference) => void;
   selectedReferenceId?: string | null;
+  onUpdatePalette?: (referenceId: string, palette: any[]) => void;
 }
 
 export const TagsManagementView: React.FC<TagsManagementViewProps> = ({
@@ -25,6 +26,7 @@ export const TagsManagementView: React.FC<TagsManagementViewProps> = ({
   onDeleteTag,
   onSelectReference,
   selectedReferenceId,
+  onUpdatePalette,
 }) => {
   const [newTagInput, setNewTagInput] = useState('');
   const [tagSearch, setTagSearch] = useState('');
@@ -265,6 +267,7 @@ export const TagsManagementView: React.FC<TagsManagementViewProps> = ({
                   isSelected={selectedReferenceId === ref.id}
                   onClick={() => onSelectReference(ref)}
                   onTagClick={onSelectTag}
+                  onUpdatePalette={onUpdatePalette}
                 />
               ))}
             </div>

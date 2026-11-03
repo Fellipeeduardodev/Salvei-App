@@ -18,7 +18,24 @@ import {
   Image as ImageIcon,
   ChevronDown,
   Star,
+  LayoutGrid,
+  List,
+  Palette,
+  Presentation,
+  Bookmark,
+  Pipette,
 } from 'lucide-react';
+
+export const CURATED_FILTER_COLORS = [
+  { hex: '#0F1012', label: 'Dark / Preto' },
+  { hex: '#FAF7F2', label: 'Light / Claro' },
+  { hex: '#2563EB', label: 'Azul' },
+  { hex: '#10B981', label: 'Verde' },
+  { hex: '#F97316', label: 'Laranja' },
+  { hex: '#8B5CF6', label: 'Violeta' },
+  { hex: '#E11D48', label: 'Vermelho' },
+  { hex: '#F59E0B', label: 'Âmbar' },
+];
 
 interface FilterBarProps {
   filteredCount: number;
@@ -39,6 +56,12 @@ interface FilterBarProps {
   searchQuery?: string;
   onClearSearchQuery?: () => void;
   onClearAllFilters: () => void;
+  selectedColorHex?: string;
+  onSelectColorHex?: (hex: string | undefined) => void;
+  viewMode?: 'grid' | 'list' | 'moodboard';
+  onViewModeChange?: (mode: 'grid' | 'list' | 'moodboard') => void;
+  onOpenPresentation?: () => void;
+  onOpenBookmarklet?: () => void;
   isFiltered?: boolean;
 }
 
@@ -61,6 +84,12 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   searchQuery,
   onClearSearchQuery,
   onClearAllFilters,
+  selectedColorHex,
+  onSelectColorHex,
+  viewMode = 'grid',
+  onViewModeChange,
+  onOpenPresentation,
+  onOpenBookmarklet,
   isFiltered = false,
 }) => {
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
@@ -81,26 +110,27 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     selectedTags.length > 0 ||
     selectedProjectIds.length > 0 ||
     selectedCollectionIds.length > 0 ||
-    contentTypes.length > 0;
+    contentTypes.length > 0 ||
+    Boolean(selectedColorHex);
 
   return (
     <div className="w-full min-w-0 max-w-full flex flex-col gap-2.5 sm:gap-3 pb-3 sm:pb-5 pt-0.5 border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70 select-none box-border">
-      {/* 1. Quick Tags Chips Row (Bounded horizontal scroll, zero page expansion) */}
+      {/* 1. Quick Tags Chips Row (Hero-01 layout) */}
       <div className="w-full min-w-0 max-w-full overflow-x-auto no-scrollbar py-0.5">
-        <div className="flex items-center gap-1.5 w-max">
+        <div className="flex items-center gap-2 w-max">
           <button
             onClick={() => {
               if (selectedTags.length > 0) {
                 selectedTags.forEach((t) => onToggleTag(t));
               }
             }}
-            className={`h-7 px-3 rounded-full text-xs font-mono font-medium tracking-wider transition-colors whitespace-nowrap cursor-pointer border ${
+            className={`h-7 px-3 rounded-md text-xs font-medium tabular-nums transition-colors whitespace-nowrap cursor-pointer border ${
               selectedTags.length === 0
-                ? 'bg-[#4355DB] dark:bg-[#6375F1] text-white font-semibold border-[#4355DB] dark:border-[#6375F1]'
-                : 'bg-white dark:bg-[#191B20] border-[#E7E7E5] dark:border-[#2D3139] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:border-[#D4D4D0] dark:hover:border-[#3E434D]'
+                ? 'bg-[#171717] dark:bg-[#F3F4F6] text-white dark:text-[#171717] font-semibold border-[#171717] dark:border-[#F3F4F6] shadow-2xs'
+                : 'bg-white dark:bg-[#191B20] border-[#E7E7E5] dark:border-[#2D3139] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A]'
             }`}
           >
-            TODAS AS TAGS
+            Todas ({String(totalCount).padStart(2, '0')})
           </button>
 
           {availableTags.map((tag) => {
@@ -109,12 +139,12 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               <button
                 key={tag}
                 onClick={() => onToggleTag(tag)}
-                className={`h-7 px-3 rounded-full text-xs font-mono font-medium tracking-wider transition-colors whitespace-nowrap cursor-pointer border ${
+                className={`h-7 px-2.5 rounded-md text-xs font-mono font-medium tracking-normal transition-colors whitespace-nowrap cursor-pointer border ${
                   isSelected
-                    ? 'bg-[#4355DB] dark:bg-[#6375F1] text-white font-semibold border-[#4355DB] dark:border-[#6375F1]'
-                    : 'bg-white dark:bg-[#191B20] border-[#E7E7E5] dark:border-[#2D3139] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:border-[#D4D4D0] dark:hover:border-[#3E434D]'
+                    ? 'bg-[#171717] dark:bg-[#F3F4F6] text-white dark:text-[#171717] font-semibold border-[#171717] dark:border-[#F3F4F6] shadow-2xs'
+                    : 'bg-white dark:bg-[#191B20] border-[#E7E7E5] dark:border-[#2D3139] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A]'
                 }`}
-                title={`Alternar filtro #${tag} (combinação OR com outras tags)`}
+                title={`Alternar filtro #${tag}`}
               >
                 #{tag}
               </button>
@@ -165,8 +195,65 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           </span>
         </div>
 
-        {/* Right: Sort Select Dropdown */}
-        <div className="flex items-center min-w-0 shrink-0">
+        {/* Right: Controls, Presentation, Clipper & Sort */}
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 shrink-0">
+          {/* Web Clipper Bookmarklet (Desktop / Laptop only) */}
+          {onOpenBookmarklet && (
+            <button
+              type="button"
+              onClick={onOpenBookmarklet}
+              className="hidden sm:flex h-7 px-2 sm:px-2.5 rounded-md bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] text-xs font-medium text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:border-[#D4D4D0] dark:hover:border-[#3E434D] transition-colors cursor-pointer items-center gap-1.5 min-h-[34px] sm:min-h-auto"
+              title="Abrir Web Clipper / Bookmarklet"
+            >
+              <Bookmark size={12} className="text-[#4355DB]" />
+              <span>Clipper</span>
+            </button>
+          )}
+
+          {/* Presentation Mode (Desktop / Tablet only) */}
+          {onOpenPresentation && (
+            <button
+              type="button"
+              onClick={onOpenPresentation}
+              className="hidden sm:flex h-7 px-2 sm:px-2.5 rounded-md bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] text-xs font-medium text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:border-[#D4D4D0] dark:hover:border-[#3E434D] transition-colors cursor-pointer items-center gap-1.5 min-h-[34px] sm:min-h-auto"
+              title="Iniciar Apresentação em Tela Cheia (Tecla P)"
+            >
+              <Presentation size={12} className="text-[#F59E0B]" />
+              <span>Apresentar</span>
+            </button>
+          )}
+
+          {/* View Mode Switcher: Grid vs Moodboard (Desktop / Tablet only) */}
+          {onViewModeChange && (
+            <div className="hidden sm:flex items-center p-0.5 rounded-md bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] h-7 min-h-[34px] sm:min-h-auto">
+              <button
+                type="button"
+                onClick={() => onViewModeChange('grid')}
+                className={`h-6 px-1.5 rounded transition-colors cursor-pointer flex items-center justify-center ${
+                  viewMode === 'grid'
+                    ? 'bg-[#171717] dark:bg-[#4355DB] text-white shadow-2xs'
+                    : 'text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6]'
+                }`}
+                title="Visualização em Grade"
+              >
+                <LayoutGrid size={13} />
+              </button>
+              <button
+                type="button"
+                onClick={() => onViewModeChange('moodboard')}
+                className={`h-6 px-1.5 rounded transition-colors cursor-pointer flex items-center justify-center ${
+                  viewMode === 'moodboard'
+                    ? 'bg-[#171717] dark:bg-[#4355DB] text-white shadow-2xs'
+                    : 'text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6]'
+                }`}
+                title="Visualização em Mural Livre (Moodboard Canvas)"
+              >
+                <Layers size={13} />
+              </button>
+            </div>
+          )}
+
+          {/* Sort Select Dropdown */}
           <div className="flex items-center gap-1.5 h-7 px-2 sm:px-2.5 rounded-md bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] text-xs font-medium text-[#737373] dark:text-[#9CA3AF] hover:border-[#D4D4D0] dark:hover:border-[#3E434D] transition-colors cursor-pointer min-h-[34px] sm:min-h-auto">
             <ArrowDownUp size={12} className="text-[#A8A8A6] dark:text-[#6B7280] shrink-0" />
             <select
@@ -186,7 +273,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       {/* Advanced Faceted Filter Panel */}
       {isAdvancedFiltersOpen && (
         <div className="p-4 bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm flex flex-col gap-4 animate-in fade-in duration-100 shadow-2xs">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Category 1: Projects Filter */}
             <div className="flex flex-col gap-2">
               <span className="font-mono text-[10px] font-bold text-[#A8A8A6] dark:text-[#6B7280] uppercase tracking-wider flex items-center gap-1.5">
@@ -272,6 +359,50 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                     </button>
                   );
                 })}
+              </div>
+            </div>
+
+            {/* Category 4: Paleta Cromática */}
+            <div className="flex flex-col gap-2">
+              <span className="font-mono text-[10px] font-bold text-[#A8A8A6] dark:text-[#6B7280] uppercase tracking-wider flex items-center gap-1.5">
+                <Palette size={12} /> Paleta de Cor
+              </span>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {CURATED_FILTER_COLORS.map((c) => {
+                  const isSelected = selectedColorHex === c.hex;
+                  return (
+                    <button
+                      key={c.hex}
+                      type="button"
+                      onClick={() => onSelectColorHex?.(isSelected ? undefined : c.hex)}
+                      className={`w-6 h-6 rounded-full border transition-transform hover:scale-110 cursor-pointer relative flex items-center justify-center ${
+                        isSelected
+                          ? 'ring-2 ring-[#4355DB] scale-110 border-white'
+                          : 'border-black/15 dark:border-white/20'
+                      }`}
+                      style={{ backgroundColor: c.hex }}
+                      title={`${c.label} (${c.hex})`}
+                    >
+                      {isSelected && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-white shadow-xs" />
+                      )}
+                    </button>
+                  );
+                })}
+
+                {/* Seletor Customizado com Eyedropper */}
+                <label
+                  className="w-6 h-6 rounded-full border border-dashed border-[#A8A8A6] dark:border-[#6B7280] hover:border-[#171717] dark:hover:border-[#F3F4F6] flex items-center justify-center cursor-pointer transition-colors"
+                  title="Escolher cor personalizada"
+                >
+                  <Pipette size={11} className="text-[#737373] dark:text-[#9CA3AF]" />
+                  <input
+                    type="color"
+                    value={selectedColorHex || '#4355DB'}
+                    onChange={(e) => onSelectColorHex?.(e.target.value.toUpperCase())}
+                    className="sr-only"
+                  />
+                </label>
               </div>
             </div>
           </div>
@@ -383,6 +514,27 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               </button>
             </span>
           ))}
+
+          {/* Color Filter Chip */}
+          {selectedColorHex && (
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#F1F1EF] dark:bg-[#20232A] text-[#171717] dark:text-[#F3F4F6] border border-[#E7E7E5] dark:border-[#2D3139] text-[11px] font-mono">
+              <span
+                className="w-2.5 h-2.5 rounded-full border border-black/10 dark:border-white/10"
+                style={{ backgroundColor: selectedColorHex }}
+              />
+              <span>Cor: {selectedColorHex}</span>
+              {onSelectColorHex && (
+                <button
+                  type="button"
+                  onClick={() => onSelectColorHex(undefined)}
+                  className="p-0.5 hover:text-[#EF4444] cursor-pointer"
+                  title="Limpar filtro de cor"
+                >
+                  <X size={11} />
+                </button>
+              )}
+            </span>
+          )}
 
           {/* Clear All Filters Button */}
           <button

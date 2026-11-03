@@ -1,7 +1,7 @@
+import { SalveiSymbol } from '../ui/Logo';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  Compass,
-  UploadCloud,
+    UploadCloud,
   Layers,
   Search,
   Command,
@@ -49,7 +49,7 @@ export const OnboardingTutorialModal: React.FC<OnboardingTutorialModalProps> = (
       description:
         'O Salvei foi desenvolvido para designers, desenvolvedores frontend e criadores visuais reunirem referências, landing pages, componentes e tipografias sem fricção e sem perder o foco criativo.',
       tip: 'Chega de links perdidos nos favoritos ou capturas esquecidas nos downloads. O Salvei mantém tudo centralizado e protegido na nuvem.',
-      icon: <Compass size={24} className="text-[#4355DB] dark:text-[#6375F1]" />,
+      icon: <SalveiSymbol size={24} className="text-[#3C3DE3] dark:text-[#585BFF]" />,
     },
     {
       selector: '[data-tour="quick-capture"]',

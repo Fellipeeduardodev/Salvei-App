@@ -334,4 +334,66 @@ describe('Resiliência da Busca e Casos Extremos', () => {
     // Mas se uma das palavras não existir, deve falhar
     expect(matchesSearchQuery(testReferences[0], 'linear card inexistente')).toBe(false);
   });
+
+  it('encontra referências pesquisando pelo texto extraído via OCR', () => {
+    const ocrRef: Reference = {
+      id: 'ref-ocr',
+      title: 'Print de Tela',
+      screenshotStatus: 'ready',
+      ocrText: 'Checkout com Stripe Elements e taxa de conversão de 99.4%',
+      tags: [],
+      collectionIds: [],
+      projectIds: [],
+      notesMarkdown: '',
+      codeSnippets: [],
+      relatedFiles: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    expect(matchesSearchQuery(ocrRef, 'Stripe Elements')).toBe(true);
+    expect(matchesSearchQuery(ocrRef, 'taxa conversao')).toBe(true);
+    expect(matchesSearchQuery(ocrRef, 'PayPal')).toBe(false);
+  });
+
+  it('filtra referências por proximidade de cor na paleta (selectedColorHex)', () => {
+    const colorRefs: Reference[] = [
+      {
+        id: 'ref-blue',
+        title: 'App Azul',
+        screenshotStatus: 'ready',
+        palette: [{ hex: '#2563EB', name: 'Azul Cobalto', role: 'primary' }],
+        tags: [],
+        collectionIds: [],
+        projectIds: [],
+        notesMarkdown: '',
+        codeSnippets: [],
+        relatedFiles: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'ref-red',
+        title: 'App Vermelho',
+        screenshotStatus: 'ready',
+        palette: [{ hex: '#DC2626', name: 'Vermelho Rubi', role: 'accent' }],
+        tags: [],
+        collectionIds: [],
+        projectIds: [],
+        notesMarkdown: '',
+        codeSnippets: [],
+        relatedFiles: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ];
+
+    const blueFiltered = filterAndSortReferences(colorRefs, { selectedColorHex: '#3B82F6' });
+    expect(blueFiltered).toHaveLength(1);
+    expect(blueFiltered[0].id).toBe('ref-blue');
+
+    const redFiltered = filterAndSortReferences(colorRefs, { selectedColorHex: '#EF4444' });
+    expect(redFiltered).toHaveLength(1);
+    expect(redFiltered[0].id).toBe('ref-red');
+  });
 });

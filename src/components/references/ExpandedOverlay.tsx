@@ -364,8 +364,8 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
         {/* Content Body: Two Columns */}
         <div className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
           {/* LEFT: Massive Screenshot / Image Viewer (65% width) */}
-          <div className="w-full lg:w-[62%] bg-[#F8F8F6] p-4 sm:p-6 md:p-8 lg:overflow-y-auto flex items-start justify-center border-b lg:border-b-0 lg:border-r border-[#E7E7E5] scrollbar-thin">
-            <div className="w-full max-w-4xl bg-white rounded-sm border border-[#E7E7E5] shadow-xs overflow-hidden">
+          <div className="w-full lg:w-[62%] bg-[#F8F8F6] dark:bg-[#121417] p-4 sm:p-6 md:p-8 lg:overflow-y-auto flex items-start justify-center border-b lg:border-b-0 lg:border-r border-[#E7E7E5] dark:border-[#2D3139] scrollbar-thin">
+            <div className="w-full max-w-4xl bg-white dark:bg-[#191B20] rounded-sm border border-[#E7E7E5] dark:border-[#2D3139] shadow-xs overflow-hidden">
               {hasImage ? (
                 <div className="relative group">
                   <img
@@ -373,12 +373,12 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
                     alt={reference.title}
                     className="w-full h-auto object-cover object-top"
                   />
-                  <div className="p-3 bg-white border-t border-[#E7E7E5] flex justify-end">
+                  <div className="p-3 bg-white dark:bg-[#191B20] border-t border-[#E7E7E5] dark:border-[#2D3139] flex justify-end">
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isUploadingImage}
-                      className="text-xs font-mono text-[#737373] hover:text-[#171717] inline-flex items-center gap-1.5 cursor-pointer"
+                      className="text-xs font-mono text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] inline-flex items-center gap-1.5 cursor-pointer"
                     >
                       <Upload size={12} />
                       <span>{isUploadingImage ? 'Atualizando...' : 'Substituir imagem da referência'}</span>
@@ -386,21 +386,21 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
                   </div>
                 </div>
               ) : (
-                <div className="w-full aspect-[16/10] flex flex-col items-center justify-center gap-3 p-8 text-[#A8A8A6] bg-[#FAFAF8] text-center">
-                  <div className="w-12 h-12 rounded-full bg-white border border-[#E7E7E5] flex items-center justify-center text-[#4355DB] shadow-2xs mb-1">
+                <div className="w-full aspect-[16/10] flex flex-col items-center justify-center gap-3 p-8 text-[#A8A8A6] dark:text-[#9CA3AF] bg-[#FAFAF8] dark:bg-[#15171C] text-center">
+                  <div className="w-12 h-12 rounded-full bg-white dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] flex items-center justify-center text-[#4355DB] dark:text-[#6375F1] shadow-2xs mb-1">
                     <Globe size={24} strokeWidth={1.5} />
                   </div>
-                  <h3 className="font-sans font-bold text-sm text-[#171717]">
+                  <h3 className="font-sans font-bold text-sm text-[#171717] dark:text-[#F3F4F6]">
                     Referência sem captura de tela
                   </h3>
-                  <p className="font-sans text-xs text-[#737373] max-w-sm">
+                  <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF] max-w-sm">
                     Esta referência foi salva exclusivamente via URL. Você pode anexar uma captura ou imagem a qualquer momento.
                   </p>
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploadingImage}
-                    className="mt-2 px-3 py-1.5 rounded bg-white hover:bg-[#F1F1EF] border border-[#E7E7E5] font-sans text-xs font-semibold text-[#171717] inline-flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                    className="mt-2 px-3 py-1.5 rounded bg-white dark:bg-[#20232A] hover:bg-[#F1F1EF] dark:hover:bg-[#282C35] border border-[#E7E7E5] dark:border-[#2D3139] font-sans text-xs font-semibold text-[#171717] dark:text-[#F3F4F6] inline-flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
                   >
                     <Upload size={13} strokeWidth={2} />
                     <span>{isUploadingImage ? 'Salvando imagem...' : 'Anexar imagem agora'}</span>
@@ -411,7 +411,7 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
           </div>
 
           {/* RIGHT: Reference Inspector & Documentation (38% width) */}
-          <div className="w-full lg:w-[38%] bg-white p-6 lg:overflow-y-auto flex flex-col gap-6 scrollbar-thin">
+          <div className="w-full lg:w-[38%] bg-white dark:bg-[#191B20] p-4 sm:p-6 lg:overflow-y-auto flex flex-col gap-6 scrollbar-thin pb-[calc(2rem+env(safe-area-inset-bottom,0px))]">
             {/* Title & Domain (Editable) */}
             <div className="flex flex-col gap-2 pb-4 border-b border-[#E7E7E5]/70">
               <div className="flex items-center justify-between">
@@ -435,9 +435,9 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
                       if (e.key === 'Escape') setIsEditingTitle(false);
                     }}
                     autoFocus
-                    className="w-full text-lg font-bold text-[#171717] px-2 py-1 rounded bg-[#F8F8F6] border border-[#4355DB] outline-none"
+                    className="w-full text-lg font-bold text-[#171717] dark:text-[#F3F4F6] px-2 py-1 rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#4355DB] dark:border-[#6375F1] outline-none"
                   />
-                  <span className="text-[10px] text-[#A8A8A6] font-mono">
+                  <span className="text-[10px] text-[#A8A8A6] dark:text-[#6B7280] font-mono">
                     Pressione Enter para salvar ou Esc para cancelar
                   </span>
                 </div>
@@ -447,28 +447,28 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
                   className="group/title flex items-start justify-between gap-2 cursor-pointer"
                   title="Clique para editar o título"
                 >
-                  <h1 className="font-sans font-bold text-xl text-[#171717] leading-snug">
+                  <h1 className="font-sans font-bold text-xl text-[#171717] dark:text-[#F3F4F6] leading-snug">
                     {reference.title}
                   </h1>
                   <Edit3
                     size={14}
-                    className="text-[#A8A8A6] opacity-0 group-hover/title:opacity-100 transition-opacity flex-shrink-0 mt-1"
+                    className="text-[#A8A8A6] dark:text-[#6B7280] opacity-0 group-hover/title:opacity-100 transition-opacity flex-shrink-0 mt-1"
                   />
                 </div>
               )}
             </div>
 
             {/* Source URL Section (Editable) */}
-            <div className="flex flex-col gap-2 pb-4 border-b border-[#E7E7E5]/70">
+            <div className="flex flex-col gap-2 pb-4 border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] font-semibold text-[#A8A8A6] uppercase tracking-wider flex items-center gap-1.5">
+                <span className="font-mono text-[10px] font-semibold text-[#A8A8A6] dark:text-[#9CA3AF] uppercase tracking-wider flex items-center gap-1.5">
                   <Globe size={12} /> Endereço URL de Origem
                 </span>
                 {!isEditingUrl && (
                   <button
                     type="button"
                     onClick={() => setIsEditingUrl(true)}
-                    className="text-[11px] font-medium text-[#4355DB] hover:text-[#3646B8] flex items-center gap-1 cursor-pointer outline-none"
+                    className="text-[11px] font-medium text-[#4355DB] dark:text-[#6375F1] hover:text-[#3646B8] dark:hover:text-[#8292FD] flex items-center gap-1 cursor-pointer outline-none"
                   >
                     <Edit3 size={11} /> {hasUrl ? 'Editar URL' : 'Adicionar URL'}
                   </button>
@@ -493,7 +493,7 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
                         setIsEditingUrl(false);
                       }
                     }}
-                    className="w-full text-xs font-mono px-2.5 py-1.5 rounded bg-[#F8F8F6] border border-[#4355DB] text-[#171717] outline-none"
+                    className="w-full text-xs font-mono px-2.5 py-1.5 rounded bg-[#F8F8F6] dark:bg-[#20232A] border border-[#4355DB] dark:border-[#6375F1] text-[#171717] dark:text-[#F3F4F6] outline-none"
                   />
                   {urlEditError && (
                     <span className="text-[11px] text-[#EF4444] font-medium">{urlEditError}</span>
@@ -505,22 +505,22 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
                         setUrlEditError('');
                         setIsEditingUrl(false);
                       }}
-                      className="px-2 py-1 text-xs text-[#737373] hover:text-[#171717] cursor-pointer"
+                      className="px-2 py-1 text-xs text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] cursor-pointer"
                     >
                       Cancelar
                     </button>
                     <button
                       type="button"
                       onClick={handleSaveUrl}
-                      className="px-2.5 py-1 text-xs font-semibold bg-[#171717] text-white rounded cursor-pointer"
+                      className="px-2.5 py-1 text-xs font-semibold bg-[#171717] dark:bg-[#323742] text-white rounded cursor-pointer"
                     >
                       Salvar URL
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-between gap-2 p-2 bg-[#F8F8F6] rounded border border-[#E7E7E5]">
-                  <span className="text-xs font-mono text-[#171717] truncate">
+                <div className="flex items-center justify-between gap-2 p-2 bg-[#F8F8F6] dark:bg-[#20232A] rounded border border-[#E7E7E5] dark:border-[#2D3139]">
+                  <span className="text-xs font-mono text-[#171717] dark:text-[#F3F4F6] truncate">
                     {reference.url ? reference.url : 'Nenhuma URL vinculada'}
                   </span>
                   {hasUrl && (
@@ -528,7 +528,7 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
                       href={reference.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[#4355DB] hover:underline flex-shrink-0 p-1"
+                      className="text-[#4355DB] dark:text-[#6375F1] hover:underline flex-shrink-0 p-1"
                       title="Visitar link"
                     >
                       <ExternalLink size={13} />
@@ -539,9 +539,9 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
             </div>
 
             {/* Tags Management */}
-            <div className="flex flex-col gap-2.5 pb-4 border-b border-[#E7E7E5]/70">
+            <div className="flex flex-col gap-2.5 pb-4 border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] font-semibold text-[#A8A8A6] uppercase tracking-wider flex items-center gap-1.5">
+                <span className="font-mono text-[10px] font-semibold text-[#A8A8A6] dark:text-[#9CA3AF] uppercase tracking-wider flex items-center gap-1.5">
                   <Tag size={12} /> Etiquetas
                 </span>
                 {!isAddingTag && (
@@ -550,7 +550,7 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
                       setIsAddingTag(true);
                       setTimeout(() => tagInputRef.current?.focus(), 50);
                     }}
-                    className="text-[11px] text-[#4355DB] hover:text-[#3646B8] font-medium flex items-center gap-1 cursor-pointer outline-none"
+                    className="text-[11px] text-[#4355DB] dark:text-[#6375F1] hover:text-[#3646B8] dark:hover:text-[#8292FD] font-medium flex items-center gap-1 cursor-pointer outline-none"
                   >
                     <Plus size={12} /> Adicionar
                   </button>
@@ -561,12 +561,12 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
                 {reference.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F1F1EF] border border-[#E7E7E5] text-xs font-mono text-[#737373]"
+                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F1F1EF] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-xs font-mono text-[#737373] dark:text-[#9CA3AF]"
                   >
                     <span>#{tag}</span>
                     <button
                       onClick={() => handleRemoveTag(tag)}
-                      className="p-0.5 rounded-full hover:bg-black/10 text-[#A8A8A6] hover:text-[#171717] cursor-pointer"
+                      className="p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-[#A8A8A6] hover:text-[#171717] dark:hover:text-[#F3F4F6] cursor-pointer"
                       title={`Remover #${tag}`}
                     >
                       <X size={10} />
@@ -592,11 +592,11 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
                         }
                       }}
                       placeholder="nova-tag"
-                      className="h-6 w-24 px-2 rounded-full text-xs font-mono bg-[#F8F8F6] border border-[#4355DB] outline-none text-[#171717]"
+                      className="h-6 w-24 px-2 rounded-full text-xs font-mono bg-[#F8F8F6] dark:bg-[#20232A] border border-[#4355DB] dark:border-[#6375F1] outline-none text-[#171717] dark:text-[#F3F4F6]"
                     />
                     <button
                       onClick={handleAddTag}
-                      className="h-6 px-2 rounded-full bg-[#171717] text-white text-[10px] font-mono cursor-pointer"
+                      className="h-6 px-2 rounded-full bg-[#171717] dark:bg-[#323742] text-white text-[10px] font-mono cursor-pointer"
                     >
                       OK
                     </button>
@@ -606,16 +606,16 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
             </div>
 
             {/* Projects & Collections Associations */}
-            <div className="flex flex-col gap-3 pb-4 border-b border-[#E7E7E5]/70 text-xs">
-              <span className="font-mono text-[10px] font-semibold text-[#A8A8A6] uppercase tracking-wider">
+            <div className="flex flex-col gap-3 pb-4 border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70 text-xs">
+              <span className="font-mono text-[10px] font-semibold text-[#A8A8A6] dark:text-[#9CA3AF] uppercase tracking-wider">
                 Associações
               </span>
 
               {/* Projects */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[#737373] flex items-center gap-1.5 font-medium">
-                    <Briefcase size={12} className="text-[#4355DB]" />
+                  <span className="text-[#737373] dark:text-[#9CA3AF] flex items-center gap-1.5 font-medium">
+                    <Briefcase size={12} className="text-[#4355DB] dark:text-[#6375F1]" />
                     <span>Projetos vinculados</span>
                   </span>
                   {availableProjects.length > 0 && (
@@ -629,13 +629,13 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
                           });
                         }
                       }}
-                      className="text-[11px] text-[#4355DB] bg-transparent outline-none cursor-pointer pr-1"
+                      className="text-[11px] text-[#4355DB] dark:text-[#6375F1] bg-transparent outline-none cursor-pointer pr-1"
                     >
-                      <option value="">+ Vincular projeto...</option>
+                      <option value="" className="dark:bg-[#191B20] dark:text-[#F3F4F6]">+ Vincular projeto...</option>
                       {availableProjects
                         .filter((p) => !reference.projectIds?.includes(p.id))
                         .map((p) => (
-                          <option key={p.id} value={p.id}>
+                          <option key={p.id} value={p.id} className="dark:bg-[#191B20] dark:text-[#F3F4F6]">
                             {p.name}
                           </option>
                         ))}
@@ -645,14 +645,14 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
 
                 <div className="flex flex-wrap gap-1.5">
                   {(!reference.projectIds || reference.projectIds.length === 0) ? (
-                    <span className="text-xs text-[#A8A8A6] italic">Nenhum projeto vinculado</span>
+                    <span className="text-xs text-[#A8A8A6] dark:text-[#6B7280] italic">Nenhum projeto vinculado</span>
                   ) : (
                     reference.projectIds.map((pId) => {
                       const p = availableProjects.find((proj) => proj.id === pId);
                       return (
                         <span
                           key={pId}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#F1F1EF] border border-[#E7E7E5] text-[11px] text-[#171717]"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#F1F1EF] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-[11px] text-[#171717] dark:text-[#F3F4F6]"
                         >
                           <span className="truncate max-w-[140px]">{p ? p.name : pId}</span>
                           <button
@@ -662,7 +662,7 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
                                 projectIds: reference.projectIds.filter((id) => id !== pId),
                               });
                             }}
-                            className="p-0.5 rounded-full hover:bg-black/10 text-[#A8A8A6] hover:text-[#EF4444] cursor-pointer"
+                            className="p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-[#A8A8A6] hover:text-[#EF4444] cursor-pointer"
                             title="Desvincular projeto"
                           >
                             <X size={10} />
@@ -677,8 +677,8 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
               {/* Collections */}
               <div className="flex flex-col gap-1.5 pt-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[#737373] flex items-center gap-1.5 font-medium">
-                    <Layers size={12} className="text-[#4355DB]" />
+                  <span className="text-[#737373] dark:text-[#9CA3AF] flex items-center gap-1.5 font-medium">
+                    <Layers size={12} className="text-[#4355DB] dark:text-[#6375F1]" />
                     <span>Coleções vinculadas</span>
                   </span>
                   {availableCollections.length > 0 && (
@@ -692,13 +692,13 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
                           });
                         }
                       }}
-                      className="text-[11px] text-[#4355DB] bg-transparent outline-none cursor-pointer pr-1"
+                      className="text-[11px] text-[#4355DB] dark:text-[#6375F1] bg-transparent outline-none cursor-pointer pr-1"
                     >
-                      <option value="">+ Vincular coleção...</option>
+                      <option value="" className="dark:bg-[#191B20] dark:text-[#F3F4F6]">+ Vincular coleção...</option>
                       {availableCollections
                         .filter((c) => !reference.collectionIds?.includes(c.id))
                         .map((c) => (
-                          <option key={c.id} value={c.id}>
+                          <option key={c.id} value={c.id} className="dark:bg-[#191B20] dark:text-[#F3F4F6]">
                             {c.name}
                           </option>
                         ))}
@@ -708,14 +708,14 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
 
                 <div className="flex flex-wrap gap-1.5">
                   {(!reference.collectionIds || reference.collectionIds.length === 0) ? (
-                    <span className="text-xs text-[#A8A8A6] italic">Nenhuma coleção vinculada</span>
+                    <span className="text-xs text-[#A8A8A6] dark:text-[#6B7280] italic">Nenhuma coleção vinculada</span>
                   ) : (
                     reference.collectionIds.map((cId) => {
                       const c = availableCollections.find((col) => col.id === cId);
                       return (
                         <span
                           key={cId}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#F1F1EF] border border-[#E7E7E5] text-[11px] text-[#171717]"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#F1F1EF] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-[11px] text-[#171717] dark:text-[#F3F4F6]"
                         >
                           <span className="truncate max-w-[140px]">{c ? c.name : cId}</span>
                           <button
@@ -725,7 +725,7 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
                                 collectionIds: reference.collectionIds.filter((id) => id !== cId),
                               });
                             }}
-                            className="p-0.5 rounded-full hover:bg-black/10 text-[#A8A8A6] hover:text-[#EF4444] cursor-pointer"
+                            className="p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-[#A8A8A6] hover:text-[#EF4444] cursor-pointer"
                             title="Desvincular coleção"
                           >
                             <X size={10} />

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" fill="none">
+  <!-- Side Panel Drawer Detail -->
+  <rect width="800" height="500" rx="12" fill="#FFFFFF"/>
+  <rect x="0.5" y="0.5" width="799" height="499" rx="11.5" stroke="#E7E7E5"/>
+
+  <!-- Drawer Header -->
+  <g transform="translate(32, 28)">
+    <text style="font-family:'JetBrains Mono';font-size:11px;font-weight:600;fill:#4355DB;letter-spacing:0.14em">[ DETALHES DA REFERÊNCIA ]</text>
+    <text x="680" y="4" text-anchor="end" style="font-family:'JetBrains Mono';font-size:11px;fill:#737373">CORS LOCAL / READY</text>
+  </g>
+  <line x1="0" y1="52" x2="800" y2="52" stroke="#E7E7E5"/>
+
+  <!-- Left: Big Image Preview -->
+  <g transform="translate(32, 76)">
+    <rect width="400" height="380" rx="8" fill="#191B20"/>
+    <image href="../04-image-assets/digital-references/digital-interface-grid-01.jpg" width="400" height="380" preserveAspectRatio="xMidYMid slice" rx="8"/>
+    <rect x="0.5" y="0.5" width="399" height="379" rx="7.5" stroke="#E7E7E5" stroke-opacity="0.3"/>
+  </g>
+
+  <!-- Right: Metadata & Code Snippet Inspector -->
+  <g transform="translate(456, 76)">
+    <!-- Title & Domain -->
+    <text style="font-family:'Plus Jakarta Sans';font-weight:800;font-size:20px;fill:#171717">Linear Modern UI</text>
+    <text y="24" style="font-family:'JetBrains Mono';font-size:12px;fill:#4355DB">https://linear.app</text>
+
+    <!-- Notes Markdown block -->
+    <g transform="translate(0, 48)">
+      <rect width="312" height="70" rx="6" fill="#F8F8F6" stroke="#E7E7E5"/>
+      <g transform="translate(14, 18)">
+        <text style="font-family:'JetBrains Mono';font-size:9px;font-weight:600;fill:#737373;letter-spacing:0.12em;text-transform:uppercase">ANOTAÇÕES EDITORIAL:</text>
+        <text y="18" style="font-family:'Inter';font-size:11px;fill:#171717">Atenção para o contraste de bordas e</text>
+        <text y="34" style="font-family:'Inter';font-size:11px;fill:#171717">espaçamento modular de 8px nos cards.</text>
+      </g>
+    </g>
+
+    <!-- Code Snippet Block (Tailwind / CSS) -->
+    <g transform="translate(0, 136)">
+      <rect width="312" height="150" rx="6" fill="#171717"/>
+      <!-- Code header -->
+      <rect width="312" height="28" rx="6" fill="#20232A"/>
+      <text x="14" y="18" style="font-family:'JetBrains Mono';font-size:10px;font-weight:600;fill:#6375F1">TAILWIND CSS SNIPPET</text>
+      <text x="296" y="18" text-anchor="end" style="font-family:'JetBrains Mono';font-size:10px;fill:#A8A8A6">COPIAR</text>
+      
+      <!-- Code body -->
+      <g transform="translate(14, 46)">
+        <text style="font-family:'JetBrains Mono';font-size:10px;fill:#F3F4F6">grid grid-cols-1 md:grid-cols-3</text>
+        <text y="18" style="font-family:'JetBrains Mono';font-size:10px;fill:#F3F4F6">gap-4 bg-[#F8F8F6] p-6</text>
+        <text y="36" style="font-family:'JetBrains Mono';font-size:10px;fill:#9CA3AF">border border-[#E7E7E5]</text>
+        <text y="54" style="font-family:'JetBrains Mono';font-size:10px;fill:#6375F1">dark:bg-[#191B20]</text>
+        <text y="72" style="font-family:'JetBrains Mono';font-size:10px;fill:#6375F1">dark:border-[#2D3139]</text>
+      </g>
+    </g>
+
+    <!-- Attached Specs info -->
+    <g transform="translate(0, 302)">
+      <rect width="312" height="50" rx="6" fill="#F8F8F6" stroke="#E7E7E5"/>
+      <text x="14" y="22" style="font-family:'JetBrains Mono';font-size:10px;font-weight:600;fill:#171717">1 ARQUIVO ANEXO (.JSON)</text>
+      <text x="14" y="38" style="font-family:'JetBrains Mono';font-size:10px;fill:#737373">tokens-linear-v4.json • 4.2 KB</text>
+    </g>
+  </g>
+</svg>

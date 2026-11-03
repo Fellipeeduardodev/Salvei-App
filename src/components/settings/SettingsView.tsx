@@ -15,11 +15,31 @@ import {
   Moon,
   Monitor,
   Loader2,
+  Download,
+  Upload,
+  Bookmark,
+  Sparkles,
+  Key,
+  Eye,
+  EyeOff,
+  ExternalLink,
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import type { UserProfile, UserPreferences } from '../../types/database';
-import { saveUserPreferences } from '../../services/supabaseService';
+import type { Reference, Project, Collection } from '../../types/reference';
+import { saveUserPreferences } from '../../services/neonService';
 import { useTheme } from '../../contexts/ThemeContext';
+import {
+  parseBookmarksHtml,
+  convertBookmarksToReferences,
+  parseBackupJson,
+} from '../../lib/bookmarkImporter';
+import {
+  getGeminiApiKey,
+  setGeminiApiKey,
+  hasGeminiApiKey,
+  testGeminiConnection,
+} from '../../services/geminiService';
 
 interface SettingsViewProps {
   profile: UserProfile | null;
@@ -32,6 +52,8 @@ interface SettingsViewProps {
   onSignOut: () => void;
   showToast: (message: string) => void;
   onPreferencesUpdated: (prefs: UserPreferences) => void;
+  onExportBackup?: () => void;
+  onImportData?: (data: { references: Reference[]; projects: Project[]; collections: Collection[] }) => void;
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
@@ -45,9 +67,80 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onSignOut,
   showToast,
   onPreferencesUpdated,
+  onExportBackup,
+  onImportData,
 }) => {
   const { theme, setTheme } = useTheme();
-  const [activeTab, setActiveTab] = useState<'profile' | 'appearance' | 'tutorial' | 'account'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'appearance' | 'ai' | 'tutorial' | 'account'>('profile');
+  const importFileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // AI & Gemini Key State
+  const [geminiKeyInput, setGeminiKeyInput] = useState(() => getGeminiApiKey());
+  const [showGeminiKey, setShowGeminiKey] = useState(false);
+  const [isTestingGemini, setIsTestingGemini] = useState(false);
+  const [geminiTestStatus, setGeminiTestStatus] = useState<{ success: boolean; message: string } | null>(null);
+
+  const handleSaveGeminiKey = () => {
+    setGeminiApiKey(geminiKeyInput);
+    showToast(
+      geminiKeyInput.trim()
+        ? 'Chave do Google Gemini salva no navegador!'
+        : 'Chave do navegador removida (usando padrão do sistema).'
+    );
+  };
+
+  const handleTestGemini = async () => {
+    setIsTestingGemini(true);
+    setGeminiTestStatus(null);
+    try {
+      const keyToTest = geminiKeyInput.trim() || getGeminiApiKey();
+      const res = await testGeminiConnection(keyToTest);
+      setGeminiTestStatus({ success: res.success, message: res.message });
+      if (res.success) {
+        showToast('Conexão ativa com o Google Gemini Flash!');
+      } else {
+        showToast('Falha no teste com a API do Gemini.');
+      }
+    } catch (e: any) {
+      setGeminiTestStatus({ success: false, message: e.message || 'Erro inesperado.' });
+    } finally {
+      setIsTestingGemini(false);
+    }
+  };
+
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !onImportData) return;
+
+    try {
+      const content = await file.text();
+      const isHtml = file.name.endsWith('.html') || file.name.endsWith('.htm') || content.includes('<DL>') || content.includes('<DT>');
+
+      if (isHtml) {
+        const bookmarks = parseBookmarksHtml(content);
+        if (bookmarks.length === 0) {
+          showToast('Nenhum favorito válido encontrado no arquivo HTML.');
+          return;
+        }
+        const newRefs = convertBookmarksToReferences(bookmarks);
+        onImportData({ references: newRefs, projects: [], collections: [] });
+        showToast(`Importadas ${newRefs.length} referências dos favoritos com sucesso!`);
+      } else {
+        const backupData = parseBackupJson(content);
+        if (backupData.references.length === 0 && backupData.projects.length === 0) {
+          showToast('Arquivo de backup vazio ou inválido.');
+          return;
+        }
+        onImportData(backupData);
+        showToast(`Backup restaurado: ${backupData.references.length} referências e ${backupData.projects.length} projetos!`);
+      }
+    } catch (err) {
+      console.error('Erro ao importar arquivo:', err);
+      showToast('Falha ao processar o arquivo. Verifique o formato.');
+    } finally {
+      e.target.value = '';
+    }
+  };
 
   // Preferences local state
   const [preferences, setPreferences] = useState<UserPreferences>(() => ({
@@ -122,6 +215,19 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         >
           <SlidersHorizontal size={14} />
           <span>Aparência & Comportamento</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('ai')}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB] ${
+            activeTab === 'ai'
+              ? 'bg-white dark:bg-[#191B20] text-[#171717] dark:text-[#F3F4F6] shadow-xs'
+              : 'text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6]'
+          }`}
+        >
+          <Sparkles size={14} className="text-[#F59E0B]" />
+          <span>Inteligência Artificial (IA)</span>
         </button>
 
         <button
@@ -348,6 +454,154 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
       )}
 
+      {/* TAB IA: INTELIGÊNCIA ARTIFICIAL (GOOGLE GEMINI FLASH) */}
+      {activeTab === 'ai' && (
+        <div className="flex flex-col gap-4 animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-xl p-6 flex flex-col gap-6 shadow-xs">
+            {/* Header com Status */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-[#E7E7E5] dark:border-[#2D3139]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/10 text-[#F59E0B] flex items-center justify-center shrink-0">
+                  <Sparkles size={20} />
+                </div>
+                <div>
+                  <h3 className="font-sans font-bold text-sm text-[#171717] dark:text-[#F3F4F6] flex items-center gap-2">
+                    Google Gemini 3.8 Flash
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono font-semibold">
+                      100% Gratuito
+                    </span>
+                  </h3>
+                  <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF]">
+                    Potência de visão computacional, análise de design e OCR de alta fidelidade
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold bg-[#F1F1EF] dark:bg-[#20232A] text-[#171717] dark:text-[#F3F4F6] border border-[#E7E7E5] dark:border-[#2D3139]">
+                  <span className={`w-2 h-2 rounded-full ${hasGeminiApiKey() ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                  <span>{hasGeminiApiKey() ? 'API Ativa' : 'Chave não configurada'}</span>
+                </span>
+              </div>
+            </div>
+
+            {/* Input de Chave de API */}
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-bold text-[#171717] dark:text-[#F3F4F6] flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Key size={14} className="text-[#4355DB]" />
+                  <span>Sua Chave de API do Google Gemini</span>
+                </span>
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[11px] font-medium text-[#4355DB] dark:text-[#818CF8] hover:underline flex items-center gap-1"
+                >
+                  <span>Gerar chave grátis no Google AI Studio</span>
+                  <ExternalLink size={11} />
+                </a>
+              </label>
+
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type={showGeminiKey ? 'text' : 'password'}
+                    value={geminiKeyInput}
+                    onChange={(e) => setGeminiKeyInput(e.target.value)}
+                    placeholder="Cole sua chave aqui (ex: AQ.Ab8RN6... ou AIzaSy...)"
+                    className="w-full px-3.5 py-2.5 pr-10 rounded-lg text-xs font-mono bg-[#F8F8F6] dark:bg-[#111214] border border-[#E7E7E5] dark:border-[#2D3139] text-[#171717] dark:text-[#F3F4F6] outline-none focus:border-[#4355DB] dark:focus:border-[#6375F1] transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowGeminiKey((s) => !s)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#737373] hover:text-[#171717] dark:hover:text-[#F3F4F6] cursor-pointer"
+                    title={showGeminiKey ? 'Ocultar chave' : 'Mostrar chave'}
+                  >
+                    {showGeminiKey ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+
+                <Button variant="primary" size="sm" onClick={handleSaveGeminiKey}>
+                  Salvar
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleTestGemini}
+                  disabled={isTestingGemini || (!geminiKeyInput.trim() && !hasGeminiApiKey())}
+                  iconLeft={isTestingGemini ? <Loader2 size={13} className="animate-spin" /> : undefined}
+                >
+                  {isTestingGemini ? 'Testando...' : 'Testar Conexão'}
+                </Button>
+              </div>
+
+              {geminiTestStatus && (
+                <div
+                  className={`p-3 rounded-lg text-xs flex items-center gap-2 animate-in fade-in ${
+                    geminiTestStatus.success
+                      ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20'
+                      : 'bg-red-500/10 text-red-700 dark:text-red-400 border border-red-500/20'
+                  }`}
+                >
+                  <span className="font-semibold">{geminiTestStatus.success ? '✓' : '✕'}</span>
+                  <span>{geminiTestStatus.message}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Guia de Passo a Passo */}
+            <div className="p-4 rounded-lg bg-[#F8F8F6] dark:bg-[#111214] border border-[#E7E7E5] dark:border-[#2D3139] flex flex-col gap-3">
+              <h4 className="text-xs font-bold text-[#171717] dark:text-[#F3F4F6] flex items-center gap-1.5">
+                <span>Como funciona a gratuidade oficial do Google:</span>
+              </h4>
+              <ul className="text-xs text-[#737373] dark:text-[#9CA3AF] space-y-2 list-disc list-inside">
+                <li>
+                  <strong>1.500 análises por dia:</strong> O Google AI Studio disponibiliza cota gratuita de 1.500 requisições diárias para o modelo <code>gemini-3.8-flash</code>.
+                </li>
+                <li>
+                  <strong>Sem cartão de crédito:</strong> Você pode criar a chave em segundos apenas com sua conta Google regular.
+                </li>
+                <li>
+                  <strong>Privacidade local:</strong> Sua chave é armazenada com segurança somente no seu navegador.
+                </li>
+              </ul>
+            </div>
+
+            {/* Recursos Habilitados */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+              <div className="p-3 rounded-lg border border-[#E7E7E5] dark:border-[#2D3139] flex flex-col gap-1">
+                <span className="font-mono text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider">
+                  ✓ Visão de Design
+                </span>
+                <p className="text-[11px] text-[#737373] dark:text-[#9CA3AF]">
+                  Identifica estilos (Bento Grid, Neobrutalismo, Minimalismo) e gera tags inteligentes.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-lg border border-[#E7E7E5] dark:border-[#2D3139] flex flex-col gap-1">
+                <span className="font-mono text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider">
+                  ✓ OCR Fiel de Prints
+                </span>
+                <p className="text-[11px] text-[#737373] dark:text-[#9CA3AF]">
+                  Lê e indexa frases, botões e códigos da imagem para busca rápida instantânea.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-lg border border-[#E7E7E5] dark:border-[#2D3139] flex flex-col gap-1">
+                <span className="font-mono text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider">
+                  ✓ Curadoria de Links
+                </span>
+                <p className="text-[11px] text-[#737373] dark:text-[#9CA3AF]">
+                  Gera resumos editoriais e sínteses visuais ao salvar URLs no acervo.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* TAB 3: TUTORIAL & ATALHOS */}
       {activeTab === 'tutorial' && (
         <div className="flex flex-col gap-4 animate-in fade-in duration-150">
@@ -419,7 +673,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     Persistência e Segurança em Nuvem
                   </h3>
                   <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF]">
-                    Supabase PostgreSQL com Row Level Security (RLS) ativo por usuário
+                    Banco relacional seguro com criptografia e isolamento ativo por usuário
                   </p>
                 </div>
               </div>
@@ -449,6 +703,71 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   <ShieldCheck size={13} /> Isolamento estrito por usuário (RLS)
                 </span>
               </div>
+            </div>
+
+            {/* Export & Backup Section */}
+            <div className="pt-3 border-t border-[#E7E7E5] dark:border-[#2D3139] flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#4355DB]/10 text-[#4355DB] dark:text-[#6375F1] flex items-center justify-center shrink-0">
+                  <Download size={18} />
+                </div>
+                <div>
+                  <h4 className="font-sans font-bold text-xs text-[#171717] dark:text-[#F3F4F6]">
+                    Backup do Acervo (JSON)
+                  </h4>
+                  <p className="font-sans text-[11px] text-[#737373] dark:text-[#9CA3AF]">
+                    Exporte todas as suas referências, notas, tags e paletas em arquivo aberto.
+                  </p>
+                </div>
+              </div>
+
+              {onExportBackup && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={onExportBackup}
+                  iconLeft={<Download size={13} />}
+                >
+                  Exportar JSON
+                </Button>
+              )}
+            </div>
+
+            {/* Import Favoritos & Backup Section */}
+            <div className="pt-3 border-t border-[#E7E7E5] dark:border-[#2D3139] flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#10B981]/10 text-[#10B981] flex items-center justify-center shrink-0">
+                  <Upload size={18} />
+                </div>
+                <div>
+                  <h4 className="font-sans font-bold text-xs text-[#171717] dark:text-[#F3F4F6]">
+                    Importar Favoritos & Backup (.html / .json)
+                  </h4>
+                  <p className="font-sans text-[11px] text-[#737373] dark:text-[#9CA3AF]">
+                    Importe links do Chrome, Safari, Edge, Firefox ou restaure um backup Salvei.
+                  </p>
+                </div>
+              </div>
+
+              {onImportData && (
+                <div>
+                  <input
+                    ref={importFileInputRef}
+                    type="file"
+                    accept=".html,.htm,.json"
+                    onChange={handleImportFile}
+                    className="hidden"
+                  />
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => importFileInputRef.current?.click()}
+                    iconLeft={<Upload size={13} />}
+                  >
+                    Importar Arquivo
+                  </Button>
+                </div>
+              )}
             </div>
 
             <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-[#E7E7E5] dark:border-[#2D3139]">

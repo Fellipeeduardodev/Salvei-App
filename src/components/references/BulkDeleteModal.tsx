@@ -79,7 +79,7 @@ export const BulkDeleteModal: React.FC<BulkDeleteModalProps> = ({
               Excluir {count} {count === 1 ? 'referência' : 'referências'}?
             </h3>
             <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF] mt-1.5 leading-relaxed">
-              Esta ação excluirá permanentemente do Supabase as referências selecionadas, suas associações e anexos. Esta ação não poderá ser desfeita.
+              Esta ação excluirá permanentemente da nuvem as referências selecionadas, suas associações e anexos. Esta ação não poderá ser desfeita.
             </p>
           </div>
         </div>

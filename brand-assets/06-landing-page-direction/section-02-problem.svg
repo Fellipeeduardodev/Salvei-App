@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 600" width="1440" height="600" fill="none">
+<g id="section-02-problem">
+  <rect width="1440" height="600" fill="#FFFFFF"/>
+  <line x1="0" y1="0" x2="1440" y2="0" stroke="#E7E7E5"/>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap');
+    .prob-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; fill: #EF4444; letter-spacing: 0.16em; text-transform: uppercase; }
+    .prob-h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 38px; fill: #171717; letter-spacing: -0.03em; }
+    .prob-body { font-family: 'Inter', sans-serif; font-size: 15px; fill: #737373; line-height: 1.6; }
+  </style>
+
+  <g transform="translate(120, 80)">
+    <text class="prob-tag">O PROBLEMA QUE RESOLVEMOS</text>
+    <text y="42" class="prob-h2">Suas referências criativas estão dispersas.</text>
+    <text y="76" class="prob-body">Dezenas de abas abertas que travam o navegador, prints perdidos na pasta Downloads,</text>
+    <text y="100" class="prob-body">links esquecidos em conversas de Slack e Notion lotado de páginas sem preview visual.</text>
+  </g>
+
+  <!-- 3 Chaos vs Order Cards -->
+  <g transform="translate(120, 240)">
+    <!-- Card 1 -->
+    <g transform="translate(0, 0)">
+      <rect width="380" height="260" rx="10" fill="#F8F8F6" stroke="#E7E7E5"/>
+      <g transform="translate(32, 36)">
+        <rect width="40" height="40" rx="8" fill="#FEE2E2"/>
+        <text x="20" y="25" text-anchor="middle" style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;fill:#EF4444">✕</text>
+        <text y="70" style="font-family:'Plus Jakarta Sans';font-weight:700;font-size:18px;fill:#171717">Abas Infinitas</text>
+        <text y="98" style="font-family:'Inter';font-size:13px;fill:#737373;line-height:1.6">
+          Você abre 40 abas para pesquisar um projeto. Na semana seguinte, fecha tudo por lentidão e perde o fio da meada.
+        </text>
+      </g>
+    </g>
+
+    <!-- Card 2 -->
+    <g transform="translate(410, 0)">
+      <rect width="380" height="260" rx="10" fill="#F8F8F6" stroke="#E7E7E5"/>
+      <g transform="translate(32, 36)">
+        <rect width="40" height="40" rx="8" fill="#FEE2E2"/>
+        <text x="20" y="25" text-anchor="middle" style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;fill:#EF4444">✕</text>
+        <text y="70" style="font-family:'Plus Jakarta Sans';font-weight:700;font-size:18px;fill:#171717">Prints Sem Contexto</text>
+        <text y="98" style="font-family:'Inter';font-size:13px;fill:#737373;line-height:1.6">
+          Capturas de tela com nomes como "Screenshot 2026-10-21". Você não sabe a URL original, nem as tags e nem por que salvou.
+        </text>
+      </g>
+    </g>
+
+    <!-- Card 3 -->
+    <g transform="translate(820, 0)">
+      <rect width="380" height="260" rx="10" fill="#F8F8F6" stroke="#4355DB" stroke-width="1.5"/>
+      <g transform="translate(32, 36)">
+        <rect width="40" height="40" rx="8" fill="#4355DB" fill-opacity="0.15"/>
+        <text x="20" y="25" text-anchor="middle" style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;fill:#4355DB">✓</text>
+        <text y="70" style="font-family:'Plus Jakarta Sans';font-weight:700;font-size:18px;fill:#171717">A Solução Salvei</text>
+        <text y="98" style="font-family:'Inter';font-size:13px;fill:#737373;line-height:1.6">
+          Um espaço único de ateliê. Captura instantânea com preview automático, tags transversais, notas editoriais e busca ágil.
+        </text>
+      </g>
+    </g>
+  </g>
+</g>
+</svg>

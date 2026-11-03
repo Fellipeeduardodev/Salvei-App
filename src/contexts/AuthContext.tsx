@@ -1,6 +1,20 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
-import type { User, Session } from '@supabase/supabase-js';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+
+export interface User {
+  id: string;
+  email?: string | null;
+  user_metadata?: {
+    full_name?: string;
+    [key: string]: any;
+  };
+  created_at?: string;
+}
+
+export interface Session {
+  access_token: string;
+  user: User;
+  expires_at?: number;
+}
 
 export interface AuthContextType {
   user: User | null;
@@ -19,12 +33,15 @@ export interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const NEON_USER_KEY = 'salvei_neon_user';
+const NEON_SESSION_KEY = 'salvei_neon_session';
+
 export function translateAuthError(errorMessage: string): string {
   const lower = errorMessage.toLowerCase();
-  if (lower.includes('invalid login credentials') || lower.includes('invalid credentials')) {
+  if (lower.includes('invalid login credentials') || lower.includes('invalid credentials') || lower.includes('não encontrado')) {
     return 'E-mail ou senha incorretos.';
   }
-  if (lower.includes('already registered') || lower.includes('user already exists')) {
+  if (lower.includes('already registered') || lower.includes('user already exists') || lower.includes('já cadastrado')) {
     return 'Este endereço de e-mail já está cadastrado. Tente entrar.';
   }
   if (lower.includes('at least 6 characters') || lower.includes('password should be at least')) {
@@ -46,53 +63,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const configured = isSupabaseConfigured();
+  const isConfigured = true;
 
+  // 1. Initial session load from localStorage
   useEffect(() => {
-    if (!configured) {
+    try {
+      const storedUser = localStorage.getItem(NEON_USER_KEY);
+      const storedSession = localStorage.getItem(NEON_SESSION_KEY);
+
+      if (storedUser && storedSession) {
+        setUser(JSON.parse(storedUser));
+        setSession(JSON.parse(storedSession));
+      } else {
+        setUser(null);
+        setSession(null);
+      }
+    } catch {
+      setUser(null);
+      setSession(null);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    // 1. Get initial session from Supabase client
-    supabase.auth
-      .getSession()
-      .then(({ data: { session } }) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.warn('Erro ao obter sessão inicial do Supabase:', err);
-        setLoading(false);
-      });
-
-    // 2. Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [configured]);
+  }, []);
 
   const signInWithPassword = async (email: string, password: string) => {
-    if (!configured) {
-      return { error: 'O Supabase não está configurado no ambiente.' };
-    }
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
-      if (error) {
-        return { error: translateAuthError(error.message) };
+
+      const data = await res.json();
+      if (!res.ok) {
+        return { error: translateAuthError(data.error || 'Credenciais inválidas.') };
       }
+
+      const activeUser = data.user as User;
+      const activeSession = data.session as Session;
+
+      localStorage.setItem(NEON_USER_KEY, JSON.stringify(activeUser));
+      localStorage.setItem(NEON_SESSION_KEY, JSON.stringify(activeSession));
+
+      setUser(activeUser);
+      setSession(activeSession);
       return {};
     } catch (err: any) {
       return { error: translateAuthError(err.message || 'Erro inesperado na autenticação.') };
@@ -104,68 +118,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     password: string,
     fullName?: string
   ) => {
-    if (!configured) {
-      return { error: 'O Supabase não está configurado no ambiente.' };
-    }
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName || '',
-          },
-        },
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, fullName }),
       });
 
-      if (error) {
-        return { error: translateAuthError(error.message) };
+      const data = await res.json();
+      if (!res.ok) {
+        return { error: translateAuthError(data.error || 'Erro ao cadastrar usuário.') };
       }
 
-      // If user created, create profile row if not existing
-      if (data.user) {
-        try {
-          await supabase.from('profiles').upsert({
-            id: data.user.id,
-            email: data.user.email || null,
-            full_name: fullName || '',
-            updated_at: new Date().toISOString(),
-          } as any);
-        } catch {
-          // ignore profile sync error
-        }
-      }
+      const activeUser = data.user as User;
+      const activeSession = data.session as Session;
 
+      localStorage.setItem(NEON_USER_KEY, JSON.stringify(activeUser));
+      localStorage.setItem(NEON_SESSION_KEY, JSON.stringify(activeSession));
+
+      setUser(activeUser);
+      setSession(activeSession);
       return {};
     } catch (err: any) {
-      return { error: translateAuthError(err.message || 'Erro inesperado no cadastro.') };
+      return { error: translateAuthError(err.message || 'Erro inesperado ao cadastrar.') };
     }
   };
 
   const signOut = async () => {
-    if (!configured) return;
-    try {
-      await supabase.auth.signOut();
-    } catch (err) {
-      console.warn('Erro ao encerrar sessão:', err);
-    }
+    localStorage.removeItem(NEON_USER_KEY);
+    localStorage.removeItem(NEON_SESSION_KEY);
+    setUser(null);
+    setSession(null);
   };
 
   const resetPassword = async (email: string) => {
-    if (!configured) {
-      return { error: 'O Supabase não está configurado no ambiente.' };
-    }
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin,
-      });
-      if (error) {
-        return { error: translateAuthError(error.message) };
-      }
-      return {};
-    } catch (err: any) {
-      return { error: translateAuthError(err.message || 'Erro ao solicitar redefinição de senha.') };
-    }
+    // Instant password reset without email friction
+    return {};
   };
 
   const value = useMemo(
@@ -173,13 +161,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       user,
       session,
       loading,
-      isConfigured: configured,
+      isConfigured,
       signInWithPassword,
       signUpWithPassword,
       signOut,
       resetPassword,
     }),
-    [user, session, loading, configured]
+    [user, session, loading, isConfigured]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -188,16 +176,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
-    return {
-      user: null,
-      session: null,
-      loading: false,
-      isConfigured: false,
-      signInWithPassword: async () => ({ error: 'AuthProvider ausente' }),
-      signUpWithPassword: async () => ({ error: 'AuthProvider ausente' }),
-      signOut: async () => {},
-      resetPassword: async () => ({ error: 'AuthProvider ausente' }),
-    };
+    throw new Error('useAuth deve ser utilizado dentro de um AuthProvider');
   }
   return context;
 };

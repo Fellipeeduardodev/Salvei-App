@@ -22,7 +22,7 @@ interface AppShellProps {
   onSearchChange: (query: string) => void;
   onOpenAddModal: (mode?: 'image' | 'url') => void;
   onQuickFilterTag?: (tag: string) => void;
-  onOpenAuthModal?: () => void;
+  onOpenAuthModal?: (mode?: 'login' | 'signup') => void;
   onOpenCommandPalette?: () => void;
   onOpenShortcutsModal?: () => void;
   isSelectionModeActive?: boolean;
@@ -34,6 +34,8 @@ interface AppShellProps {
   onOpenSettings?: () => void;
   onOpenTutorial?: () => void;
   onSignOut?: () => void;
+  isGuestMode?: boolean;
+  onExitGuestMode?: () => void;
 }
 
 export const AppShell: React.FC<AppShellProps> = ({
@@ -62,6 +64,9 @@ export const AppShell: React.FC<AppShellProps> = ({
   onOpenSettings,
   onOpenTutorial,
   onSignOut,
+  onOpenAuthModal,
+  isGuestMode = false,
+  onExitGuestMode,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -101,10 +106,45 @@ export const AppShell: React.FC<AppShellProps> = ({
         onSelectCollection={onSelectCollection}
         profile={profile}
         onOpenProfile={onOpenProfile}
+        onOpenAuthModal={onOpenAuthModal}
+        isGuestMode={isGuestMode}
+        onExitGuestMode={onExitGuestMode}
       />
 
       {/* Main Content Area (Offset: pl-0 on mobile, md:pl-16 on tablet, lg:pl-60 on desktop) */}
       <div className="flex-1 flex flex-col w-full min-w-0 max-w-full pl-0 md:pl-16 lg:pl-60 transition-[padding] duration-200 box-border">
+        {/* Guest Mode Informational Banner */}
+        {isGuestMode && (
+          <div className="w-full bg-amber-500/10 dark:bg-amber-950/20 border-b border-amber-500/20 px-3 sm:px-6 py-2 sm:py-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-amber-900 dark:text-amber-200">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+              <span className="text-[11px] sm:text-xs">
+                <strong>Modo Local (Teste)</strong> — Suas alterações estão salvas neste computador.
+              </span>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0 self-end sm:self-auto">
+              {onOpenAuthModal && (
+                <button
+                  type="button"
+                  onClick={() => onOpenAuthModal('signup')}
+                  className="px-2.5 py-1 rounded bg-[#171717] dark:bg-white text-white dark:text-[#171717] font-semibold text-[11px] hover:opacity-90 transition-opacity cursor-pointer shadow-xs min-h-[28px]"
+                >
+                  Sincronizar na Nuvem
+                </button>
+              )}
+              {onExitGuestMode && (
+                <button
+                  type="button"
+                  onClick={onExitGuestMode}
+                  className="text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 text-[11px] underline cursor-pointer p-1"
+                >
+                  Voltar à Apresentação
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Topbar */}
         <Topbar
           searchQuery={searchQuery}

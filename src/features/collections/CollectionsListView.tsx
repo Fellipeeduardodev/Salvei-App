@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Collection, Reference } from '../../types/reference';
-import { Layers, Plus, Edit3, Trash2 } from 'lucide-react';
+import { Layers, Plus, Edit3, Trash2, Share2 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
+import { ShareCollectionModal } from './ShareCollectionModal';
 
 interface CollectionsListViewProps {
   collections: Collection[];
@@ -10,6 +11,7 @@ interface CollectionsListViewProps {
   onCreateCollection: (name: string, description?: string) => void;
   onEditCollection: (id: string, name: string, description?: string) => void;
   onDeleteCollection: (id: string) => void;
+  onOpenPublicMoodboard?: (collectionId: string) => void;
 }
 
 export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
@@ -19,6 +21,7 @@ export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
   onCreateCollection,
   onEditCollection,
   onDeleteCollection,
+  onOpenPublicMoodboard,
 }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [newName, setNewName] = useState('');
@@ -31,6 +34,9 @@ export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
 
   // Delete confirmation
   const [deletingCollectionId, setDeletingCollectionId] = useState<string | null>(null);
+
+  // Sharing collection modal
+  const [sharingCollection, setSharingCollection] = useState<Collection | null>(null);
 
   const handleStartCreate = () => {
     setIsCreating(true);
@@ -209,6 +215,17 @@ export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
                   >
                     <button
                       type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSharingCollection(col);
+                      }}
+                      className="p-1 rounded bg-white/90 dark:bg-[#191B20]/90 hover:bg-white dark:hover:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF] hover:text-[#4355DB] dark:hover:text-[#6375F1] border border-[#E7E7E5] dark:border-[#2D3139] shadow-2xs transition-colors cursor-pointer"
+                      title="Compartilhar coleção & Moodboard"
+                    >
+                      <Share2 size={12} />
+                    </button>
+                    <button
+                      type="button"
                       onClick={(e) => handleStartEdit(col, e)}
                       className="p-1 rounded bg-white/90 dark:bg-[#191B20]/90 hover:bg-white dark:hover:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] border border-[#E7E7E5] dark:border-[#2D3139] shadow-2xs transition-colors cursor-pointer"
                       title="Editar coleção"
@@ -344,6 +361,25 @@ export const CollectionsListView: React.FC<CollectionsListViewProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Share Collection Modal */}
+      {sharingCollection && (
+        <ShareCollectionModal
+          isOpen={true}
+          onClose={() => setSharingCollection(null)}
+          collection={sharingCollection}
+          references={references}
+          onOpenPublicView={
+            onOpenPublicMoodboard
+              ? () => {
+                  const id = sharingCollection.id;
+                  setSharingCollection(null);
+                  onOpenPublicMoodboard(id);
+                }
+              : undefined
+          }
+        />
       )}
     </div>
   );

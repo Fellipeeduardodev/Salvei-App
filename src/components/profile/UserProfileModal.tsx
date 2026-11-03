@@ -19,7 +19,7 @@ import {
   uploadAvatar,
   removeAvatar,
   updateUserProfile,
-} from '../../services/supabaseService';
+} from '../../services/neonService';
 
 interface UserProfileModalProps {
   isOpen: boolean;

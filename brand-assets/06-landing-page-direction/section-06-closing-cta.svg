@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 600" width="1440" height="600" fill="none">
+<g id="section-06-closing-cta">
+  <rect width="1440" height="600" fill="#171717"/>
+  
+  <defs>
+    <radialGradient id="ctaGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#4355DB" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#171717" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1440" height="600" fill="url(#ctaGlow)"/>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap');
+    .cta-h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 52px; fill: #FFFFFF; letter-spacing: -0.04em; text-anchor: middle; }
+    .cta-p { font-family: 'Inter', sans-serif; font-size: 18px; fill: #A8A8A6; text-anchor: middle; line-height: 1.6; }
+    .cta-btn-text { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; fill: #FFFFFF; text-anchor: middle; }
+    .footer-text { font-family: 'JetBrains Mono', monospace; font-size: 11px; fill: #737373; text-anchor: middle; }
+  </style>
+
+  <!-- Content Centered -->
+  <g transform="translate(720, 130)">
+    <rect x="-30" y="0" width="60" height="60" rx="14" fill="#FFFFFF" fill-opacity="0.1"/>
+    <circle cx="12" cy="18" r="4.5" fill="#6375F1"/>
+    <path d="M 10 24 C 10 19 5 16 0 16 C -8 16 -12 20 -12 24 C -12 30 -4 32 2 34 C 8 36 12 39 12 45 C 12 51 6 54 -2 54 C -10 54 -14 50 -14 46" 
+          stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <text y="110" class="cta-h2">Pronto para dar um lar às suas referências?</text>
+    <text y="160" class="cta-p">Crie sua conta em 30 segundos. Comece a capturar inspirações e acerte na próxima entrega.</text>
+
+    <!-- Big Button -->
+    <g transform="translate(-130, 200)">
+      <rect width="260" height="54" rx="8" fill="#4355DB"/>
+      <text x="130" y="33" class="cta-btn-text">Começar Gratuitamente</text>
+    </g>
+
+    <text y="290" style="font-family:'JetBrains Mono';font-size:11px;fill:#A8A8A6">Sem cobranças. Sem planos falsos. Totalmente funcional.</text>
+  </g>
+
+  <!-- Footer Bottom Bar -->
+  <g transform="translate(120, 520)">
+    <line x1="0" y1="0" x2="1200" y2="0" stroke="#FFFFFF" stroke-opacity="0.1"/>
+    <text x="600" y="42" class="footer-text">© 2026 SALVEI • UMA BIBLIOTECA VISUAL PARA SUAS PRÓXIMAS IDEIAS • HTTPS://SALVEI.TECH</text>
+  </g>
+</g>
+</svg>

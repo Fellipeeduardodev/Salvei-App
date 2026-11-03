@@ -32,6 +32,7 @@ interface ProjectDetailViewProps {
   selectedBatchIds?: string[];
   isSelectionModeActive?: boolean;
   onToggleBatchSelect?: (referenceId: string, e?: React.MouseEvent) => void;
+  onUpdatePalette?: (referenceId: string, palette: any[]) => void;
 }
 
 export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
@@ -53,6 +54,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
   selectedBatchIds = [],
   isSelectionModeActive = false,
   onToggleBatchSelect,
+  onUpdatePalette,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(project.name);
@@ -183,6 +185,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                 onQuickDelete={onQuickDelete}
                 onQuickAssociateProject={onQuickAssociateProject}
                 onQuickAssociateCollection={onQuickAssociateCollection}
+                onUpdatePalette={onUpdatePalette}
               />
               {/* Quick action to detach reference from this project */}
               <button

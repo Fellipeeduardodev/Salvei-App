@@ -1,0 +1,191 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080" fill="none">
+  <rect width="1920" height="1080" fill="#F8F8F6"/>
+  <rect x="0.5" y="0.5" width="1919" height="1079" stroke="#E7E7E5"/>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap');
+    .page-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; fill: #4355DB; letter-spacing: 0.16em; text-transform: uppercase; }
+    .page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 38px; fill: #171717; letter-spacing: -0.03em; }
+    .page-desc { font-family: 'Inter', sans-serif; font-size: 15px; fill: #737373; }
+    .section-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; fill: #737373; letter-spacing: 0.14em; text-transform: uppercase; }
+    .card-hdr { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 16px; fill: #171717; }
+  </style>
+
+  <!-- Header -->
+  <g transform="translate(80, 70)">
+    <text class="page-tag">02 / VISUAL IDENTITY SYSTEM &amp; LOGO STUDIES</text>
+    <text y="42" class="page-title">Identidade Visual, Wordmark &amp; Símbolo Salvei</text>
+    <text y="74" class="page-desc">Construção vetorial paramétrica, variações de contraste, isolamento, favicon e anatomia geométrica.</text>
+  </g>
+
+  <!-- Left Column: Wordmark & Lockup Studies (Width 860) -->
+  <g transform="translate(80, 190)">
+    <!-- Light Mode Box -->
+    <rect width="860" height="230" rx="12" fill="#FFFFFF" stroke="#E7E7E5"/>
+    <g transform="translate(40, 36)">
+      <text class="section-label">LOGOTIPO WORDMARK • LIGHT MODE (#171717 + #4355DB)</text>
+      <text y="75" style="font-family:'Plus Jakarta Sans';font-weight:800;font-size:76px;letter-spacing:-0.04em;fill:#171717">salve<tspan>ı</tspan></text>
+      <circle cx="236" cy="20" r="7.5" fill="#4355DB"/>
+      <text y="145" style="font-family:'JetBrains Mono';font-size:11px;fill:#737373;letter-spacing:0.1em">KERNING: -0.04em • CORTE GEOMÉTRICO • PONTO DO "I" EM COBALTO COMO ÂNCORA VISUAL</text>
+    </g>
+  </g>
+
+  <g transform="translate(80, 440)">
+    <!-- Dark Mode Box -->
+    <rect width="860" height="230" rx="12" fill="#171717"/>
+    <g transform="translate(40, 36)">
+      <text class="section-label" fill="#A8A8A6">LOGOTIPO WORDMARK • DARK MODE (#FFFFFF + #6375F1)</text>
+      <text y="75" style="font-family:'Plus Jakarta Sans';font-weight:800;font-size:76px;letter-spacing:-0.04em;fill:#FFFFFF">salve<tspan>ı</tspan></text>
+      <circle cx="236" cy="20" r="7.5" fill="#6375F1"/>
+      <text y="145" style="font-family:'JetBrains Mono';font-size:11px;fill:#A8A8A6;letter-spacing:0.1em">ALTO CONTRASTE • COBALTO LUMINOSO #6375F1 PARA EVITAR PERDA DE SATURAÇÃO EM FUNDOS ESCUROS</text>
+    </g>
+  </g>
+
+  <!-- Símbolo & Variações (Right Column: Width 860) -->
+  <g transform="translate(980, 190)">
+    <rect width="860" height="480" rx="12" fill="#FFFFFF" stroke="#E7E7E5"/>
+    <g transform="translate(40, 36)">
+      <text class="section-label">O SÍMBOLO DA MARCA: O PRISMA DE REFERÊNCIAS S (CAMADAS &amp; ANCORAGEM)</text>
+      
+      <!-- 4 Symbol Variants Grid -->
+      <!-- 1. Primary White Surface -->
+      <g transform="translate(0, 40)">
+        <rect width="180" height="180" rx="16" fill="#F8F8F6" stroke="#E7E7E5"/>
+        <g transform="translate(45, 38)">
+          <rect x="18" y="4" width="46" height="34" rx="5" fill="#4355DB" fill-opacity="0.15" stroke="#4355DB" stroke-width="3"/>
+          <rect x="6" y="20" width="46" height="48" rx="5" fill="#FFFFFF" stroke="#171717" stroke-width="4"/>
+          <path d="M 40 32 C 40 28 35 25 28 25 C 20 25 15 29 15 35 C 15 42 22 45 29 48 C 36 51 44 54 44 62 C 44 70 36 74 27 74 C 18 74 14 69 14 64" 
+                stroke="#171717" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="42" cy="26" r="4.5" fill="#4355DB"/>
+        </g>
+        <text x="90" y="220" text-anchor="middle" style="font-family:'JetBrains Mono';font-size:10px;font-weight:600;fill:#171717">SÍMBOLO PRINCIPAL</text>
+      </g>
+
+      <!-- 2. Dark Container -->
+      <g transform="translate(200, 40)">
+        <rect width="180" height="180" rx="16" fill="#171717"/>
+        <g transform="translate(45, 38)">
+          <rect x="18" y="4" width="46" height="34" rx="5" fill="#6375F1" fill-opacity="0.25" stroke="#6375F1" stroke-width="3"/>
+          <rect x="6" y="20" width="46" height="48" rx="5" fill="#191B20" stroke="#FFFFFF" stroke-width="4"/>
+          <path d="M 40 32 C 40 28 35 25 28 25 C 20 25 15 29 15 35 C 15 42 22 45 29 48 C 36 51 44 54 44 62 C 44 70 36 74 27 74 C 18 74 14 69 14 64" 
+                stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="42" cy="26" r="4.5" fill="#6375F1"/>
+        </g>
+        <text x="90" y="220" text-anchor="middle" style="font-family:'JetBrains Mono';font-size:10px;font-weight:600;fill:#171717">DARK SURFACES</text>
+      </g>
+
+      <!-- 3. Cobalt Inverted -->
+      <g transform="translate(400, 40)">
+        <rect width="180" height="180" rx="16" fill="#4355DB"/>
+        <g transform="translate(45, 38)">
+          <rect x="18" y="4" width="46" height="34" rx="5" fill="#FFFFFF" fill-opacity="0.25" stroke="#FFFFFF" stroke-width="3"/>
+          <rect x="6" y="20" width="46" height="48" rx="5" fill="#3646B8" stroke="#FFFFFF" stroke-width="4"/>
+          <path d="M 40 32 C 40 28 35 25 28 25 C 20 25 15 29 15 35 C 15 42 22 45 29 48 C 36 51 44 54 44 62 C 44 70 36 74 27 74 C 18 74 14 69 14 64" 
+                stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="42" cy="26" r="4.5" fill="#FFFFFF"/>
+        </g>
+        <text x="90" y="220" text-anchor="middle" style="font-family:'JetBrains Mono';font-size:10px;font-weight:600;fill:#171717">COBALTO DE MARCA</text>
+      </g>
+
+      <!-- 4. Favicon & App Icon 32x32 & 64x64 -->
+      <g transform="translate(600, 40)">
+        <rect width="180" height="180" rx="16" fill="#F8F8F6" stroke="#E7E7E5"/>
+        <!-- 32px icon -->
+        <g transform="translate(42, 60)">
+          <rect width="36" height="36" rx="8" fill="#171717"/>
+          <circle cx="24" cy="11" r="2.2" fill="#4355DB"/>
+          <path d="M 23 13 C 23 11 21 10 18 10 C 14 10 12 12 12 14 C 12 18 16 19 19 20 C 22 21 24 23 24 26 C 24 29 21 30 17 30 C 13 30 11 28 11 26" 
+                stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <!-- 64px icon -->
+        <g transform="translate(94, 46)">
+          <rect width="64" height="64" rx="15" fill="#171717"/>
+          <circle cx="43" cy="19" r="3.8" fill="#4355DB"/>
+          <path d="M 42 24 C 42 20 38 18 32 18 C 25 18 21 21 21 25 C 21 31 28 33 34 35 C 40 37 44 41 44 46 C 44 51 38 54 30 54 C 23 54 20 50 20 46" 
+                stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <text x="90" y="220" text-anchor="middle" style="font-family:'JetBrains Mono';font-size:10px;font-weight:600;fill:#171717">FAVICON (16/32/64PX)</text>
+      </g>
+
+      <!-- Rationale Text below -->
+      <g transform="translate(0, 290)">
+        <text style="font-family:'Plus Jakarta Sans';font-weight:700;font-size:16px;fill:#171717">Por que este símbolo?</text>
+        <text y="24" style="font-family:'Inter';font-size:13px;fill:#737373;line-height:1.6">
+          Evita deliberadamente os clichês de SaaS: nada de fitas de favoritos, pastas genéricas ou lupas óbvias.
+        </text>
+        <text y="46" style="font-family:'Inter';font-size:13px;fill:#737373;line-height:1.6">
+          O prisma S une duas folhas de referências sobrepostas em perspectiva, ancoradas pelo ponto de fixação em azul cobalto.
+        </text>
+        <text y="68" style="font-family:'Inter';font-size:13px;fill:#737373;line-height:1.6">
+          Funciona com legibilidade matemática tanto em favicons de 16px quanto em empenas urbanas de grande escala.
+        </text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Bottom Horizontal Lockups row (1760 x 310) -->
+  <g transform="translate(80, 700)">
+    <rect width="1760" height="300" rx="12" fill="#FFFFFF" stroke="#E7E7E5"/>
+    <g transform="translate(40, 36)">
+      <text class="section-label">SISTEMA DE LOCKUPS: HORIZONTAL &amp; EMPILHADO (LIGHT &amp; DARK)</text>
+      
+      <!-- Lockup H Light -->
+      <g transform="translate(0, 30)">
+        <rect width="520" height="120" rx="8" fill="#F8F8F6" stroke="#E7E7E5"/>
+        <g transform="translate(24, 20)">
+          <rect width="80" height="80" rx="16" fill="#171717" fill-opacity="0.06"/>
+          <rect x="14" y="10" width="42" height="30" rx="4" fill="#4355DB" fill-opacity="0.2" stroke="#4355DB" stroke-width="2.5"/>
+          <rect x="6" y="24" width="46" height="44" rx="5" fill="#FFFFFF" stroke="#171717" stroke-width="3.5"/>
+          <path d="M 38 34 C 38 30 33 27 27 27 C 20 27 15 31 15 37 C 15 44 21 47 28 50 C 35 53 41 56 41 63 C 41 70 35 74 26 74 C 18 74 13 70 13 65" 
+                stroke="#171717" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="39" cy="27" r="4" fill="#4355DB"/>
+        </g>
+        <g transform="translate(130, 68)">
+          <text style="font-family:'Plus Jakarta Sans';font-weight:800;font-size:52px;letter-spacing:-0.04em;fill:#171717">salve<tspan>ı</tspan></text>
+          <circle cx="156" cy="-40" r="5" fill="#4355DB"/>
+          <text x="2" y="22" style="font-family:'JetBrains Mono';font-size:10px;fill:#737373;letter-spacing:0.18em;text-transform:uppercase">VISUAL WORKSPACE</text>
+        </g>
+        <text x="260" y="160" text-anchor="middle" style="font-family:'JetBrains Mono';font-size:10px;fill:#737373">LOCKUP HORIZONTAL • LIGHT</text>
+      </g>
+
+      <!-- Lockup H Dark -->
+      <g transform="translate(560, 30)">
+        <rect width="520" height="120" rx="8" fill="#171717"/>
+        <g transform="translate(24, 20)">
+          <rect width="80" height="80" rx="16" fill="#FFFFFF" fill-opacity="0.1"/>
+          <rect x="14" y="10" width="42" height="30" rx="4" fill="#6375F1" fill-opacity="0.25" stroke="#6375F1" stroke-width="2.5"/>
+          <rect x="6" y="24" width="46" height="44" rx="5" fill="#191B20" stroke="#FFFFFF" stroke-width="3.5"/>
+          <path d="M 38 34 C 38 30 33 27 27 27 C 20 27 15 31 15 37 C 15 44 21 47 28 50 C 35 53 41 56 41 63 C 41 70 35 74 26 74 C 18 74 13 70 13 65" 
+                stroke="#FFFFFF" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="39" cy="27" r="4" fill="#6375F1"/>
+        </g>
+        <g transform="translate(130, 68)">
+          <text style="font-family:'Plus Jakarta Sans';font-weight:800;font-size:52px;letter-spacing:-0.04em;fill:#FFFFFF">salve<tspan>ı</tspan></text>
+          <circle cx="156" cy="-40" r="5" fill="#6375F1"/>
+          <text x="2" y="22" style="font-family:'JetBrains Mono';font-size:10px;fill:#A8A8A6;letter-spacing:0.18em;text-transform:uppercase">VISUAL WORKSPACE</text>
+        </g>
+        <text x="260" y="160" text-anchor="middle" style="font-family:'JetBrains Mono';font-size:10px;fill:#737373">LOCKUP HORIZONTAL • DARK</text>
+      </g>
+
+      <!-- Clear Space Rule -->
+      <g transform="translate(1120, 30)">
+        <rect width="560" height="180" rx="8" fill="#F8F8F6" stroke="#E7E7E5"/>
+        <g transform="translate(30, 30)">
+          <text style="font-family:'Plus Jakarta Sans';font-weight:700;font-size:14px;fill:#171717">Área de Proteção &amp; Redução Mínima</text>
+          <text y="24" style="font-family:'Inter';font-size:12px;fill:#737373;line-height:1.6">
+            • Clear Space (X): O diâmetro do ponto do "i" define a margem mínima em torno de todos os lockups.
+          </text>
+          <text y="46" style="font-family:'Inter';font-size:12px;fill:#737373;line-height:1.6">
+            • Redução mínima digital do wordmark: 72px de largura.
+          </text>
+          <text y="68" style="font-family:'Inter';font-size:12px;fill:#737373;line-height:1.6">
+            • Redução mínima do símbolo isolado: 16px × 16px.
+          </text>
+          <text y="90" style="font-family:'Inter';font-size:12px;fill:#737373;line-height:1.6">
+            • Cores restritas: Grafite #171717, Off-White #F8F8F6 e Azul Cobalto #4355DB.
+          </text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

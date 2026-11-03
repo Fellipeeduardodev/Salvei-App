@@ -8,12 +8,12 @@ import {
   HelpCircle,
   LogOut,
   X,
-  Compass,
-  ChevronRight,
+    ChevronRight,
   User as UserIcon,
   BookOpen,
 } from 'lucide-react';
 import { NavigationDestination } from '../../types/reference';
+import { Logo } from '../ui/Logo';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserProfile } from '../../types/database';
 
@@ -123,12 +123,7 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
         {/* Sheet Header */}
         <div className="px-5 py-3 border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-[#171717] dark:bg-[#4355DB] flex items-center justify-center text-white">
-              <Compass size={14} strokeWidth={2.2} />
-            </div>
-            <h2 id="mobile-menu-title" className="font-display font-bold text-sm tracking-tight text-[#171717] dark:text-[#F3F4F6]">
-              Salvei <span className="font-mono text-[10px] text-[#A8A8A6] dark:text-[#6B7280] font-normal uppercase">Menu</span>
-            </h2>
+            <Logo size={20} badge="Menu" />
           </div>
 
           <button

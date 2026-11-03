@@ -17,6 +17,12 @@ export interface ReferenceFile {
   url?: string;
 }
 
+export interface ColorPaletteItem {
+  hex: string;
+  name?: string;
+  role?: 'primary' | 'accent' | 'background' | 'neutral';
+}
+
 export interface Reference {
   id: string;
   title: string;
@@ -31,6 +37,15 @@ export interface Reference {
   imageStorageId?: string;
   originalFileName?: string;
   screenshotStatus: ScreenshotStatus;
+
+  // Visual Palette & AI Color Metadata
+  palette?: ColorPaletteItem[];
+
+  // OCR & Extracted Text Intelligence
+  ocrText?: string;
+
+  // Freeform Canvas / Moodboard Layout Coordinates
+  canvasPosition?: { x: number; y: number; zIndex?: number };
 
   // Favorito
   isFavorite?: boolean;
@@ -70,6 +85,7 @@ export interface FilterCriteria {
   selectedProjectIds: string[];
   selectedCollectionIds: string[];
   contentTypes: ContentTypeFilter[];
+  selectedColorHex?: string; // Filter references by matching dominant color
   sortOption: SortOption;
 }
 

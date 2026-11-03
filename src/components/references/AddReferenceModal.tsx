@@ -15,11 +15,15 @@ import {
   Paperclip,
   ChevronDown,
   ChevronUp,
+  Sparkles,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
-import { Project, Collection, CodeSnippet, ReferenceFile } from '../../types/reference';
+import { Project, Collection, CodeSnippet, ReferenceFile, ColorPaletteItem } from '../../types/reference';
 import { validateAndFormatUrl, checkDuplicateUrl, formatBytes } from '../../lib/referenceLifecycle';
+import { generateMetadataForUrlWithGemini, hasGeminiApiKey } from '../../services/geminiService';
+import { extractPaletteFromImage, generateStyleInsightsFromPalette } from '../../lib/colorExtractor';
 
 export interface ImageFileDraft {
   file: File;
@@ -27,6 +31,9 @@ export interface ImageFileDraft {
   name: string;
   title: string;
   sizeFormatted: string;
+  palette?: ColorPaletteItem[];
+  suggestedTags?: string[];
+  isExtractingPalette?: boolean;
 }
 
 interface AddReferenceModalProps {
@@ -38,6 +45,7 @@ interface AddReferenceModalProps {
     tags?: string[];
     notes?: string;
     imageFile?: File;
+    palette?: ColorPaletteItem[];
     projectIds?: string[];
     collectionIds?: string[];
     codeSnippets?: CodeSnippet[];
@@ -50,12 +58,15 @@ interface AddReferenceModalProps {
       tags?: string[];
       sourceUrl?: string;
       notes?: string;
+      palette?: ColorPaletteItem[];
       projectIds?: string[];
       collectionIds?: string[];
     }[]
   ) => Promise<void> | void;
   existingUrls: string[];
   initialMode?: 'url' | 'image';
+  initialPastedUrl?: string | null;
+  initialPastedFile?: File | null;
   onOpenExisting?: (url: string) => void;
   availableProjects?: Project[];
   availableCollections?: Collection[];
@@ -89,6 +100,8 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
   onSaveImages,
   existingUrls,
   initialMode = 'image',
+  initialPastedUrl,
+  initialPastedFile,
   onOpenExisting,
   availableProjects = [],
   availableCollections = [],
@@ -102,6 +115,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
   const [urlNotes, setUrlNotes] = useState('');
   const [urlImageFile, setUrlImageFile] = useState<File | null>(null);
   const [urlImagePreview, setUrlImagePreview] = useState<string | null>(null);
+  const [urlImagePalette, setUrlImagePalette] = useState<ColorPaletteItem[] | undefined>(undefined);
   const [urlError, setUrlError] = useState('');
   const [urlSelectedProjectIds, setUrlSelectedProjectIds] = useState<string[]>([]);
   const [urlSelectedCollectionIds, setUrlSelectedCollectionIds] = useState<string[]>([]);
@@ -127,18 +141,56 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
   const [isDragOver, setIsDragOver] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGeneratingAiMeta, setIsGeneratingAiMeta] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const urlFileInputRef = useRef<HTMLInputElement>(null);
   const supplementaryFileInputRef = useRef<HTMLInputElement>(null);
   const urlInputRef = useRef<HTMLInputElement>(null);
 
+  const handleGenerateAiMetadata = async () => {
+    if (!url.trim() || isGeneratingAiMeta) return;
+    setIsGeneratingAiMeta(true);
+    try {
+      const res = await generateMetadataForUrlWithGemini(url, urlTitle);
+      if (res.title) setUrlTitle(res.title);
+      if (res.summary && !urlNotes.trim()) {
+        setUrlNotes(`> ${res.summary}`);
+      }
+      if (res.tags && res.tags.length > 0) {
+        const current = urlTags
+          .split(',')
+          .map((t) => t.trim().toLowerCase().replace(/^#/, ''))
+          .filter(Boolean);
+        res.tags.forEach((t) => {
+          if (!current.includes(t)) current.push(t);
+        });
+        setUrlTags(current.join(', '));
+      }
+    } catch (e) {
+      console.warn('Falha ao gerar metadados via IA:', e);
+    } finally {
+      setIsGeneratingAiMeta(false);
+    }
+  };
+
   // Reset state on open/close
   useEffect(() => {
     if (isOpen) {
       setMode(initialMode);
-      setUrl('');
-      setUrlTitle('');
+      if (initialPastedUrl) {
+        setMode('url');
+        setUrl(initialPastedUrl);
+        const validation = validateAndFormatUrl(initialPastedUrl);
+        if (validation.isValid && validation.domain) {
+          const dom = validation.domain;
+          setUrlTitle(`${dom.charAt(0).toUpperCase() + dom.slice(1)} — Referência Web`);
+        }
+      } else {
+        setUrl('');
+        setUrlTitle('');
+      }
+
       setUrlTags('');
       setUrlNotes('');
       setUrlImageFile(null);
@@ -156,7 +208,47 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
       setIncludeFiles(false);
       setAttachedFiles([]);
 
-      setImageDrafts([]);
+      if (initialPastedFile) {
+        setMode('image');
+        const previewUrl = URL.createObjectURL(initialPastedFile);
+        setImageDrafts([
+          {
+            file: initialPastedFile,
+            previewUrl,
+            name: initialPastedFile.name,
+            title: cleanFileNameToTitle(initialPastedFile.name),
+            sizeFormatted: formatBytes(initialPastedFile.size),
+            isExtractingPalette: true,
+          },
+        ]);
+
+        // Extrai paleta e sugere tags instantaneamente
+        extractPaletteFromImage(previewUrl, 5).then((pal) => {
+          if (pal && pal.length > 0) {
+            const insights = generateStyleInsightsFromPalette(pal);
+            setImageDrafts((prev) =>
+              prev.map((d) =>
+                d.previewUrl === previewUrl
+                  ? {
+                      ...d,
+                      palette: pal,
+                      suggestedTags: insights.suggestedTags,
+                      isExtractingPalette: false,
+                    }
+                  : d
+              )
+            );
+          } else {
+            setImageDrafts((prev) =>
+              prev.map((d) =>
+                d.previewUrl === previewUrl ? { ...d, isExtractingPalette: false } : d
+              )
+            );
+          }
+        });
+      } else {
+        setImageDrafts([]);
+      }
       setImageSharedTags('');
       setImageSharedUrl('');
       setImageSelectedProjectIds([]);
@@ -170,6 +262,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
     } else {
       imageDrafts.forEach((d) => URL.revokeObjectURL(d.previewUrl));
       if (urlImagePreview) URL.revokeObjectURL(urlImagePreview);
+      setUrlImagePalette(undefined);
     }
   }, [isOpen, initialMode]);
 
@@ -187,7 +280,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Process incoming image files
+  // Process incoming image files with instant palette extraction
   const processImageFiles = useCallback((files: FileList | File[]) => {
     setImageErrorMessage('');
     const newDrafts: ImageFileDraft[] = [];
@@ -209,6 +302,32 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
         name: file.name,
         title: cleanFileNameToTitle(file.name),
         sizeFormatted: formatBytes(file.size),
+        isExtractingPalette: true,
+      });
+
+      // Extração automática e assíncrona da paleta instantaneamente no Canvas (< 10ms)
+      extractPaletteFromImage(previewUrl, 5).then((pal) => {
+        if (pal && pal.length > 0) {
+          const insights = generateStyleInsightsFromPalette(pal);
+          setImageDrafts((prev) =>
+            prev.map((d) =>
+              d.previewUrl === previewUrl
+                ? {
+                    ...d,
+                    palette: pal,
+                    suggestedTags: insights.suggestedTags,
+                    isExtractingPalette: false,
+                  }
+                : d
+            )
+          );
+        } else {
+          setImageDrafts((prev) =>
+            prev.map((d) =>
+              d.previewUrl === previewUrl ? { ...d, isExtractingPalette: false } : d
+            )
+          );
+        }
       });
     });
 
@@ -308,15 +427,22 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
     setIsSubmitting(true);
     try {
       await onSaveImages(
-        imageDrafts.map((draft) => ({
-          file: draft.file,
-          title: draft.title.trim() || cleanFileNameToTitle(draft.name),
-          tags: tags.length > 0 ? tags : undefined,
-          sourceUrl: cleanUrl || undefined,
-          projectIds: imageSelectedProjectIds.length > 0 ? imageSelectedProjectIds : undefined,
-          collectionIds:
-            imageSelectedCollectionIds.length > 0 ? imageSelectedCollectionIds : undefined,
-        }))
+        imageDrafts.map((draft) => {
+          const itemTags = new Set(tags);
+          if (draft.suggestedTags && draft.suggestedTags.length > 0) {
+            draft.suggestedTags.forEach((t) => itemTags.add(t));
+          }
+          return {
+            file: draft.file,
+            title: draft.title.trim() || cleanFileNameToTitle(draft.name),
+            tags: itemTags.size > 0 ? Array.from(itemTags) : undefined,
+            sourceUrl: cleanUrl || undefined,
+            palette: draft.palette,
+            projectIds: imageSelectedProjectIds.length > 0 ? imageSelectedProjectIds : undefined,
+            collectionIds:
+              imageSelectedCollectionIds.length > 0 ? imageSelectedCollectionIds : undefined,
+          };
+        })
       );
       onClose();
     } catch {
@@ -368,6 +494,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
         tags: tags.length > 0 ? tags : undefined,
         notes: urlNotes.trim() || undefined,
         imageFile: urlImageFile || undefined,
+        palette: urlImagePalette,
         projectIds: urlSelectedProjectIds.length > 0 ? urlSelectedProjectIds : undefined,
         collectionIds:
           urlSelectedCollectionIds.length > 0 ? urlSelectedCollectionIds : undefined,
@@ -398,7 +525,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       {/* Backdrop */}
       <div
         onClick={onClose}
@@ -406,26 +533,31 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
         aria-hidden="true"
       />
 
-      {/* Modal Dialog */}
+      {/* Modal Dialog (Bottom sheet on mobile, centered modal on tablet/desktop) */}
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="relative w-full max-w-[620px] max-h-[92vh] bg-white dark:bg-[#191B20] text-[#171717] dark:text-[#F3F4F6] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm shadow-2xl flex flex-col z-10 animate-in fade-in zoom-in-95 duration-150 overflow-hidden"
+        className="relative w-full sm:max-w-[620px] max-h-[92vh] bg-white dark:bg-[#191B20] text-[#171717] dark:text-[#F3F4F6] border-t sm:border border-[#E7E7E5] dark:border-[#2D3139] rounded-t-2xl sm:rounded-sm shadow-2xl flex flex-col z-10 animate-in slide-in-from-bottom sm:fade-in sm:zoom-in-95 duration-150 overflow-hidden"
       >
+        {/* Mobile Pull Bar */}
+        <div className="sm:hidden w-full flex items-center justify-center pt-2.5 pb-1">
+          <div className="w-10 h-1 rounded-full bg-[#D4D4D0] dark:bg-[#3E434D]" />
+        </div>
+
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70 flex-shrink-0">
+        <div className="flex items-center justify-between px-4 sm:px-6 pt-3 sm:pt-5 pb-3 sm:pb-4 border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70 flex-shrink-0">
           <div>
             <h2 id="modal-title" className="font-sans font-bold text-base text-[#171717] dark:text-[#F3F4F6]">
               Adicionar referência
             </h2>
             <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF] mt-0.5">
-              Importe capturas visuais locais ou cadastre referências a partir de URLs.
+              Importe capturas visuais locais ou cadastre a partir de URLs.
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer"
+            className="p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer"
             aria-label="Fechar diálogo"
           >
             <X size={17} />
@@ -433,18 +565,18 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
         </div>
 
         {/* Mode Switcher Tabs */}
-        <div className="flex border-b border-[#E7E7E5] dark:border-[#2D3139] px-6 bg-[#F8F8F6]/60 dark:bg-[#15171C]/60 flex-shrink-0">
+        <div className="flex border-b border-[#E7E7E5] dark:border-[#2D3139] px-4 sm:px-6 bg-[#F8F8F6]/60 dark:bg-[#15171C]/60 flex-shrink-0">
           <button
             type="button"
             onClick={() => setMode('image')}
-            className={`flex items-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
               mode === 'image'
                 ? 'border-[#4355DB] dark:border-[#6375F1] text-[#4355DB] dark:text-[#6375F1]'
                 : 'border-transparent text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6]'
             }`}
           >
             <ImageIcon size={14} />
-            <span>Adicionar por imagem</span>
+            <span>Por imagem</span>
             {imageDrafts.length > 0 && (
               <span className="ml-1 px-1.5 py-0.2 rounded-full bg-[#4355DB] text-white font-mono text-[10px]">
                 {imageDrafts.length}
@@ -455,19 +587,22 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
           <button
             type="button"
             onClick={() => setMode('url')}
-            className={`flex items-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 py-3 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
               mode === 'url'
                 ? 'border-[#4355DB] dark:border-[#6375F1] text-[#4355DB] dark:text-[#6375F1]'
                 : 'border-transparent text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6]'
             }`}
           >
             <Globe size={14} />
-            <span>Adicionar por URL</span>
+            <span>Por URL</span>
           </button>
         </div>
 
         {/* Modal Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-6 scrollbar-thin">
+        <div
+          className="flex-1 overflow-y-auto p-4 sm:p-6 scrollbar-thin"
+          style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
+        >
           {/* TAB 1: IMPORT IMAGES */}
           {mode === 'image' && (
             <form onSubmit={handleSubmitImages} className="flex flex-col gap-5">
@@ -561,6 +696,26 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                             <span>•</span>
                             <span>{draft.sizeFormatted}</span>
                           </div>
+                          {draft.palette && draft.palette.length > 0 && (
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <span className="text-[10px] text-[#A8A8A6] dark:text-[#6B7280] font-mono">Paleta:</span>
+                              <div className="flex items-center gap-1">
+                                {draft.palette.map((c, i) => (
+                                  <span
+                                    key={i}
+                                    className="w-2.5 h-2.5 rounded-full ring-1 ring-black/10 dark:ring-white/20 inline-block shadow-2xs shrink-0"
+                                    style={{ backgroundColor: c.hex }}
+                                    title={`${c.name || c.hex} (${c.hex})`}
+                                  />
+                                ))}
+                              </div>
+                              {draft.suggestedTags && draft.suggestedTags.length > 0 && (
+                                <span className="text-[9px] font-mono text-[#4355DB] dark:text-[#6375F1] ml-1.5 truncate">
+                                  +{draft.suggestedTags.slice(0, 2).map((t) => `#${t}`).join(' ')}
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
 
                         <button
@@ -694,12 +849,35 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                   type="text"
                   value={url}
                   onChange={(e) => {
-                    setUrl(e.target.value);
+                    const nextVal = e.target.value;
+                    setUrl(nextVal);
                     setUrlError('');
                     setAllowDuplicateUrl(false);
+                    if (!urlTitle.trim()) {
+                      try {
+                        const parsed = new URL(nextVal.startsWith('http') ? nextVal : 'https://' + nextVal);
+                        const dom = parsed.hostname.replace(/^www\./, '');
+                        if (dom && dom.includes('.')) {
+                          setUrlTitle(`${dom.charAt(0).toUpperCase() + dom.slice(1)} — Referência Web`);
+                        }
+                      } catch {}
+                    }
                   }}
                   placeholder="https://linear.app ou stripe.com"
-                  iconLeft={<Globe size={14} />}
+                  iconLeft={
+                    url.includes('.') ? (
+                      <img
+                        src={`https://www.google.com/s2/favicons?domain=${url.replace(/^https?:\/\//, '').split('/')[0]}&sz=32`}
+                        alt=""
+                        className="w-4 h-4 rounded-xs shrink-0 object-contain"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <Globe size={14} />
+                    )
+                  }
                   error={!!urlError}
                   required
                 />
@@ -753,9 +931,33 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
 
               {/* Title Input (Opcional) */}
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="ref-title" className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">
-                  Título da referência <span className="text-[#737373] dark:text-[#9CA3AF] font-normal">(opcional)</span>
-                </label>
+                <div className="flex items-center justify-between">
+                  <label htmlFor="ref-title" className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">
+                    Título da referência <span className="text-[#737373] dark:text-[#9CA3AF] font-normal">(opcional)</span>
+                  </label>
+
+                  {hasGeminiApiKey() && url.trim().length > 3 && (
+                    <button
+                      type="button"
+                      onClick={handleGenerateAiMetadata}
+                      disabled={isGeneratingAiMeta}
+                      className="text-[11px] font-medium text-[#4355DB] dark:text-[#818CF8] hover:text-[#3646B8] flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                      title="Usa o Google Gemini para sugerir título, resumo e tags automaticamente"
+                    >
+                      {isGeneratingAiMeta ? (
+                        <>
+                          <Loader2 size={12} className="animate-spin text-[#4355DB]" />
+                          <span>Sugerindo com IA...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles size={12} className="text-[#F59E0B]" />
+                          <span>Sugerir com IA</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
                 <Input
                   id="ref-title"
                   type="text"
@@ -790,6 +992,21 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                       <span className="font-mono text-[10px] text-[#22c55e] flex items-center gap-1">
                         <CheckCircle2 size={11} /> Imagem pronta para inclusão
                       </span>
+                      {urlImagePalette && urlImagePalette.length > 0 && (
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <span className="text-[10px] text-[#A8A8A6] dark:text-[#6B7280] font-mono">Paleta:</span>
+                          <div className="flex items-center gap-1">
+                            {urlImagePalette.map((c, i) => (
+                              <span
+                                key={i}
+                                className="w-2.5 h-2.5 rounded-full ring-1 ring-black/10 dark:ring-white/20 inline-block shadow-2xs shrink-0"
+                                style={{ backgroundColor: c.hex }}
+                                title={`${c.name || c.hex} (${c.hex})`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <button
                       type="button"
@@ -797,6 +1014,7 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                         if (urlImagePreview) URL.revokeObjectURL(urlImagePreview);
                         setUrlImageFile(null);
                         setUrlImagePreview(null);
+                        setUrlImagePalette(undefined);
                       }}
                       className="p-1.5 text-[#A8A8A6] dark:text-[#6B7280] hover:text-[#EF4444] transition-colors rounded cursor-pointer"
                       title="Remover imagem"
@@ -821,7 +1039,13 @@ export const AddReferenceModal: React.FC<AddReferenceModalProps> = ({
                             return;
                           }
                           setUrlImageFile(file);
-                          setUrlImagePreview(URL.createObjectURL(file));
+                          const preview = URL.createObjectURL(file);
+                          setUrlImagePreview(preview);
+                          extractPaletteFromImage(preview, 5).then((pal) => {
+                            if (pal && pal.length > 0) {
+                              setUrlImagePalette(pal);
+                            }
+                          });
                         }
                         e.target.value = '';
                       }}

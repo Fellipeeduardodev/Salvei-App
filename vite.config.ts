@@ -2,9 +2,10 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig } from 'vite';
+import { neonApiPlugin } from './src/server/neonApiPlugin';
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), neonApiPlugin()],
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
@@ -15,7 +16,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           'vendor-react': ['react', 'react-dom'],
-          'vendor-supabase': ['@supabase/supabase-js'],
           'vendor-lucide': ['lucide-react'],
         },
       },
@@ -24,7 +24,7 @@ export default defineConfig({
   server: {
     port: 3000,
     watch: {
-      ignored: ['**/temp-*/**', '**/scratch_screenshots/**'],
+      ignored: ['**/temp-*/**', '**/scratch*/**', '**/scratch_screenshots/**'],
     },
   },
 });

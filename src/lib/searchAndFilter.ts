@@ -1,4 +1,5 @@
 import { Reference, FilterCriteria, ContentTypeFilter } from '../types/reference';
+import { hexToRgb, colorDistance } from './colorExtractor';
 
 /**
  * Normalizes text by removing accents, diacritics, and converting to lowercase.
@@ -31,6 +32,8 @@ export function getSearchableReferenceText(ref: Reference): string {
     ref.originalFileName || '',
     ref.tags ? ref.tags.join(' ') : '',
     ref.notesMarkdown || '',
+    ref.ocrText || '',
+    ref.palette ? ref.palette.map((p) => `${p.hex} ${p.name || ''}`).join(' ') : '',
   ];
 
   // Include Code Snippets (titles and code bodies)
@@ -110,6 +113,7 @@ export function filterAndSortReferences(
     selectedProjectIds = [],
     selectedCollectionIds = [],
     contentTypes = [],
+    selectedColorHex,
     sortOption = 'newest',
   } = criteria;
 
@@ -117,6 +121,17 @@ export function filterAndSortReferences(
     // 1. Search Query
     if (searchQuery.trim() && !matchesSearchQuery(ref, searchQuery)) {
       return false;
+    }
+
+    // 2. Dominant Color Match (selectedColorHex)
+    if (selectedColorHex) {
+      if (!ref.palette || ref.palette.length === 0) return false;
+      const targetRgb = hexToRgb(selectedColorHex);
+      const hasCloseColor = ref.palette.some((item) => {
+        const itemRgb = hexToRgb(item.hex);
+        return colorDistance(targetRgb, itemRgb) <= 85;
+      });
+      if (!hasCloseColor) return false;
     }
 
     // 2. Tags Filter (OR logic between selected tags)

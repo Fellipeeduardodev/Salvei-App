@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 90" width="380" height="90" fill="none">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&amp;display=swap');
+    .wm { font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; font-weight: 800; font-size: 68px; letter-spacing: -0.04em; fill: #4355DB; }
+  </style>
+  <text x="10" y="68" class="wm">salve<tspan>ı</tspan></text>
+  <circle cx="218" cy="18" r="6.5" fill="#171717"/>
+</svg>

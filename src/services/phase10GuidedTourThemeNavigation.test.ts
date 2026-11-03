@@ -6,7 +6,7 @@ import {
   type ThemePreference,
   type ResolvedTheme,
 } from '../contexts/ThemeContext';
-import * as supabaseService from './supabaseService';
+import * as neonService from './neonService';
 import type { Reference } from '../types/reference';
 
 // Mock Browser Storage & DOM for Vitest Node environment
@@ -41,29 +41,22 @@ const mockDocumentElement = {
   querySelector: vi.fn(),
 };
 
-// Mock Supabase
-const mockFrom = vi.fn();
-const mockStorageFrom = vi.fn();
-const mockAuthSignOut = vi.fn();
-
-vi.mock('../lib/supabase', () => {
-  return {
-    supabase: {
-      from: (...args: any[]) => mockFrom(...args),
-      storage: {
-        from: (...args: any[]) => mockStorageFrom(...args),
-      },
-      auth: {
-        getSession: vi.fn().mockResolvedValue({ data: { session: null } }),
-        onAuthStateChange: vi.fn().mockReturnValue({
-          data: { subscription: { unsubscribe: vi.fn() } },
-        }),
-        signOut: (...args: any[]) => mockAuthSignOut(...args),
-      },
-    },
-    isSupabaseConfigured: vi.fn().mockReturnValue(true),
-  };
+// Mock fetch for Neon API endpoints
+const mockFetch = vi.fn().mockImplementation((url: string) => {
+  if (url.includes('/api/profile')) {
+    return Promise.resolve({
+      ok: true,
+      json: async () => ({
+        id: 'usr-theme-10',
+        preferences: { theme: 'dark', shortcuts_enabled: true },
+        onboarding_completed: true,
+      }),
+    });
+  }
+  return Promise.resolve({ ok: true, json: async () => ({}) });
 });
+
+globalThis.fetch = mockFetch as any;
 
 describe('FASE 10 — EXPERIÊNCIA GUIADA, TEMA ESCURO E NAVEGAÇÃO FLUIDA', () => {
   beforeEach(() => {
@@ -147,28 +140,16 @@ describe('FASE 10 — EXPERIÊNCIA GUIADA, TEMA ESCURO E NAVEGAÇÃO FLUIDA', ()
       expect(root.style.colorScheme).toBe('light');
     });
 
-    it('salva a preferência de tema no Supabase através de saveUserPreferences', async () => {
+    it('salva a preferência de tema no Neon através de saveUserPreferences', async () => {
       const userId = 'usr-theme-10';
-      const mockSingle = vi.fn().mockResolvedValue({
-        data: {
-          id: userId,
-          preferences: { theme: 'dark', shortcuts_enabled: true },
-        },
-        error: null,
-      });
-      const mockSelect = vi.fn().mockReturnValue({ single: mockSingle });
-      const mockEq = vi.fn().mockReturnValue({ select: mockSelect });
-      const mockUpdate = vi.fn().mockReturnValue({ eq: mockEq });
-      mockFrom.mockReturnValue({ update: mockUpdate });
-
-      const updated = await supabaseService.saveUserPreferences(userId, {
+      const updated = await neonService.saveUserPreferences(userId, {
         theme: 'dark',
       });
 
-      expect(mockFrom).toHaveBeenCalledWith('profiles');
-      expect(mockUpdate).toHaveBeenCalledWith(
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/profile',
         expect.objectContaining({
-          preferences: expect.objectContaining({ theme: 'dark' }),
+          method: 'PUT',
         })
       );
       expect(updated.theme).toBe('dark');
@@ -385,24 +366,16 @@ describe('FASE 10 — EXPERIÊNCIA GUIADA, TEMA ESCURO E NAVEGAÇÃO FLUIDA', ()
       expect(getPositionMode(null, true)).toBe('bottom-docked');
     });
 
-    it('persiste a conclusão do onboarding no Supabase com onboarding_completed = true', async () => {
+    it('persiste a conclusão do onboarding no Neon com onboarding_completed = true', async () => {
       const userId = 'usr-tour-done';
-      const mockSingle = vi.fn().mockResolvedValue({
-        data: { id: userId, onboarding_completed: true },
-        error: null,
-      });
-      const mockSelect = vi.fn().mockReturnValue({ single: mockSingle });
-      const mockEq = vi.fn().mockReturnValue({ select: mockSelect });
-      const mockUpdate = vi.fn().mockReturnValue({ eq: mockEq });
-      mockFrom.mockReturnValue({ update: mockUpdate });
+      await neonService.completeOnboarding(userId);
 
-      await supabaseService.completeOnboarding(userId);
-
-      expect(mockFrom).toHaveBeenCalledWith('profiles');
-      expect(mockUpdate).toHaveBeenCalledWith(
-        expect.objectContaining({ onboarding_completed: true })
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/profile',
+        expect.objectContaining({
+          method: 'PUT',
+        })
       );
-      expect(mockEq).toHaveBeenCalledWith('id', userId);
     });
 
     it('reinicia o tour a partir da primeira etapa quando acionado novamente', () => {

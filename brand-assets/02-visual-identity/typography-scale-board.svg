@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" fill="none">
+  <rect width="1200" height="800" rx="16" fill="#FFFFFF"/>
+  <rect x="0.5" y="0.5" width="1199" height="799" rx="15.5" stroke="#E7E7E5"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap');
+    .title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 26px; fill: #171717; letter-spacing: -0.02em; }
+    .subtitle { font-family: 'JetBrains Mono', monospace; font-size: 11px; fill: #737373; letter-spacing: 0.14em; text-transform: uppercase; }
+    .spec-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; fill: #4355DB; letter-spacing: 0.12em; text-transform: uppercase; }
+    .spec-details { font-family: 'JetBrains Mono', monospace; font-size: 10px; fill: #737373; }
+    
+    .font-sample-display { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 48px; letter-spacing: -0.04em; fill: #171717; line-height: 1.05; }
+    .font-sample-h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 32px; letter-spacing: -0.03em; fill: #171717; }
+    .font-sample-h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.02em; fill: #171717; }
+    .font-sample-body { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 14px; line-height: 1.6; fill: #171717; }
+    .font-sample-mono { font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 12px; fill: #171717; letter-spacing: 0.08em; }
+  </style>
+
+  <g transform="translate(60, 50)">
+    <text class="title">Hierarquia Tipográfica &amp; Famílias do Salvei</text>
+    <text y="24" class="subtitle">TYPOGRAPHIC SYSTEM / DUAL ARCHITECTURE: EDITORIAL DISPLAY + TECHNICAL MONO</text>
+  </g>
+
+  <!-- Row 1: Display Hero -->
+  <g transform="translate(60, 130)">
+    <text class="spec-label">DISPLAY HERO — PLUS JAKARTA SANS 800 (48px / -0.04em)</text>
+    <text y="18" class="spec-details">Uso: Hero Section, Capas de Apresentação e Títulos de Destaque Máximo</text>
+    <text y="70" class="font-sample-display">Salve, organize e encontre suas referências.</text>
+    <line x1="0" y1="95" x2="1080" y2="95" stroke="#E7E7E5"/>
+  </g>
+
+  <!-- Row 2: Heading 1 -->
+  <g transform="translate(60, 260)">
+    <text class="spec-label">HEADING 1 / TITLES — PLUS JAKARTA SANS 700 (32px / -0.03em)</text>
+    <text y="18" class="spec-details">Uso: Cabeçalhos de Seções, Nomes de Projetos e Modais de Destaque</text>
+    <text y="58" class="font-sample-h1">Uma biblioteca visual para suas próximas ideias.</text>
+    <line x1="0" y1="85" x2="1080" y2="85" stroke="#E7E7E5"/>
+  </g>
+
+  <!-- Row 3: Heading 2 & Subtitles -->
+  <g transform="translate(60, 380)">
+    <text class="spec-label">HEADING 2 — PLUS JAKARTA SANS 700 (22px / -0.02em)</text>
+    <text y="18" class="spec-details">Uso: Títulos de Cards de Referência, Coleções Temáticas e Diálogos</text>
+    <text y="50" class="font-sample-h2">Curadoria digital sem o caos de abas infinitas.</text>
+    <line x1="0" y1="75" x2="1080" y2="75" stroke="#E7E7E5"/>
+  </g>
+
+  <!-- Row 4: Body Text -->
+  <g transform="translate(60, 490)">
+    <text class="spec-label">BODY TEXT — INTER REGULAR &amp; MEDIUM (14px / 1.6)</text>
+    <text y="18" class="spec-details">Uso: Parágrafos editoriais, notas de referência, notas de código e descrições</text>
+    <text y="48" class="font-sample-body">O Salvei transforma a captura visual da web em um acervo pessoal estruturado. Designers e desenvolvedores</text>
+    <text y="70" class="font-sample-body">reúnem benchmarks, layouts, paletas e trechos de código em um espaço privativo de alta densidade.</text>
+    <line x1="0" y1="95" x2="1080" y2="95" stroke="#E7E7E5"/>
+  </g>
+
+  <!-- Row 5: Mono Anchor -->
+  <g transform="translate(60, 620)">
+    <text class="spec-label">MICRO MONO ANCHOR — JETBRAINS MONO 500 (12px / 0.08em UPPERCASE)</text>
+    <text y="18" class="spec-details">Uso: Metadados técnicos, contadores [ 24 REFERÊNCIAS ], atalhos (Cmd+K), tags (#editorial)</text>
+    <text y="45" class="font-sample-mono">[ TOTAL: 142 REFERÊNCIAS ] • DOMÍNIO: STRIPE.COM • ATALHO: [ CMD + K ] • #TIPOGRAFIA-WEB</text>
+  </g>
+</svg>

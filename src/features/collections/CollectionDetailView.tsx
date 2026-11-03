@@ -8,10 +8,12 @@ import {
   Trash2,
   Inbox,
   MinusCircle,
+  Share2,
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { ReferenceCard } from '../../components/references/ReferenceCard';
 import { AssociateReferencesModal } from '../../components/references/AssociateReferencesModal';
+import { ShareCollectionModal } from './ShareCollectionModal';
 
 interface CollectionDetailViewProps {
   collection: Collection;
@@ -32,6 +34,8 @@ interface CollectionDetailViewProps {
   selectedBatchIds?: string[];
   isSelectionModeActive?: boolean;
   onToggleBatchSelect?: (referenceId: string, e?: React.MouseEvent) => void;
+  onOpenPublicMoodboard?: (collectionId: string) => void;
+  onUpdatePalette?: (referenceId: string, palette: any[]) => void;
 }
 
 export const CollectionDetailView: React.FC<CollectionDetailViewProps> = ({
@@ -53,11 +57,14 @@ export const CollectionDetailView: React.FC<CollectionDetailViewProps> = ({
   selectedBatchIds = [],
   isSelectionModeActive = false,
   onToggleBatchSelect,
+  onOpenPublicMoodboard,
+  onUpdatePalette,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(collection.name);
   const [editDescription, setEditDescription] = useState(collection.description || '');
   const [isAssociateModalOpen, setIsAssociateModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   // References belonging to this collection
@@ -112,6 +119,16 @@ export const CollectionDetailView: React.FC<CollectionDetailViewProps> = ({
 
         {/* Header Actions */}
         <div className="flex items-center gap-2 flex-shrink-0">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setIsShareModalOpen(true)}
+            iconLeft={<Share2 size={13} />}
+            className="cursor-pointer"
+          >
+            Compartilhar
+          </Button>
+
           <Button
             variant="secondary"
             size="sm"
@@ -183,6 +200,7 @@ export const CollectionDetailView: React.FC<CollectionDetailViewProps> = ({
                 onQuickDelete={onQuickDelete}
                 onQuickAssociateProject={onQuickAssociateProject}
                 onQuickAssociateCollection={onQuickAssociateCollection}
+                onUpdatePalette={onUpdatePalette}
               />
               {/* Quick action to detach reference from this collection */}
               <button
@@ -303,6 +321,17 @@ export const CollectionDetailView: React.FC<CollectionDetailViewProps> = ({
         entityName={collection.name}
         allReferences={allReferences}
         onSaveAssociations={onSaveAssociations}
+      />
+
+      {/* Share Collection / Moodboard Modal */}
+      <ShareCollectionModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        collection={collection}
+        references={allReferences}
+        onOpenPublicView={
+          onOpenPublicMoodboard ? () => onOpenPublicMoodboard(collection.id) : undefined
+        }
       />
     </div>
   );

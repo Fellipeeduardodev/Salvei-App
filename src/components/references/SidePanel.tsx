@@ -22,11 +22,30 @@ import {
   Trash2,
   Paperclip,
   AlertCircle,
+  Palette,
+  Sparkles,
+  Loader2,
+  Download,
+  Share2,
+  ScanText,
+  FileCode,
+  FileJson,
 } from 'lucide-react';
 import { MarkdownViewer } from './MarkdownViewer';
 import { CodeSnippetBlock } from './CodeSnippetBlock';
 import { saveImageBlob } from '../../lib/imageStorage';
 import { formatBytes, validateAndFormatUrl } from '../../lib/referenceLifecycle';
+import {
+  extractPaletteFromImage,
+  generateStyleInsightsFromPalette,
+  exportPaletteAsTailwind,
+  exportPaletteAsCss,
+  exportPaletteAsJson,
+  exportPaletteAsFigmaTokens,
+  downloadPaletteCardPng,
+} from '../../lib/colorExtractor';
+import { extractTextFromImage } from '../../lib/ocrExtractor';
+import { analyzeDesignWithGemini, hasGeminiApiKey } from '../../services/geminiService';
 
 interface SidePanelProps {
   reference: Reference | null;
@@ -76,6 +95,14 @@ export const SidePanel: React.FC<SidePanelProps> = ({
 
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [isAnalyzingPalette, setIsAnalyzingPalette] = useState(false);
+  const [copiedColorHex, setCopiedColorHex] = useState<string | null>(null);
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const [exportFeedback, setExportFeedback] = useState<string | null>(null);
+  const [isExtractingOcr, setIsExtractingOcr] = useState(false);
+  const [ocrDraft, setOcrDraft] = useState('');
+  const [isEditingOcr, setIsEditingOcr] = useState(false);
+  const [hasCopiedOcr, setHasCopiedOcr] = useState(false);
 
   const panelRef = useRef<HTMLDivElement>(null);
   const tagInputRef = useRef<HTMLInputElement>(null);
@@ -104,9 +131,12 @@ export const SidePanel: React.FC<SidePanelProps> = ({
       setTitleDraft(reference.title);
       setUrlDraft(reference.url || '');
       setNotesDraft(reference.notesMarkdown || '');
+      setOcrDraft(reference.ocrText || '');
       setIsEditingTitle(false);
       setIsEditingUrl(false);
       setIsEditingNotes(false);
+      setIsEditingOcr(false);
+      setIsExportMenuOpen(false);
       setIsAddingTag(false);
       setIsAddingSnippet(false);
       setIsConfirmingDelete(false);
@@ -162,6 +192,115 @@ export const SidePanel: React.FC<SidePanelProps> = ({
     } catch {
       // Fallback
     }
+  };
+
+  const handleCopyHex = (hex: string) => {
+    navigator.clipboard.writeText(hex);
+    setCopiedColorHex(hex);
+    setTimeout(() => setCopiedColorHex(null), 1600);
+  };
+
+  const handleAnalyzePaletteWithAI = async () => {
+    if (!reference || !reference.screenshotUrl) return;
+    setIsAnalyzingPalette(true);
+    try {
+      const palette = await extractPaletteFromImage(reference.screenshotUrl, 5);
+      const currentTags = new Set(reference.tags || []);
+      let updatedNotes = reference.notesMarkdown || '';
+
+      if (hasGeminiApiKey()) {
+        try {
+          const aiAnalysis = await analyzeDesignWithGemini(reference.screenshotUrl, reference.tags);
+          aiAnalysis.suggestedTags.forEach((t) => currentTags.add(t));
+
+          const aiSection = `\n\n### ✨ Análise de Design com IA (${aiAnalysis.styleTitle})\n- **Diagnóstico:** ${aiAnalysis.visualDiagnosis}\n- **Tipografia:** ${aiAnalysis.typographyNotes}\n- **Atmosfera:** ${aiAnalysis.moodDescription}`;
+          if (!updatedNotes.includes('### ✨ Análise de Design com IA')) {
+            updatedNotes = (updatedNotes.trim() + aiSection).trim();
+            setNotesDraft(updatedNotes);
+          }
+        } catch (geminiErr) {
+          console.warn('Gemini vision fallback para regras locais:', geminiErr);
+          const insights = generateStyleInsightsFromPalette(palette);
+          insights.suggestedTags.forEach((t) => currentTags.add(t));
+        }
+      } else {
+        const insights = generateStyleInsightsFromPalette(palette);
+        insights.suggestedTags.forEach((t) => currentTags.add(t));
+      }
+
+      onUpdateReference(reference.id, {
+        palette,
+        tags: Array.from(currentTags),
+        notesMarkdown: updatedNotes,
+      });
+      setExportFeedback('Análise concluída!');
+      setTimeout(() => setExportFeedback(null), 2500);
+    } catch (e) {
+      console.error('Erro na análise de paleta com IA:', e);
+    } finally {
+      setIsAnalyzingPalette(false);
+    }
+  };
+
+  // Exportação de paleta em múltiplos formatos
+  const handleExportPalette = (format: 'tailwind' | 'css' | 'json' | 'figma' | 'png') => {
+    if (!reference || !reference.palette || reference.palette.length === 0) return;
+
+    if (format === 'tailwind') {
+      const code = exportPaletteAsTailwind(reference.title, reference.palette);
+      navigator.clipboard.writeText(code);
+      setExportFeedback('Tailwind copiado!');
+    } else if (format === 'css') {
+      const code = exportPaletteAsCss(reference.title, reference.palette);
+      navigator.clipboard.writeText(code);
+      setExportFeedback('CSS copiado!');
+    } else if (format === 'json') {
+      const code = exportPaletteAsJson(reference.title, reference.palette);
+      navigator.clipboard.writeText(code);
+      setExportFeedback('Tokens JSON copiados!');
+    } else if (format === 'figma') {
+      const code = exportPaletteAsFigmaTokens(reference.title, reference.palette);
+      navigator.clipboard.writeText(code);
+      setExportFeedback('Figma Tokens copiados!');
+    } else if (format === 'png') {
+      downloadPaletteCardPng(reference.title, reference.palette);
+      setExportFeedback('Cartela PNG baixada!');
+    }
+
+    setTimeout(() => {
+      setExportFeedback(null);
+      setIsExportMenuOpen(false);
+    }, 1800);
+  };
+
+  // Extração e OCR de texto em imagem
+  const handleExtractOcr = async () => {
+    if (!reference || !reference.screenshotUrl || isExtractingOcr) return;
+    setIsExtractingOcr(true);
+    try {
+      const res = await extractTextFromImage(reference.screenshotUrl);
+      if (res.text) {
+        onUpdateReference(reference.id, { ocrText: res.text });
+        setOcrDraft(res.text);
+      }
+    } catch (e) {
+      console.error('Erro na extração de texto/OCR:', e);
+    } finally {
+      setIsExtractingOcr(false);
+    }
+  };
+
+  const handleSaveOcr = () => {
+    if (!reference) return;
+    onUpdateReference(reference.id, { ocrText: ocrDraft.trim() });
+    setIsEditingOcr(false);
+  };
+
+  const handleCopyOcr = () => {
+    if (!ocrDraft) return;
+    navigator.clipboard.writeText(ocrDraft);
+    setHasCopiedOcr(true);
+    setTimeout(() => setHasCopiedOcr(false), 1800);
   };
 
   // Save Title
@@ -343,30 +482,45 @@ export const SidePanel: React.FC<SidePanelProps> = ({
         aria-label={`Detalhes da referência: ${reference.title}`}
         className="fixed top-0 right-0 bottom-0 z-50 w-full sm:w-[460px] md:w-[440px] lg:w-[460px] bg-white dark:bg-[#191B20] text-[#171717] dark:text-[#F3F4F6] border-l border-[#E7E7E5] dark:border-[#2D3139] shadow-[-10px_0_30px_rgba(0,0,0,0.15)] flex flex-col transition-transform duration-200 ease-out animate-in slide-in-from-right"
       >
-        {/* Panel Header */}
-        <div className="h-14 px-5 border-b border-[#E7E7E5] dark:border-[#2D3139] flex items-center justify-between gap-3 bg-white dark:bg-[#191B20] flex-shrink-0">
-          <div className="flex items-center gap-1.5">
+        {/* Panel Header matching hero-03 */}
+        <div className="h-14 px-4 sm:px-5 border-b border-[#E7E7E5] dark:border-[#2D3139] flex items-center justify-between gap-2 sm:gap-3 bg-white dark:bg-[#191B20] flex-shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="font-mono text-xs font-semibold text-[#4355DB] dark:text-[#6375F1] tracking-wider whitespace-nowrap truncate">
+              <span className="sm:hidden">[ DETALHES ]</span>
+              <span className="hidden sm:inline">[ DETALHES DA REFERÊNCIA ]</span>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            <button
+              onClick={() => {
+                if (notesDraftRef.current !== reference.notesMarkdown) {
+                  onUpdateReference(reference.id, { notesMarkdown: notesDraftRef.current });
+                }
+                onClose();
+              }}
+              className="font-mono text-[10px] text-[#A8A8A6] dark:text-[#6B7280] hover:text-[#171717] dark:hover:text-[#F3F4F6] tracking-wider uppercase transition-colors cursor-pointer mr-1 hidden sm:inline"
+            >
+              ESC PARA FECHAR
+            </button>
+
+            {/* Expand View */}
             <button
               onClick={onExpand}
-              className="p-1.5 rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
-              title="Expandir visualização (quase tela cheia)"
+              className="p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+              title="Expandir visualização"
               aria-label="Expandir visualização da referência"
             >
               <Maximize2 size={16} strokeWidth={1.8} />
             </button>
-            <span className="font-mono text-[10px] text-[#A8A8A6] dark:text-[#6B7280] uppercase tracking-wider hidden sm:inline">
-              [ DETALHES ]
-            </span>
-          </div>
 
-          <div className="flex items-center gap-1">
             {/* Open Original Link (se URL existir) */}
             {hasUrl && (
               <a
                 href={reference.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-1.5 rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+                className="p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
                 title="Abrir site original (abre em nova aba)"
                 aria-label={`Abrir ${reference.domain || reference.url} em nova aba`}
               >
@@ -378,7 +532,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({
             {hasUrl && (
               <button
                 onClick={handleCopyUrl}
-                className="p-1.5 rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+                className="p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
                 title="Copiar link"
                 aria-label="Copiar link da referência"
               >
@@ -398,7 +552,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({
                 }
                 onClose();
               }}
-              className="p-1.5 rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
+              className="p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-md text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
               title="Fechar painel (Esc)"
               aria-label="Fechar painel de detalhes"
             >
@@ -409,8 +563,8 @@ export const SidePanel: React.FC<SidePanelProps> = ({
 
         {/* Panel Scrollable Body */}
         <div
-          className="flex-1 overflow-y-auto p-5 sm:p-6 flex flex-col gap-6 scrollbar-thin"
-          style={{ paddingBottom: 'calc(3rem + env(safe-area-inset-bottom, 0px))' }}
+          className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col gap-5 sm:gap-6 scrollbar-thin"
+          style={{ paddingBottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}
         >
           {/* Visual Section: Image or URL-only Placeholder */}
           <div className="flex flex-col gap-2">
@@ -418,7 +572,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({
               <div className="flex flex-col gap-1.5">
                 <div
                   onClick={onExpand}
-                  className="group relative w-full aspect-[16/10] bg-[#F1F1EF] rounded-sm overflow-hidden border border-[#E7E7E5] cursor-pointer"
+                  className="group relative w-full aspect-[16/10] bg-[#F1F1EF] rounded-xl overflow-hidden border border-[#E7E7E5] dark:border-[#2D3139] shadow-sm cursor-pointer"
                   title="Clique para expandir"
                 >
                   <img
@@ -509,7 +663,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({
                     }
                   }}
                   autoFocus
-                  className="w-full text-base font-bold text-[#171717] px-2 py-1 rounded bg-[#F8F8F6] border border-[#4355DB] outline-none"
+                  className="w-full text-base font-bold text-[#171717] dark:text-[#F3F4F6] px-2 py-1 rounded bg-[#F8F8F6] dark:bg-[#15171C] border border-[#4355DB] outline-none"
                 />
                 <span className="text-[10px] text-[#A8A8A6] font-mono">
                   Pressione Enter para salvar ou Esc para cancelar
@@ -521,7 +675,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({
                 className="group/title flex items-start justify-between gap-2 cursor-pointer"
                 title="Clique para editar o título"
               >
-                <h2 className="font-sans font-bold text-lg text-[#171717] leading-snug">
+                <h2 className="font-sans font-bold text-lg text-[#171717] dark:text-[#F3F4F6] leading-snug">
                   {reference.title}
                 </h2>
                 <Edit3
@@ -619,6 +773,281 @@ export const SidePanel: React.FC<SidePanelProps> = ({
               </div>
             )}
           </div>
+
+          {/* Color Palette & AI Analysis Section */}
+          {hasImage && (
+            <div className="flex flex-col gap-2.5 pb-4 border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[10px] font-semibold text-[#A8A8A6] dark:text-[#6B7280] uppercase tracking-wider flex items-center gap-1.5">
+                  <Palette size={12} className="text-[#4355DB] dark:text-[#6375F1]" />
+                  Paleta de Cores {reference.palette && reference.palette.length > 0 && `(${reference.palette.length})`}
+                </span>
+
+                <div className="flex items-center gap-2">
+                  {/* Export Palette Button */}
+                  {reference.palette && reference.palette.length > 0 && (
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setIsExportMenuOpen((prev) => !prev)}
+                        className="text-[11px] font-medium text-[#737373] hover:text-[#171717] dark:text-[#9CA3AF] dark:hover:text-[#F3F4F6] flex items-center gap-1 cursor-pointer"
+                        title="Exportar paleta de cores para Tailwind, CSS, JSON ou Cartela PNG"
+                      >
+                        <Download size={11} />
+                        <span>Exportar</span>
+                      </button>
+
+                      {isExportMenuOpen && (
+                        <div className="absolute right-0 top-6 z-30 w-44 rounded-md bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] shadow-xl p-1 flex flex-col gap-0.5 animate-in fade-in duration-150">
+                          <button
+                            type="button"
+                            onClick={() => handleExportPalette('tailwind')}
+                            className="px-2 py-1.5 text-[11px] text-left hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] rounded text-[#171717] dark:text-[#F3F4F6] flex items-center gap-2 cursor-pointer"
+                          >
+                            <FileCode size={12} className="text-[#38BDF8]" />
+                            <span>Copiar Tailwind</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleExportPalette('css')}
+                            className="px-2 py-1.5 text-[11px] text-left hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] rounded text-[#171717] dark:text-[#F3F4F6] flex items-center gap-2 cursor-pointer"
+                          >
+                            <FileCode size={12} className="text-[#818CF8]" />
+                            <span>Copiar CSS (:root)</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleExportPalette('json')}
+                            className="px-2 py-1.5 text-[11px] text-left hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] rounded text-[#171717] dark:text-[#F3F4F6] flex items-center gap-2 cursor-pointer"
+                          >
+                            <FileJson size={12} className="text-[#F59E0B]" />
+                            <span>Copiar Tokens JSON</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleExportPalette('figma')}
+                            className="px-2 py-1.5 text-[11px] text-left hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] rounded text-[#171717] dark:text-[#F3F4F6] flex items-center gap-2 cursor-pointer"
+                          >
+                            <Sparkles size={12} className="text-[#A855F7]" />
+                            <span>Copiar Figma Tokens</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleExportPalette('png')}
+                            className="px-2 py-1.5 text-[11px] text-left hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] rounded text-[#171717] dark:text-[#F3F4F6] flex items-center gap-2 cursor-pointer"
+                          >
+                            <Download size={12} className="text-[#10B981]" />
+                            <span>Baixar Cartela PNG</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {exportFeedback && (
+                    <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold animate-in fade-in">
+                      {exportFeedback}
+                    </span>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleAnalyzePaletteWithAI}
+                    disabled={isAnalyzingPalette}
+                    className="text-[11px] font-medium text-[#4355DB] dark:text-[#6375F1] hover:text-[#3646B8] dark:hover:text-[#8292FD] flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    title="Extrai ou refina cores com inteligência de design e sugere tags estéticas"
+                  >
+                    {isAnalyzingPalette ? (
+                      <>
+                        <Loader2 size={12} className="animate-spin text-[#4355DB]" />
+                        <span>Analisando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={12} />
+                        <span>Analisar com IA</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {reference.palette && reference.palette.length > 0 ? (
+                <div className="flex flex-col gap-2">
+                  {/* Visual strip */}
+                  <div className="w-full h-3 rounded-md overflow-hidden flex ring-1 ring-black/10 dark:ring-white/10 shadow-2xs">
+                    {reference.palette.map((color, idx) => (
+                      <div
+                        key={`strip-${color.hex}-${idx}`}
+                        className="flex-1 h-full cursor-pointer hover:opacity-90 transition-opacity"
+                        style={{ backgroundColor: color.hex }}
+                        onClick={() => handleCopyHex(color.hex)}
+                        title={`${color.name || color.hex} (${color.hex}) — Clique para copiar`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Color swatches list */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1">
+                    {reference.palette.map((color, idx) => (
+                      <div
+                        key={`card-${color.hex}-${idx}`}
+                        onClick={() => handleCopyHex(color.hex)}
+                        className="flex items-center justify-between p-1.5 px-2 rounded-md bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] hover:border-[#4355DB] dark:hover:border-[#6375F1] transition-all cursor-pointer group shadow-2xs"
+                        title="Clique para copiar o código HEX"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div
+                            className="w-4 h-4 rounded-full ring-1 ring-black/10 dark:ring-white/10 shrink-0 shadow-2xs"
+                            style={{ backgroundColor: color.hex }}
+                          />
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-[11px] font-semibold text-[#171717] dark:text-[#F3F4F6] truncate">
+                              {color.name || color.hex}
+                            </span>
+                            <span className="font-mono text-[9px] text-[#737373] dark:text-[#9CA3AF]">
+                              {color.hex}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1 shrink-0 text-[#737373] group-hover:text-[#4355DB] dark:group-hover:text-[#6375F1]">
+                          {copiedColorHex === color.hex ? (
+                            <span className="font-mono text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
+                              Copiado!
+                            </span>
+                          ) : (
+                            <Copy size={11} />
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-3 bg-[#F8F8F6] dark:bg-[#20232A] rounded-md border border-[#E7E7E5] dark:border-[#2D3139] flex items-center justify-between text-xs">
+                  <span className="text-[#737373] dark:text-[#9CA3AF] text-[11px]">
+                    Nenhuma paleta extraída ainda.
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleAnalyzePaletteWithAI}
+                    disabled={isAnalyzingPalette}
+                    className="px-2.5 py-1 rounded bg-[#171717] dark:bg-[#4355DB] hover:bg-black dark:hover:bg-[#3646B8] text-white text-[10px] font-semibold transition-colors cursor-pointer"
+                  >
+                    Extrair cores
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* OCR / Texto em Imagem Section */}
+          {hasImage && (
+            <div className="flex flex-col gap-2.5 pb-4 border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[10px] font-semibold text-[#A8A8A6] dark:text-[#6B7280] uppercase tracking-wider flex items-center gap-1.5">
+                  <ScanText size={12} className="text-[#4355DB] dark:text-[#6375F1]" />
+                  Texto em Imagem (OCR & IA)
+                </span>
+
+                <button
+                  type="button"
+                  onClick={handleExtractOcr}
+                  disabled={isExtractingOcr}
+                  className="text-[11px] font-medium text-[#4355DB] dark:text-[#6375F1] hover:text-[#3646B8] dark:hover:text-[#8292FD] flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  title="Lê e transcreve todo texto contido nesta imagem, tornando-o pesquisável"
+                >
+                  {isExtractingOcr ? (
+                    <>
+                      <Loader2 size={12} className="animate-spin text-[#4355DB]" />
+                      <span>Lendo texto...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ScanText size={12} />
+                      <span>{reference.ocrText ? 'Re-escanear' : 'Extrair texto'}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {reference.ocrText || isEditingOcr ? (
+                <div className="flex flex-col gap-2">
+                  {isEditingOcr ? (
+                    <div className="flex flex-col gap-2">
+                      <textarea
+                        value={ocrDraft}
+                        onChange={(e) => setOcrDraft(e.target.value)}
+                        className="w-full h-24 p-2 text-xs font-mono rounded bg-white dark:bg-[#121316] border border-[#4355DB] dark:border-[#6375F1] text-[#171717] dark:text-[#F3F4F6] resize-y outline-none"
+                        placeholder="Texto detectado via OCR..."
+                      />
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOcrDraft(reference.ocrText || '');
+                            setIsEditingOcr(false);
+                          }}
+                          className="px-2 py-1 text-xs text-[#737373] hover:text-[#171717] dark:text-[#9CA3AF] cursor-pointer"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleSaveOcr}
+                          className="px-2.5 py-1 text-xs font-semibold rounded bg-[#4355DB] text-white hover:bg-[#3646B8] cursor-pointer"
+                        >
+                          Salvar Texto
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-2.5 rounded-md bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] flex flex-col gap-1.5 group relative shadow-2xs">
+                      <p className="font-mono text-xs text-[#171717] dark:text-[#F3F4F6] whitespace-pre-wrap line-clamp-4 leading-relaxed">
+                        {reference.ocrText}
+                      </p>
+                      <div className="flex items-center justify-between pt-1 border-t border-[#E7E7E5]/60 dark:border-[#2D3139]/60 text-[10px] text-[#737373] dark:text-[#9CA3AF]">
+                        <span className="font-mono text-[9px]">Indexado na busca global</span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={handleCopyOcr}
+                            className="hover:text-[#4355DB] dark:hover:text-[#6375F1] cursor-pointer flex items-center gap-1"
+                          >
+                            {hasCopiedOcr ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
+                            <span>{hasCopiedOcr ? 'Copiado!' : 'Copiar'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setIsEditingOcr(true)}
+                            className="hover:text-[#4355DB] dark:hover:text-[#6375F1] cursor-pointer flex items-center gap-1"
+                          >
+                            <Edit3 size={11} />
+                            <span>Editar</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="p-2.5 bg-[#F8F8F6] dark:bg-[#20232A] rounded-md border border-[#E7E7E5] dark:border-[#2D3139] flex items-center justify-between text-xs">
+                  <span className="text-[#737373] dark:text-[#9CA3AF] text-[11px]">
+                    Nenhum texto extraído do print ainda.
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleExtractOcr}
+                    disabled={isExtractingOcr}
+                    className="px-2.5 py-1 rounded bg-[#171717] dark:bg-[#4355DB] hover:bg-black dark:hover:bg-[#3646B8] text-white text-[10px] font-semibold transition-colors cursor-pointer"
+                  >
+                    Escanear
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Tags & Organization */}
           <div className="flex flex-col gap-2.5 pb-4 border-b border-[#E7E7E5]/70">
@@ -871,13 +1300,16 @@ export const SidePanel: React.FC<SidePanelProps> = ({
             ) : (
               <div
                 onClick={() => setIsEditingNotes(true)}
-                className="p-3 rounded-sm bg-[#F8F8F6] border border-[#E7E7E5] hover:border-[#D4D4D0] transition-colors cursor-text min-h-[80px]"
-                title="Clique para editar as anotações"
+                className="p-4 rounded-xl bg-[#F8F8F6] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] hover:border-[#D4D4D0] dark:hover:border-[#3E434D] transition-colors cursor-text min-h-[90px]"
+                title="Clique para editar as notas do designer"
               >
+                <div className="font-mono text-[10px] font-bold text-[#737373] dark:text-[#9CA3AF] tracking-wider uppercase mb-2">
+                  NOTAS DO DESIGNER:
+                </div>
                 <MarkdownViewer
                   content={
                     reference.notesMarkdown ||
-                    '*Nenhuma anotação registrada ainda. Clique aqui para escrever notas e observações sobre esta referência.*'
+                    '*Nenhuma anotação registrada ainda. Clique aqui para registrar notas e análises sobre esta referência.*'
                   }
                 />
               </div>

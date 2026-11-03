@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Salvei — Painel de Variações Visuais da Hero (Orbix / Finomac Direction)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #F8F8F6;
+      color: #171717;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      padding: 60px 40px;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 56px;
+    }
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border-bottom: 1px solid #E7E7E5;
+      padding-bottom: 36px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: #FFFFFF;
+      border: 1px solid #E7E7E5;
+      border-radius: 9999px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: #171717;
+      width: fit-content;
+    }
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #4355DB;
+    }
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: #171717;
+    }
+    .lead {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #737373;
+      max-width: 840px;
+    }
+    .stats-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+      padding: 20px 24px;
+      background: #FFFFFF;
+      border: 1px solid #E7E7E5;
+      border-radius: 12px;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: #737373;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .stat-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #171717;
+    }
+
+    /* Grid of variations */
+    .variations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(620px, 1fr));
+      gap: 36px;
+    }
+    .variation-card {
+      background: #FFFFFF;
+      border: 1px solid #E7E7E5;
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+      transition: all 0.2s ease;
+    }
+    .variation-card:hover {
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+      border-color: #D1D5DB;
+    }
+    .card-preview {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #F1F1EF;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .card-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+    .card-preview:hover img {
+      transform: scale(1.02);
+    }
+    .zoom-hint {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(23, 23, 23, 0.85);
+      backdrop-filter: blur(8px);
+      color: #FFFFFF;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 500;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .card-preview:hover .zoom-hint {
+      opacity: 1;
+    }
+    .recommended-badge {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: #4355DB;
+      color: #FFFFFF;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(67, 85, 219, 0.4);
+    }
+    .card-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .variation-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: #4355DB;
+    }
+    .variation-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: #171717;
+      letter-spacing: -0.02em;
+    }
+    .card-desc {
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: #525252;
+    }
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid #F1F1EF;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #737373;
+    }
+    .file-path {
+      background: #F8F8F6;
+      border: 1px solid #E7E7E5;
+      padding: 4px 8px;
+      border-radius: 4px;
+      color: #171717;
+      font-size: 10.5px;
+    }
+
+    /* Interactive Live Hero Simulator */
+    .simulator-section {
+      background: #FFFFFF;
+      border: 1px solid #E7E7E5;
+      border-radius: 20px;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.05);
+    }
+    .sim-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .sim-selector {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .sim-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 8px 14px;
+      background: #F8F8F6;
+      border: 1px solid #E7E7E5;
+      border-radius: 8px;
+      color: #171717;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+    .sim-btn.active {
+      background: #4355DB;
+      color: #FFFFFF;
+      border-color: #4355DB;
+    }
+    .sim-hero-preview {
+      background: linear-gradient(180deg, #F2F6FE 0%, #F8FAFF 40%, #FFFFFF 100%);
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 60px 40px 40px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .sim-h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(28px, 3.5vw, 44px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: #0F172A;
+      margin-bottom: 14px;
+      max-width: 720px;
+    }
+    .sim-sub {
+      font-size: 15px;
+      color: #475569;
+      max-width: 540px;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .sim-ctas {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+    .cta-primary {
+      background: #4355DB;
+      color: #FFF;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .cta-secondary {
+      background: #FFF;
+      color: #334155;
+      border: 1px solid #CBD5E1;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .sim-screen-container {
+      width: 100%;
+      max-width: 1040px;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      box-shadow: 0 30px 80px -20px rgba(15, 23, 42, 0.18);
+      background: #FFFFFF;
+      transition: all 0.3s ease;
+    }
+    .sim-screen-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Modal for full 1080p zoom */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(12px);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-content {
+      max-width: 96vw;
+      max-height: 94vh;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    .modal-content img {
+      width: 100%;
+      height: auto;
+      max-height: 94vh;
+      display: block;
+      object-fit: contain;
+    }
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(0, 0, 0, 0.6);
+      color: #FFFFFF;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        DIREÇÃO DE ARTE LANDING PAGE • SALVEI
+      </div>
+      <h1>Estudo Comparativo: 6 Variações Visuais para a Hero</h1>
+      <p class="lead">
+        Apresentação de 6 direções de composição baseadas na interface real do Salvei, inspiradas na sutileza, iluminação e acabamento de landing pages de referência premium (Orbix Studio / Finomac). Todas as imagens foram geradas em proporção 16:9 na resolução 1920 × 1080 em PNG lossless e WebP.
+      </p>
+
+      <div class="stats-strip">
+        <div class="stat-item">
+          <span class="stat-label">Variações Geradas</span>
+          <span class="stat-val">6 Direções de Arte</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Resolução Nativa</span>
+          <span class="stat-val">1920 × 1080 (16:9)</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Fidelidade</span>
+          <span class="stat-val">100% Componentes Reais</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Diretório de Entrega</span>
+          <span class="stat-val" style="font-size:14px; font-family:'JetBrains Mono';">/public/brand/hero-variations/</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- LIVE HERO SIMULATOR -->
+    <section class="simulator-section">
+      <div class="sim-header">
+        <div>
+          <h2 style="font-family:'Outfit'; font-size:22px; font-weight:800;">Simulador Interativo da Landing Page</h2>
+          <p style="font-size:13px; color:#737373;">Alterne entre as 6 variações para ver exatamente como cada imagem se comporta no layout real da hero.</p>
+        </div>
+        <div class="sim-selector" id="simSelector">
+          <button class="sim-btn active" onclick="switchSim('hero-01-floating-product')">01. Floating</button>
+          <button class="sim-btn" onclick="switchSim('hero-02-editorial-showcase')">02. Editorial</button>
+          <button class="sim-btn" onclick="switchSim('hero-03-layered-interface')">03. Layered</button>
+          <button class="sim-btn" onclick="switchSim('hero-04-immersive-library')">04. Library</button>
+          <button class="sim-btn" onclick="switchSim('hero-05-perspective-mockup')">05. Mockup</button>
+          <button class="sim-btn" onclick="switchSim('hero-06-full-width-experience')">06. Full-Width</button>
+        </div>
+      </div>
+
+      <div class="sim-hero-preview">
+        <h1 class="sim-h1">Guarde o que te inspira.<br><span style="color:#0F172A;">Crie no seu tempo.</span></h1>
+        <p class="sim-sub">A biblioteca visual simples para salvar sites, imagens e ideias da internet em um só lugar. Sem abas infinitas, sem pastas esquecidas.</p>
+        <div class="sim-ctas">
+          <button class="cta-primary">Começar Gratuitamente</button>
+          <button class="cta-secondary">Conhecer o Salvei</button>
+        </div>
+
+        <div class="sim-screen-container">
+          <img id="simHeroImg" src="hero-01-floating-product.png" alt="Prévia da Hero do Salvei">
+        </div>
+      </div>
+    </section>
+
+    <!-- GRID OF 6 VARIATIONS -->
+    <div>
+      <h2 style="font-family:'Outfit'; font-size:24px; font-weight:800; margin-bottom:20px;">Galeria das 6 Variações Visuais</h2>
+      <div class="variations-grid">
+
+        <!-- Variation 1 -->
+        <div class="variation-card">
+          <div class="card-preview" onclick="openZoom('hero-01-floating-product.png')">
+            <span class="recommended-badge">★ RECOMENDADA PARA A HERO ATUAL</span>
+            <img src="hero-01-floating-product.png" alt="hero-01-floating-product">
+            <span class="zoom-hint">Clique para expandir 1080p</span>
+          </div>
+          <div class="card-body">
+            <div class="card-header-row">
+              <span class="variation-num">VARIAÇÃO 01</span>
+              <span class="badge" style="padding:2px 8px; font-size:9.5px;">PERSPECTIVA FLUTUANTE</span>
+            </div>
+            <h3 class="variation-title">Floating Product</h3>
+            <p class="card-desc">
+              Grande painel flutuante elevado em suave perspectiva 3D (4° de rotação), iluminação radial suave no fundo e sombras difusas em múltiplas camadas. Destaca a interface completa (sidebar, topbar com busca e cards reais) com sofisticação e leveza espacial.
+            </p>
+            <div class="card-meta">
+              <span>Arquivo:</span>
+              <span class="file-path">hero-01-floating-product.png</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Variation 2 -->
+        <div class="variation-card">
+          <div class="card-preview" onclick="openZoom('hero-02-editorial-showcase.png')">
+            <img src="hero-02-editorial-showcase.png" alt="hero-02-editorial-showcase">
+            <span class="zoom-hint">Clique para expandir 1080p</span>
+          </div>
+          <div class="card-body">
+            <div class="card-header-row">
+              <span class="variation-num">VARIAÇÃO 02</span>
+              <span class="badge" style="padding:2px 8px; font-size:9.5px;">DIREÇÃO EDITORIAL</span>
+            </div>
+            <h3 class="variation-title">Editorial Showcase</h3>
+            <p class="card-desc">
+              Composição editorial de alto padrão combinando o produto principal no lado esquerdo com 3 recortes ampliados à direita: inspeção cromática de paletas de cores, snippet executável Tailwind CSS em dark mode e cabeçalho de mosaico da coleção Suíça.
+            </p>
+            <div class="card-meta">
+              <span>Arquivo:</span>
+              <span class="file-path">hero-02-editorial-showcase.png</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Variation 3 -->
+        <div class="variation-card">
+          <div class="card-preview" onclick="openZoom('hero-03-layered-interface.png')">
+            <img src="hero-03-layered-interface.png" alt="hero-03-layered-interface">
+            <span class="zoom-hint">Clique para expandir 1080p</span>
+          </div>
+          <div class="card-body">
+            <div class="card-header-row">
+              <span class="variation-num">VARIAÇÃO 03</span>
+              <span class="badge" style="padding:2px 8px; font-size:9.5px;">CAMADAS MULTIPLANO</span>
+            </div>
+            <h3 class="variation-title">Layered Interface</h3>
+            <p class="card-desc">
+              Hierarquia visual expressa em 3 planos sobrepostos: tela de biblioteca ao fundo, gaveta lateral (SidePanel) de inspeção aberta no meio e paleta de comandos / busca rápida (Cmd+K) flutuando em destaque no primeiro plano com sombras acentuadas.
+            </p>
+            <div class="card-meta">
+              <span>Arquivo:</span>
+              <span class="file-path">hero-03-layered-interface.png</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Variation 4 -->
+        <div class="variation-card">
+          <div class="card-preview" onclick="openZoom('hero-04-immersive-library.png')">
+            <img src="hero-04-immersive-library.png" alt="hero-04-immersive-library">
+            <span class="zoom-hint">Clique para expandir 1080p</span>
+          </div>
+          <div class="card-body">
+            <div class="card-header-row">
+              <span class="variation-num">VARIAÇÃO 04</span>
+              <span class="badge" style="padding:2px 8px; font-size:9.5px;">PROTAGONISMO DO ACERVO</span>
+            </div>
+            <h3 class="variation-title">Immersive Library</h3>
+            <p class="card-desc">
+              Dá total protagonismo à proposta de valor central: grade panorâmica de 4 colunas com 8 referências curadas reais (Linear UI, Kinfolk, Swiss Specimen, Design System Tokens, Letterpress, Geometria). Transmite densidade, organização e riqueza criativa.
+            </p>
+            <div class="card-meta">
+              <span>Arquivo:</span>
+              <span class="file-path">hero-04-immersive-library.png</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Variation 5 -->
+        <div class="variation-card">
+          <div class="card-preview" onclick="openZoom('hero-05-perspective-mockup.png')">
+            <img src="hero-05-perspective-mockup.png" alt="hero-05-perspective-mockup">
+            <span class="zoom-hint">Clique para expandir 1080p</span>
+          </div>
+          <div class="card-body">
+            <div class="card-header-row">
+              <span class="variation-num">VARIAÇÃO 05</span>
+              <span class="badge" style="padding:2px 8px; font-size:9.5px;">STUDIO PHOTOGRAPHY</span>
+            </div>
+            <h3 class="variation-title">Perspective Mockup</h3>
+            <p class="card-desc">
+              Tratamento que simula uma fotografia física de produto em estúdio digital. O Salvei repousa dentro de uma moldura de navegador com perspectiva oblíqua (10°), luz rasante de topo e sombra projetada em piso neutro. Aparência tátil e refinada.
+            </p>
+            <div class="card-meta">
+              <span>Arquivo:</span>
+              <span class="file-path">hero-05-perspective-mockup.png</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Variation 6 -->
+        <div class="variation-card">
+          <div class="card-preview" onclick="openZoom('hero-06-full-width-experience.png')">
+            <img src="hero-06-full-width-experience.png" alt="hero-06-full-width-experience">
+            <span class="zoom-hint">Clique para expandir 1080p</span>
+          </div>
+          <div class="card-body">
+            <div class="card-header-row">
+              <span class="variation-num">VARIAÇÃO 06</span>
+              <span class="badge" style="padding:2px 8px; font-size:9.5px;">PANORÂMICA WIDE</span>
+            </div>
+            <h3 class="variation-title">Full-Width Product Experience</h3>
+            <p class="card-desc">
+              Composição panorâmica ampla onde a interface se estende horizontalmente por 92% da tela. Apresenta o produto sem inclinações 3D, com alinhamento rigoroso, barra lateral completa de 260px e grade de cards cinematográficos. Visual sóbrio e autoritário.
+            </p>
+            <div class="card-meta">
+              <span>Arquivo:</span>
+              <span class="file-path">hero-06-full-width-experience.png</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Zoom Modal -->
+  <div class="modal-overlay" id="zoomModal" onclick="closeZoom(event)">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeZoom(event)">✕</button>
+      <img id="zoomModalImg" src="" alt="Zoom da variação">
+    </div>
+  </div>
+
+  <script>
+    function switchSim(imgName) {
+      document.getElementById('simHeroImg').src = imgName + '.png';
+      const btns = document.querySelectorAll('.sim-btn');
+      btns.forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function openZoom(src) {
+      document.getElementById('zoomModalImg').src = src;
+      document.getElementById('zoomModal').classList.add('open');
+    }
+
+    function closeZoom(e) {
+      if (e.target.id === 'zoomModal' || e.target.classList.contains('modal-close')) {
+        document.getElementById('zoomModal').classList.remove('open');
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.getElementById('zoomModal').classList.remove('open');
+      }
+    });
+  </script>
+</body>
+</html>

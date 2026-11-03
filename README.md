@@ -19,8 +19,8 @@
     <a href="https://tailwindcss.com/" target="_blank">
       <img src="https://img.shields.io/badge/Tailwind_CSS-v4.0-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS v4" />
     </a>
-    <a href="https://supabase.com/" target="_blank">
-      <img src="https://img.shields.io/badge/Supabase-PostgreSQL_15-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
+    <a href="https://neon.tech/" target="_blank">
+      <img src="https://img.shields.io/badge/Neon-PostgreSQL_18-00E599?style=for-the-badge&logo=postgresql&logoColor=white" alt="Neon PostgreSQL 18" />
     </a>
     <a href="#-qualidade--testes">
       <img src="https://img.shields.io/badge/Testes-126_Aprovados-22C55E?style=for-the-badge&logo=vitest&logoColor=white" alt="Vitest 126 Passed" />
@@ -51,7 +51,7 @@ Designers de produto, desenvolvedores frontend e líderes criativos consomem cen
 - Pastas no Notion ou boards no Figma tornam-se pesados, dispersos e lentos.
 - Ferramentas de bookmarking comuns não foram feitas para o ritmo ágil de quem trabalha no teclado.
 
-O **Salvei** foi construído do zero para resolver esse problema. Ele combina uma **estética editorial sofisticada** (paleta monocromática com tons `#171717`, base `#F8F8F6` e acento cobalto `#4355DB`), navegação **100% orientada a teclado (Command Palette `Cmd+K`)**, suporte a **área de transferência nativa (`Ctrl + V`)**, experiência **mobile ergonômica tipo app** e a robustez de um backend relacional seguro no **Supabase (PostgreSQL 15 com RLS estrito)**.
+O **Salvei** foi construído do zero para resolver esse problema. Ele combina uma **estética editorial sofisticada** (paleta monocromática com tons `#171717`, base `#F8F8F6` e acento cobalto `#4355DB`), navegação **100% orientada a teclado (Command Palette `Cmd+K`)**, suporte a **área de transferência nativa (`Ctrl + V`)**, experiência **mobile ergonômica tipo app** e a robustez de um backend relacional seguro no **Neon (PostgreSQL 18 Serverless na AWS São Paulo `sa-east-1`)**.
 
 ---
 
@@ -61,7 +61,7 @@ O **Salvei** foi construído do zero para resolver esse problema. Ele combina um
 - **Captura por URL:** Extração automática de metadados OpenGraph (título da página, descrição, domínio de origem e favicons).
 - **Upload Direto de Mídia:** Arraste e solte ou faça upload direto de arquivos de imagem (`PNG`, `JPG`, `WebP`, `SVG`, `GIF`).
 - **Colagem Direta (`Ctrl + V`):** Cole imagens diretamente da sua área de transferência para criar referências instantaneamente.
-- **Armazenamento Seguro:** Mídias armazenadas no Supabase Storage com isolamento por usuário e URLs assinadas de expiração dinâmica.
+- **Armazenamento Seguro:** Persistência de referências, metadados, paletas e anexos vinculados por ID de usuário.
 
 ### 🗂️ Taxonomia Editorial & Organização Flexível
 - **Projetos:** Agrupamento por cliente, produto, iniciativa ou sprint.
@@ -85,10 +85,10 @@ O **Salvei** foi construído do zero para resolver esse problema. Ele combina um
 - Sheets e painéis deslizantes touch-friendly para filtragem e criação rápida com o polegar.
 - Manifesto Web integrado para instalação na tela inicial como aplicativo autônomo.
 
-### 🔒 Segurança de Nível Corporativo
-- Autenticação completa via **Supabase Auth** com feedback integral em português brasileiro.
-- Políticas de **Row Level Security (RLS)** aplicadas no banco de dados: nenhum usuário consegue consultar, modificar ou excluir registros de terceiros.
-- Políticas de isolamento por pasta de UUID no storage de mídia.
+### 🔒 Segurança e Desempenho
+- Autenticação com senhas criptografadas em salt + scrypt e feedback integral em português brasileiro.
+- Isolamento estrito de dados por ID de usuário (`user_id`).
+- Backend serverless de alta velocidade rodando sobre Neon PostgreSQL 18.
 
 ---
 
@@ -125,26 +125,22 @@ flowchart TD
 
     subgraph Nuvem["Plataforma & Nuvem"]
         Vercel["Vercel Edge Network (Deploy Automático)"]
-        SupabaseAuth["Supabase Auth (Sessões JWT)"]
-        Postgres["PostgreSQL 15 (Políticas RLS por Usuário)"]
-        Storage["Supabase Storage (Bucket curator-media)"]
+        ApiFunctions["API Serverless (Vercel Functions)"]
+        NeonDB["Neon PostgreSQL 18 (AWS sa-east-1)"]
     end
 
     UI --> Router
-    Router --> SupabaseAuth
-    UI --> Postgres
-    UI --> Storage
+    Router --> ApiFunctions
+    ApiFunctions --> NeonDB
     Vercel --> UI
 ```
 
 ### Camadas do Sistema
 - **Frontend Core:** React 19, TypeScript 5.7, Vite 6.4.
 - **Design System:** Tailwind CSS v4, ícones Lucide React selecionados com pesos balanceados, tipografia Inter/Geist.
-- **Backend & Persistência:** Supabase Cloud (PostgreSQL 15 gerenciado).
-- **Isolamento de Dados:** Row Level Security (RLS) habilitado e validado em 100% das tabelas.
-- **Armazenamento de Mídia:** Supabase Storage (bucket privado com URLs assinadas e rotação segura).
+- **Backend & Persistência:** Neon Database (PostgreSQL 18 Serverless na AWS São Paulo).
 - **Hospedagem & CDN:** Vercel com cabeçalhos de segurança HTTP e suporte SPA.
-- **Suíte de Testes:** Vitest com 126 testes cobrindo unidade, integração, lifecycle e responsividade.
+- **Suíte de Testes:** Vitest com 169 testes cobrindo unidade, integração, lifecycle e responsividade.
 
 ---
 
@@ -153,7 +149,7 @@ flowchart TD
 ### Pré-requisitos
 - **Node.js:** Versão 20.x ou superior (homologado em Node v22/v24).
 - **NPM:** Versão 10+.
-- **Conta no Supabase:** Projeto com PostgreSQL e Storage configurados.
+- **Banco Neon:** Projeto PostgreSQL configurado.
 
 ### 1. Clonar e Instalar
 ```bash
@@ -169,19 +165,11 @@ Crie um arquivo `.env.local` na raiz do projeto baseado no `.env.example`:
 cp .env.example .env.local
 ```
 
-Preencha com as credenciais do seu projeto Supabase:
+Preencha com a URL do seu banco Neon:
 ```env
-# URL do projeto no Supabase
-VITE_SUPABASE_URL=https://seu-projeto.supabase.co
-
-# Chave pública anon (segura para o frontend sob RLS)
-VITE_SUPABASE_PUBLISHABLE_KEY=sua-chave-anon-aqui
-
-# Nome do bucket de mídia
-VITE_SUPABASE_STORAGE_BUCKET=curator-media
+DATABASE_URL="postgresql://neondb_owner:senha@ep-exemplo.sa-east-1.aws.neon.tech/neondb?sslmode=require"
+VITE_GEMINI_API_KEY=sua_chave_gemini_aqui
 ```
-
-> **Nota de Segurança:** O Salvei foi arquitetado para funcionar apenas com a chave pública/anon no cliente. Nunca utilize ou versione a chave `service_role`.
 
 ### 3. Executar o Servidor de Desenvolvimento
 ```bash
@@ -234,7 +222,7 @@ O repositório já conta com o arquivo [`vercel.json`](vercel.json) devidamente 
 - Cabeçalhos de segurança contra Clickjacking (`X-Frame-Options: DENY`), sniffing MIME (`nosniff`) e XSS.
 - Cache imutável para assets estáticos versionados.
 
-Para o guia detalhado com checklist pré-voo, configuração de URLs de redirecionamento no Supabase e auditoria pós-deploy, consulte o arquivo [**DEPLOYMENT.md**](DEPLOYMENT.md).
+Para o guia detalhado com checklist pré-voo e variáveis de ambiente, consulte o arquivo [**DEPLOYMENT.md**](DEPLOYMENT.md).
 
 ---
 

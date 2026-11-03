@@ -6,11 +6,11 @@ import {
   Globe,
   X,
   HelpCircle,
-  Compass,
-} from 'lucide-react';
+  } from 'lucide-react';
 import { Button } from '../ui/Button';
 import type { UserProfile } from '../../types/database';
 import { UserMenuDropdown } from '../profile/UserMenuDropdown';
+import { Logo } from '../ui/Logo';
 
 export interface TopbarProps {
   searchQuery: string;
@@ -74,13 +74,8 @@ export const Topbar: React.FC<TopbarProps> = ({
       {/* 1. MOBILE HEADER (< md) — Compact, clean, zero overflow */}
       <div className="flex md:hidden items-center justify-between gap-2 h-13 w-full min-w-0">
         {/* Brand */}
-        <div data-tour="brand-header" className="flex items-center gap-1.5 shrink-0">
-          <div className="w-7 h-7 rounded-md bg-[#171717] dark:bg-[#4355DB] flex items-center justify-center text-white shadow-2xs">
-            <Compass size={15} strokeWidth={2.2} />
-          </div>
-          <span className="font-display font-bold text-sm tracking-tight text-[#171717] dark:text-[#F3F4F6]">
-            Salvei
-          </span>
+        <div data-tour="brand-header" className="flex items-center shrink-0">
+          <Logo size={20} />
         </div>
 
         {/* Search Input (Expands to fill available width) */}
@@ -190,7 +185,7 @@ export const Topbar: React.FC<TopbarProps> = ({
                 }
               }}
               aria-label="Buscar por título, domínio ou etiqueta"
-              placeholder="Buscar por título, domínio, etiqueta... (/ ou Ctrl+K)"
+              placeholder="Buscar no acervo por título, domínio ou etiqueta... (/ ou Ctrl+K)"
               className="w-full h-9 pl-9 pr-14 rounded-md bg-[#F8F8F6] dark:bg-[#20232A] hover:bg-white dark:hover:bg-[#282C35] text-[#171717] dark:text-[#F3F4F6] placeholder-[#A8A8A6] dark:placeholder-[#6B7280] text-[13px] border border-[#E7E7E5] dark:border-[#2D3139] hover:border-[#D4D4D0] dark:hover:border-[#3E434D] focus:bg-white dark:focus:bg-[#1E222A] focus:border-[#4355DB] focus:ring-2 focus:ring-[#4355DB]/15 transition-all duration-150 outline-none"
             />
 

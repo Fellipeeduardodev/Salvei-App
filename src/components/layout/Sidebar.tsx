@@ -14,6 +14,7 @@ import {
 import { NavigationDestination, Project, Collection } from '../../types/reference';
 import { useAuth } from '../../contexts/AuthContext';
 import type { UserProfile } from '../../types/database';
+import { Logo } from '../ui/Logo';
 
 interface SidebarProps {
   currentDestination: NavigationDestination;
@@ -29,9 +30,11 @@ interface SidebarProps {
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
   onQuickFilterTag?: (tag: string) => void;
-  onOpenAuthModal?: () => void;
+  onOpenAuthModal?: (mode?: 'login' | 'signup') => void;
   profile?: UserProfile | null;
   onOpenProfile?: () => void;
+  isGuestMode?: boolean;
+  onExitGuestMode?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -47,6 +50,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectCollection,
   profile,
   onOpenProfile,
+  onOpenAuthModal,
+  isGuestMode = false,
+  onExitGuestMode,
 }) => {
   const { user, signOut } = useAuth();
 
@@ -106,25 +112,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="flex flex-col">
         {/* Brand Header */}
         <div data-tour="brand-header" className="h-14 px-3 lg:px-5 flex items-center justify-center lg:justify-between border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md bg-[#171717] dark:bg-[#4355DB] flex items-center justify-center text-white shrink-0">
-              <Compass size={15} strokeWidth={2.2} />
+          <div className="flex items-center">
+            {/* Tablet/Mobile collapsed: symbol only */}
+            <div className="lg:hidden">
+              <Logo variant="symbol" size={24} />
             </div>
-            <div className="hidden lg:flex items-baseline gap-1.5">
-              <span className="font-display font-bold text-base tracking-tight text-[#171717] dark:text-[#F3F4F6]">
-                Salvei
-              </span>
-              <span className="font-mono text-[10px] font-semibold text-[#A8A8A6] dark:text-[#6B7280] tracking-wider uppercase">
-                v0.3
-              </span>
+            {/* Desktop expanded: full lockup */}
+            <div className="hidden lg:block">
+              <Logo size={22} badge="v0.3" />
             </div>
           </div>
         </div>
 
         {/* Primary Navigation Links */}
         <nav data-tour="nav-organization" aria-label="Navegação primária" className="p-2 lg:p-3 flex flex-col gap-1">
-          <span className="hidden lg:block px-2 pt-2 pb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A8A8A6] dark:text-[#6B7280]">
-            Workspace
+          <span className="hidden lg:block px-2 pt-2 pb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#A8A8A6] dark:text-[#6B7280]">
+            Acervo
           </span>
 
           {primaryNavItems.map((item) => {
@@ -160,7 +163,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         : 'text-[#A8A8A6] dark:text-[#6B7280]'
                     }`}
                   >
-                    {item.count}
+                    {String(item.count).padStart(2, '0')}
                   </span>
                 )}
               </button>
@@ -170,8 +173,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Desktop-only: Curated Collections Quick Access */}
         <div className="hidden lg:flex px-3 pt-3 flex-col gap-1">
-          <span className="px-2 pb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A8A8A6] dark:text-[#6B7280]">
-            Coleções Ativas
+          <span className="px-2 pb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#A8A8A6] dark:text-[#6B7280]">
+            Coleções Temáticas
           </span>
           {collections.slice(0, 4).map((col) => (
             <button
@@ -187,7 +190,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Desktop-only: Active Projects Quick Access */}
         <div className="hidden lg:flex px-3 pt-4 flex-col gap-1">
-          <span className="px-2 pb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A8A8A6] dark:text-[#6B7280]">
+          <span className="px-2 pb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#A8A8A6] dark:text-[#6B7280]">
             Projetos Recentes
           </span>
           {projects.slice(0, 4).map((p) => (
@@ -251,7 +254,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </button>
             </div>
 
-            {/* Desktop view: full account badge with Supabase pulse */}
+            {/* Desktop view: full account badge with Neon pulse */}
             <div className="hidden lg:flex flex-col gap-1.5">
               <div className="flex items-center justify-between gap-1">
                 <button
@@ -271,7 +274,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <span className="text-xs font-bold text-[#171717] dark:text-[#F3F4F6] truncate leading-tight">
                       {profile?.full_name || user.email?.split('@')[0]}
                     </span>
-                    <span className="text-[10px] text-[#737373] dark:text-[#9CA3AF] truncate leading-tight" title={user.email}>
+                    <span className="text-[10px] text-[#737373] dark:text-[#9CA3AF] truncate leading-tight" title={user.email || undefined}>
                       {user.email}
                     </span>
                   </div>
@@ -286,15 +289,51 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </button>
               </div>
 
-              <div className="flex items-center justify-between text-[10px] text-[#737373] dark:text-[#9CA3AF] font-mono">
+              <div className="flex items-center justify-between text-[10px] text-[#737373] dark:text-[#9CA3AF] font-mono pt-1.5 border-t border-[#E7E7E5]/70 dark:border-[#2D3139]/70">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
-                  <span>SUPABASE</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
+                  <span className="font-semibold text-[#171717] dark:text-[#F3F4F6] uppercase text-[9px] tracking-wider">Cofre Conectado</span>
                 </span>
                 <span className="uppercase text-[9px] font-semibold tracking-wider text-emerald-600 dark:text-emerald-400">
-                  CONECTADO
+                  Nuvem
                 </span>
               </div>
+            </div>
+          </div>
+        )}
+        {/* Guest Mode Section in Sidebar */}
+        {!user && isGuestMode && (
+          <div className="p-2 rounded-md bg-amber-500/10 dark:bg-amber-950/20 border border-amber-500/30 dark:border-amber-700/40 flex flex-col gap-1.5 text-xs">
+            <div className="flex items-center justify-between text-[11px] font-mono">
+              <span className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                <span className="hidden lg:inline">MODO LOCAL</span>
+              </span>
+              <span className="hidden lg:inline uppercase text-[9px] font-semibold tracking-wider text-amber-600 dark:text-amber-400">
+                OFFLINE
+              </span>
+            </div>
+            <p className="hidden lg:block text-[10px] text-[#737373] dark:text-[#9CA3AF] leading-tight">
+              Seus dados estão salvos na memória deste navegador.
+            </p>
+            <div className="flex flex-col gap-1 mt-1">
+              <button
+                type="button"
+                onClick={() => (onOpenAuthModal ? onOpenAuthModal() : undefined)}
+                className="w-full py-1.5 px-2 rounded-md bg-[#171717] hover:bg-black dark:bg-[#4355DB] dark:hover:bg-[#3646B8] text-white text-[11px] font-semibold transition-colors cursor-pointer text-center shadow-xs"
+              >
+                <span className="hidden lg:inline">Sincronizar na Nuvem</span>
+                <span className="lg:hidden">Salvar</span>
+              </button>
+              {onExitGuestMode && (
+                <button
+                  type="button"
+                  onClick={onExitGuestMode}
+                  className="w-full py-1 px-2 text-[10px] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-white transition-colors cursor-pointer text-center"
+                >
+                  Voltar à Apresentação
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -302,3 +341,4 @@ export const Sidebar: React.FC<SidebarProps> = ({
     </aside>
   );
 };
+

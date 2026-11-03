@@ -11,6 +11,7 @@ import { AddReferenceModal } from './components/references/AddReferenceModal';
 import { SidePanel } from './components/references/SidePanel';
 import { ExpandedOverlay } from './components/references/ExpandedOverlay';
 import { AuthView } from './components/auth/AuthView';
+import { LandingPage } from './components/landing/LandingPage';
 import { BulkActionBar } from './components/references/BulkActionBar';
 import { BulkDeleteModal } from './components/references/BulkDeleteModal';
 import { BulkAssociateModal } from './components/references/BulkAssociateModal';
@@ -20,6 +21,14 @@ import { KeyboardShortcutsModal } from './components/ui/KeyboardShortcutsModal';
 import { UserProfileModal } from './components/profile/UserProfileModal';
 import { OnboardingTutorialModal } from './components/onboarding/OnboardingTutorialModal';
 import { SettingsView } from './components/settings/SettingsView';
+import { BookmarkletModal } from './components/clipper/BookmarkletModal';
+import { PresentationMode } from './components/presentation/PresentationMode';
+import { PublicMoodboardView } from './features/collections/PublicMoodboardView';
+import {
+  parseShareFromLocation,
+  generateCollectionShareUrl,
+  SharedCollectionData,
+} from './lib/collectionSharing';
 import {
   Reference,
   CodeSnippet,
@@ -29,7 +38,9 @@ import {
   NavigationDestination,
   SortOption,
   ContentTypeFilter,
+  ColorPaletteItem,
 } from './types/reference';
+import { extractPaletteFromImage } from './lib/colorExtractor';
 import { UserProfile, UserPreferences } from './types/database';
 import {
   RotateCcw,
@@ -43,16 +54,21 @@ import {
   RefreshCw,
   HardDriveUpload,
   WifiOff,
+  Layers,
 } from 'lucide-react';
 import { Button } from './components/ui/Button';
 import { filterAndSortReferences, normalizeTag } from './lib/searchAndFilter';
 import { useAuth } from './contexts/AuthContext';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
-import * as supabaseService from './services/supabaseService';
+import * as neonService from './services/neonService';
 
 // Known domain screenshots for realistic preview simulation
 const DOMAIN_SCREENSHOTS: Record<string, string> = {
-  'linear.app': 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=1200&auto=format&fit=crop&q=80',
+  'linear.app': '/brand/hero-product-mockup-16x9.jpg',
+  'kinfolk.com': '/brand/editorial-architecture-01.jpg',
+  'are.na': '/brand/editorial-typography-print-02.jpg',
+  'are.na/fellipe': '/brand/editorial-typography-print-02.jpg',
+  'designsystems.io': '/brand/digital-design-system-spec-02.jpg',
   'stripe.com': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80',
   'raycast.com': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&auto=format&fit=crop&q=80',
   'apple.com': 'https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=1200&auto=format&fit=crop&q=80',
@@ -66,15 +82,152 @@ const DOMAIN_SCREENSHOTS: Record<string, string> = {
   'freight.studio': 'https://images.unsplash.com/photo-1600132806370-bf17e65e942f?w=1200&auto=format&fit=crop&q=80',
 };
 
+const LOCAL_STORAGE_GUEST_KEY = 'salvei_guest_mode';
+const LOCAL_STORAGE_REFS_KEY = 'salvei_guest_references';
+const LOCAL_STORAGE_PROJECTS_KEY = 'salvei_guest_projects';
+const LOCAL_STORAGE_COLLECTIONS_KEY = 'salvei_guest_collections';
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+const GUEST_STARTER_REFERENCES: Reference[] = [
+  {
+    id: 'local-demo-1',
+    title: 'Linear — A better way to build products',
+    url: 'https://linear.app',
+    domain: 'linear.app',
+    sourceType: 'both',
+    screenshotUrl: '/brand/hero-product-mockup-16x9.jpg',
+    screenshotStatus: 'ready',
+    tags: ['design-system', 'dark-mode', 'alta-densidade'],
+    notesMarkdown: '### Linear App\n- **Referência:** Interface editorial de alta velocidade\n- **Tipografia:** Inter / JetBrains Mono\n- **Paleta:** Grafite `#0F1012` com acentos dinâmicos.',
+    isFavorite: true,
+    palette: [
+      { hex: '#0F1012', name: 'Grafite Ônix', role: 'background' },
+      { hex: '#4355DB', name: 'Índigo Elétrico', role: 'primary' },
+      { hex: '#6366F1', name: 'Índigo Fluido', role: 'accent' },
+      { hex: '#E2E8F0', name: 'Névoa Suave', role: 'neutral' },
+    ],
+    collectionIds: [],
+    projectIds: [],
+    codeSnippets: [],
+    relatedFiles: [],
+    createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+    updatedAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+  },
+  {
+    id: 'local-demo-2',
+    title: 'Kinfolk Gallery — Architectural & Print Edition',
+    url: 'https://kinfolk.com',
+    domain: 'kinfolk.com',
+    sourceType: 'both',
+    screenshotUrl: '/brand/editorial-architecture-01.jpg',
+    screenshotStatus: 'ready',
+    tags: ['editorial', 'tipografia', 'minimalismo'],
+    notesMarkdown: '### Kinfolk\n- **Estilo:** Design editorial suíço, respiro generoso e grid assimétrico.',
+    isFavorite: false,
+    palette: [
+      { hex: '#FAF7F2', name: 'Papel Editorial', role: 'background' },
+      { hex: '#C2410C', name: 'Terracota Editorial', role: 'accent' },
+      { hex: '#343841', name: 'Chumbo Frio', role: 'neutral' },
+      { hex: '#F4EFE6', name: 'Areia Suíço', role: 'neutral' },
+    ],
+    collectionIds: [],
+    projectIds: [],
+    codeSnippets: [],
+    relatedFiles: [],
+    createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
+    updatedAt: new Date(Date.now() - 3600000 * 5).toISOString(),
+  },
+  {
+    id: 'local-demo-3',
+    title: 'Are.na — Visual Research & Open Library',
+    url: 'https://are.na',
+    domain: 'are.na',
+    sourceType: 'both',
+    screenshotUrl: '/brand/editorial-typography-print-02.jpg',
+    screenshotStatus: 'ready',
+    tags: ['pesquisa', 'curadoria', 'tipografia'],
+    notesMarkdown: '### Are.na Channel\n- **Conceito:** Biblioteca de referências sem algoritmo e sem ruído social.',
+    isFavorite: true,
+    palette: [
+      { hex: '#FFFFFF', name: 'Branco Puro', role: 'background' },
+      { hex: '#0F172A', name: 'Ardósia Escura', role: 'primary' },
+      { hex: '#F06A38', name: 'Laranja Persimmon', role: 'accent' },
+      { hex: '#CBD5E1', name: 'Cinza Platina', role: 'neutral' },
+    ],
+    collectionIds: [],
+    projectIds: [],
+    codeSnippets: [],
+    relatedFiles: [],
+    createdAt: new Date(Date.now() - 3600000 * 8).toISOString(),
+    updatedAt: new Date(Date.now() - 3600000 * 8).toISOString(),
+  },
+];
+
 export function App() {
   const { user, loading: authLoading, isConfigured, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
   const isOnline = useOnlineStatus();
 
-  // 1. Domain Entities State (Loaded exclusively from Supabase, transient in-memory)
-  const [references, setReferences] = useState<Reference[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [collections, setCollections] = useState<Collection[]>([]);
+  // Local Guest Mode (Offline persistence in browser without authentication)
+  const [isGuestMode, setIsGuestMode] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('mode') === 'guest' || params.get('guest') === 'true') {
+        return true;
+      }
+      return localStorage.getItem(LOCAL_STORAGE_GUEST_KEY) === 'true';
+    }
+    return false;
+  });
+
+  const effectiveUser = user;
+
+  // 1. Domain Entities State (Loaded from cloud or local guest mode)
+  const [references, setReferences] = useState<Reference[]>(() => {
+    if (typeof window !== 'undefined' && localStorage.getItem(LOCAL_STORAGE_GUEST_KEY) === 'true') {
+      try {
+        const stored = localStorage.getItem(LOCAL_STORAGE_REFS_KEY);
+        if (stored) {
+          const parsed: Reference[] = JSON.parse(stored);
+          return parsed.map((ref) => {
+            if (!ref.palette || ref.palette.length === 0) {
+              const match = GUEST_STARTER_REFERENCES.find((s) => s.id === ref.id);
+              if (match?.palette) return { ...ref, palette: match.palette };
+            }
+            return ref;
+          });
+        }
+        return GUEST_STARTER_REFERENCES;
+      } catch {}
+    }
+    return [];
+  });
+  const [projects, setProjects] = useState<Project[]>(() => {
+    if (typeof window !== 'undefined' && localStorage.getItem(LOCAL_STORAGE_GUEST_KEY) === 'true') {
+      try {
+        const stored = localStorage.getItem(LOCAL_STORAGE_PROJECTS_KEY);
+        if (stored) return JSON.parse(stored);
+      } catch {}
+    }
+    return [];
+  });
+  const [collections, setCollections] = useState<Collection[]>(() => {
+    if (typeof window !== 'undefined' && localStorage.getItem(LOCAL_STORAGE_GUEST_KEY) === 'true') {
+      try {
+        const stored = localStorage.getItem(LOCAL_STORAGE_COLLECTIONS_KEY);
+        if (stored) return JSON.parse(stored);
+      } catch {}
+    }
+    return [];
+  });
 
   // 2. User Profile & Onboarding State (Fase 9 & 10)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -82,12 +235,80 @@ export function App() {
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
 
   // 3. User Cloud & Session Loading State (Fase 10: Separated for Fluid Navigation)
-  const [hasInitialLoadCompleted, setHasInitialLoadCompleted] = useState(false);
-  const [isInitialSessionLoading, setIsInitialSessionLoading] = useState(true);
+  const [hasInitialLoadCompleted, setHasInitialLoadCompleted] = useState(() => {
+    if (typeof window !== 'undefined' && localStorage.getItem(LOCAL_STORAGE_GUEST_KEY) === 'true') {
+      return true;
+    }
+    return false;
+  });
+  const [isInitialSessionLoading, setIsInitialSessionLoading] = useState(() => {
+    if (typeof window !== 'undefined' && localStorage.getItem(LOCAL_STORAGE_GUEST_KEY) === 'true') {
+      return false;
+    }
+    return true;
+  });
   const [isBackgroundSyncing, setIsBackgroundSyncing] = useState(false);
   const [cloudError, setCloudError] = useState<string | null>(null);
   const [isMigratingLegacy, setIsMigratingLegacy] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Landing Page & Auth Flow Navigation
+  const [authViewMode, setAuthViewMode] = useState<'login' | 'signup' | null>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const auth = params.get('auth');
+      if (auth === 'login' || auth === 'signup') return auth;
+    }
+    return null;
+  });
+
+  const [showLandingForUser, setShowLandingForUser] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('landing') === 'true';
+    }
+    return false;
+  });
+
+  // Public Shared Collection / Moodboard State
+  const [publicMoodboardCollectionId, setPublicMoodboardCollectionId] = useState<string | null>(() => {
+    const share = parseShareFromLocation();
+    return share.isShared ? share.collectionId : null;
+  });
+  const [publicMoodboardData, setPublicMoodboardData] = useState<SharedCollectionData | null>(() => {
+    const share = parseShareFromLocation();
+    return share.isShared ? share.data : null;
+  });
+
+  // Resolve active public moodboard data
+  const activePublicMoodboardData = useMemo<SharedCollectionData | null>(() => {
+    if (publicMoodboardData) return publicMoodboardData;
+    if (publicMoodboardCollectionId) {
+      const col = collections.find((c) => c.id === publicMoodboardCollectionId);
+      if (col) {
+        const colRefs = references.filter((r) => r.collectionIds?.includes(col.id));
+        return {
+          version: 1,
+          id: col.id,
+          name: col.name,
+          description: col.description,
+          createdAt: col.createdAt,
+          authorName: userProfile?.full_name || effectiveUser?.email?.split('@')[0] || 'Curador Salvei',
+          references: colRefs.map((r) => ({
+            id: r.id,
+            title: r.title,
+            url: r.url,
+            domain: r.domain,
+            screenshotUrl: r.screenshotUrl,
+            palette: r.palette,
+            tags: r.tags,
+            notesMarkdown: r.notesMarkdown,
+          })),
+        };
+      }
+    }
+    return null;
+  }, [publicMoodboardData, publicMoodboardCollectionId, collections, references, userProfile?.full_name, effectiveUser?.email]);
 
   const lastLoadedUserIdRef = useRef<string | null>(null);
   const hasPromptedOnboardingRef = useRef(false);
@@ -99,7 +320,7 @@ export function App() {
     }, 3500);
   }, []);
 
-  // 4. Load user data strictly from Supabase with background sync separation
+  // 4. Load user data strictly from Neon with background sync separation
   const loadUserCloudData = useCallback(
     async (options?: { background?: boolean }) => {
       if (!user) return;
@@ -114,8 +335,8 @@ export function App() {
 
       try {
         const [cloudData, profileData] = await Promise.all([
-          supabaseService.fetchUserData(user.id),
-          supabaseService.fetchUserProfile(user.id),
+          neonService.fetchUserData(user.id),
+          neonService.fetchUserProfile(user.id),
         ]);
         setReferences(cloudData.references);
         setProjects(cloudData.projects);
@@ -160,7 +381,7 @@ export function App() {
       if (lastLoadedUserIdRef.current !== user.id) {
         loadUserCloudData({ background: false });
       }
-    } else {
+    } else if (!isGuestMode) {
       // Clear private state upon logout
       setReferences([]);
       setProjects([]);
@@ -178,7 +399,136 @@ export function App() {
       lastLoadedUserIdRef.current = null;
       hasPromptedOnboardingRef.current = false;
     }
-  }, [user, loadUserCloudData]);
+  }, [user, isGuestMode, loadUserCloudData]);
+
+  // Guest Mode Initialization: load references from localStorage
+  useEffect(() => {
+    if (isGuestMode && !user) {
+      try {
+        const storedRefs = localStorage.getItem(LOCAL_STORAGE_REFS_KEY);
+        const storedProjects = localStorage.getItem(LOCAL_STORAGE_PROJECTS_KEY);
+        const storedCols = localStorage.getItem(LOCAL_STORAGE_COLLECTIONS_KEY);
+
+        if (storedRefs) {
+          const parsed: Reference[] = JSON.parse(storedRefs);
+          const hydrated = parsed.map((ref) => {
+            if (!ref.palette || ref.palette.length === 0) {
+              const match = GUEST_STARTER_REFERENCES.find((s) => s.id === ref.id);
+              if (match?.palette) return { ...ref, palette: match.palette };
+            }
+            return ref;
+          });
+          setReferences(hydrated);
+        } else {
+          setReferences(GUEST_STARTER_REFERENCES);
+          localStorage.setItem(LOCAL_STORAGE_REFS_KEY, JSON.stringify(GUEST_STARTER_REFERENCES));
+        }
+
+        if (storedProjects) {
+          setProjects(JSON.parse(storedProjects));
+        } else {
+          setProjects([]);
+        }
+
+        if (storedCols) {
+          setCollections(JSON.parse(storedCols));
+        } else {
+          setCollections([]);
+        }
+
+        setHasInitialLoadCompleted(true);
+        setIsInitialSessionLoading(false);
+      } catch (e) {
+        console.error('Erro ao inicializar modo local:', e);
+        setReferences(GUEST_STARTER_REFERENCES);
+        setHasInitialLoadCompleted(true);
+        setIsInitialSessionLoading(false);
+      }
+    }
+  }, [isGuestMode, user]);
+
+  // Guest Mode Persistence: save changes to localStorage
+  useEffect(() => {
+    if (isGuestMode && !user && hasInitialLoadCompleted) {
+      try {
+        localStorage.setItem(LOCAL_STORAGE_REFS_KEY, JSON.stringify(references));
+      } catch (e) {
+        console.error('Erro ao persistir referências locais:', e);
+      }
+    }
+  }, [references, isGuestMode, user, hasInitialLoadCompleted]);
+
+  useEffect(() => {
+    if (isGuestMode && !user && hasInitialLoadCompleted) {
+      try {
+        localStorage.setItem(LOCAL_STORAGE_PROJECTS_KEY, JSON.stringify(projects));
+      } catch (e) {
+        console.error('Erro ao persistir projetos locais:', e);
+      }
+    }
+  }, [projects, isGuestMode, user, hasInitialLoadCompleted]);
+
+  useEffect(() => {
+    if (isGuestMode && !user && hasInitialLoadCompleted) {
+      try {
+        localStorage.setItem(LOCAL_STORAGE_COLLECTIONS_KEY, JSON.stringify(collections));
+      } catch (e) {
+        console.error('Erro ao persistir coleções locais:', e);
+      }
+    }
+  }, [collections, isGuestMode, user, hasInitialLoadCompleted]);
+
+  // Seamless Cloud Migration: when user signs up or logs in, migrate local guest references to cloud
+  useEffect(() => {
+    if (user && hasInitialLoadCompleted) {
+      const storedRefs = localStorage.getItem(LOCAL_STORAGE_REFS_KEY);
+      const storedProjects = localStorage.getItem(LOCAL_STORAGE_PROJECTS_KEY);
+      const storedCols = localStorage.getItem(LOCAL_STORAGE_COLLECTIONS_KEY);
+
+      if (storedRefs || storedProjects || storedCols) {
+        const parsedRefs: Reference[] = storedRefs ? JSON.parse(storedRefs) : [];
+        const parsedProjects: Project[] = storedProjects ? JSON.parse(storedProjects) : [];
+        const parsedCols: Collection[] = storedCols ? JSON.parse(storedCols) : [];
+
+        // Exclude the demo starters if unchanged
+        const userCreatedRefs = parsedRefs.filter((r) => !r.id.startsWith('local-demo-'));
+
+        if (userCreatedRefs.length > 0 || parsedProjects.length > 0 || parsedCols.length > 0) {
+          (async () => {
+            try {
+              for (const p of parsedProjects) {
+                await neonService.saveProject(user.id, p);
+              }
+              for (const c of parsedCols) {
+                await neonService.saveCollection(user.id, c);
+              }
+              for (const r of userCreatedRefs) {
+                await neonService.saveReference(user.id, r);
+              }
+              showToast(
+                `Migração concluída! ${userCreatedRefs.length} referência(s) sincronizada(s) na nuvem.`
+              );
+              loadUserCloudData();
+            } catch (err) {
+              console.error('Erro ao migrar dados locais para nuvem:', err);
+            } finally {
+              localStorage.removeItem(LOCAL_STORAGE_REFS_KEY);
+              localStorage.removeItem(LOCAL_STORAGE_PROJECTS_KEY);
+              localStorage.removeItem(LOCAL_STORAGE_COLLECTIONS_KEY);
+              localStorage.removeItem(LOCAL_STORAGE_GUEST_KEY);
+              setIsGuestMode(false);
+            }
+          })();
+        } else {
+          localStorage.removeItem(LOCAL_STORAGE_REFS_KEY);
+          localStorage.removeItem(LOCAL_STORAGE_PROJECTS_KEY);
+          localStorage.removeItem(LOCAL_STORAGE_COLLECTIONS_KEY);
+          localStorage.removeItem(LOCAL_STORAGE_GUEST_KEY);
+          setIsGuestMode(false);
+        }
+      }
+    }
+  }, [user, hasInitialLoadCompleted, loadUserCloudData, showToast]);
 
   // 4. Navigation & Sub-routing State (URL-synchronized)
   const [currentDestination, setCurrentDestination] = useState<NavigationDestination>(() => {
@@ -230,10 +580,16 @@ export function App() {
   const [selectedCollectionIds, setSelectedCollectionIds] = useState<string[]>([]);
   const [contentTypes, setContentTypes] = useState<ContentTypeFilter[]>([]);
   const [sortOption, setSortOption] = useState<SortOption>('newest');
+  const [selectedColorHex, setSelectedColorHex] = useState<string | undefined>(undefined);
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'moodboard'>('grid');
+  const [isPresentationOpen, setIsPresentationOpen] = useState(false);
+  const [isBookmarkletOpen, setIsBookmarkletOpen] = useState(false);
 
   // 6. Modal, SidePanel & Expanded View States
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addModalInitialMode, setAddModalInitialMode] = useState<'image' | 'url'>('image');
+  const [pastedUrl, setPastedUrl] = useState<string | null>(null);
+  const [pastedFile, setPastedFile] = useState<File | null>(null);
   const [isWindowDragging, setIsWindowDragging] = useState(false);
 
   const [selectedReferenceId, setSelectedReferenceId] = useState<string | null>(() => {
@@ -254,7 +610,13 @@ export function App() {
   const [isBulkTagModalOpen, setIsBulkTagModalOpen] = useState(false);
 
   // 8. Productivity Shortcuts & Command Menu States (Fase 6)
-  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('palette') === 'true';
+    }
+    return false;
+  });
   const [isKeyboardShortcutsModalOpen, setIsKeyboardShortcutsModalOpen] = useState(false);
 
   // Synchronize routing state with browser URL search parameters
@@ -279,6 +641,9 @@ export function App() {
     if (selectedReferenceId) {
       params.set('ref', selectedReferenceId);
     }
+    if (isCommandPaletteOpen) {
+      params.set('palette', 'true');
+    }
 
     const newSearch = params.toString();
     const newRelativePathQuery =
@@ -291,6 +656,7 @@ export function App() {
     activeTag,
     searchQuery,
     selectedReferenceId,
+    isCommandPaletteOpen,
   ]);
 
   // Listen to browser Back/Forward navigation
@@ -304,11 +670,234 @@ export function App() {
       setActiveTag(params.get('tag'));
       setSearchQuery(params.get('q') || '');
       setSelectedReferenceId(params.get('ref'));
+
+      const auth = params.get('auth');
+      if (auth === 'login' || auth === 'signup') {
+        setAuthViewMode(auth);
+      } else {
+        setAuthViewMode(null);
+      }
+      setShowLandingForUser(params.get('landing') === 'true');
+
+      const share = parseShareFromLocation();
+      if (share.isShared) {
+        setPublicMoodboardCollectionId(share.collectionId);
+        setPublicMoodboardData(share.data);
+      } else {
+        setPublicMoodboardCollectionId(null);
+        setPublicMoodboardData(null);
+      }
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  // Clear authViewMode and remove ?auth query param when user is successfully authenticated
+  useEffect(() => {
+    if (effectiveUser && authViewMode) {
+      setAuthViewMode(null);
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        params.delete('auth');
+        const newSearch = params.toString();
+        const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : '');
+        window.history.replaceState(null, '', newUrl);
+      }
+    }
+  }, [effectiveUser, authViewMode]);
+
+  // Global Paste Listener (Ctrl+V) for instant URL and Image capture
+  useEffect(() => {
+    const handleGlobalPaste = (e: ClipboardEvent) => {
+      // Do not intercept if user is typing in an active form input, textarea, or contenteditable element
+      const activeEl = document.activeElement;
+      const isInput =
+        activeEl &&
+        (activeEl.tagName === 'INPUT' ||
+          activeEl.tagName === 'TEXTAREA' ||
+          (activeEl as HTMLElement).isContentEditable);
+      if (isInput) return;
+
+      const clipboardData = e.clipboardData;
+      if (!clipboardData) return;
+
+      // 1. Check for image file in clipboard (e.g. Print Screen or copied image)
+      const files = Array.from(clipboardData.files);
+      const imageFile = files.find((f) => f.type.startsWith('image/'));
+
+      if (imageFile) {
+        e.preventDefault();
+        setAddModalInitialMode('image');
+        setPastedFile(imageFile);
+        setPastedUrl(null);
+        setIsAddModalOpen(true);
+        showToast('Imagem colada da área de transferência!');
+        return;
+      }
+
+      // Check items for image blob
+      for (const item of Array.from(clipboardData.items)) {
+        if (item.type.startsWith('image/')) {
+          const blob = item.getAsFile();
+          if (blob) {
+            e.preventDefault();
+            const file = new File([blob], `captura-${Date.now()}.png`, { type: blob.type });
+            setAddModalInitialMode('image');
+            setPastedFile(file);
+            setPastedUrl(null);
+            setIsAddModalOpen(true);
+            showToast('Captura de tela colada da área de transferência!');
+            return;
+          }
+        }
+      }
+
+      // 2. Check for text URL
+      const text = clipboardData.getData('text')?.trim();
+      if (text) {
+        const isUrl =
+          text.startsWith('http://') ||
+          text.startsWith('https://') ||
+          (/^[\w-]+(\.[\w-]+)+[/#?]?.*$/.test(text) && !text.includes(' ') && text.length < 500);
+
+        if (isUrl) {
+          e.preventDefault();
+          const cleanUrl = text.startsWith('http') ? text : `https://${text}`;
+          setAddModalInitialMode('url');
+          setPastedUrl(cleanUrl);
+          setPastedFile(null);
+          setIsAddModalOpen(true);
+          showToast('Link detectado na área de transferência!');
+          return;
+        }
+      }
+    };
+
+    window.addEventListener('paste', handleGlobalPaste);
+    return () => window.removeEventListener('paste', handleGlobalPaste);
+  }, [showToast]);
+
+  // Export full user library as JSON backup
+  const handleExportBackup = () => {
+    try {
+      const backupData = {
+        salvei_version: '0.3',
+        exportedAt: new Date().toISOString(),
+        totalReferences: references.length,
+        totalProjects: projects.length,
+        totalCollections: collections.length,
+        references,
+        projects,
+        collections,
+      };
+
+      const blob = new Blob([JSON.stringify(backupData, null, 2)], {
+        type: 'application/json',
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const dateStr = new Date().toISOString().split('T')[0];
+      link.href = url;
+      link.download = `salvei-backup-${dateStr}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showToast('Backup completo exportado com sucesso (.json)!');
+    } catch {
+      showToast('Falha ao exportar backup.');
+    }
+  };
+
+  // Import references, projects & collections from Bookmarks HTML or JSON Backup
+  const handleImportData = useCallback(
+    (imported: { references: Reference[]; projects: Project[]; collections: Collection[] }) => {
+      if (imported.references.length > 0) {
+        setReferences((prev) => {
+          const existingIds = new Set(prev.map((r) => r.id));
+          const newItems = imported.references.filter((r) => !existingIds.has(r.id));
+          const updated = [...newItems, ...prev];
+          if (isGuestMode) {
+            localStorage.setItem(LOCAL_STORAGE_REFS_KEY, JSON.stringify(updated));
+          }
+          return updated;
+        });
+      }
+      if (imported.projects && imported.projects.length > 0) {
+        setProjects((prev) => {
+          const existingIds = new Set(prev.map((p) => p.id));
+          const newItems = imported.projects.filter((p) => !existingIds.has(p.id));
+          const updated = [...prev, ...newItems];
+          if (isGuestMode) {
+            localStorage.setItem(LOCAL_STORAGE_PROJECTS_KEY, JSON.stringify(updated));
+          }
+          return updated;
+        });
+      }
+      if (imported.collections && imported.collections.length > 0) {
+        setCollections((prev) => {
+          const existingIds = new Set(prev.map((c) => c.id));
+          const newItems = imported.collections.filter((c) => !existingIds.has(c.id));
+          const updated = [...prev, ...newItems];
+          if (isGuestMode) {
+            localStorage.setItem(LOCAL_STORAGE_COLLECTIONS_KEY, JSON.stringify(updated));
+          }
+          return updated;
+        });
+      }
+    },
+    [isGuestMode]
+  );
+
+  // Web Clipper Query Parameter Detection (?quick_save=1)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('quick_save') === '1') {
+      const capturedUrl = params.get('url');
+      if (capturedUrl) {
+        setPastedUrl(capturedUrl);
+        setAddModalInitialMode('url');
+        setIsAddModalOpen(true);
+        showToast('Link capturado via Web Clipper!');
+      }
+
+      // Limpa os parâmetros de busca da URL sem recarregar
+      const cleanParams = new URLSearchParams(window.location.search);
+      cleanParams.delete('quick_save');
+      cleanParams.delete('url');
+      cleanParams.delete('title');
+      cleanParams.delete('image');
+      const newQuery = cleanParams.toString();
+      window.history.replaceState(null, '', window.location.pathname + (newQuery ? `?${newQuery}` : ''));
+    }
+  }, [showToast]);
+
+  // Tecla 'P' para alternar Modo Apresentação
+  useEffect(() => {
+    const handlePresentationKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable ||
+        isAddModalOpen ||
+        isCommandPaletteOpen ||
+        isKeyboardShortcutsModalOpen
+      ) {
+        return;
+      }
+
+      if ((e.key === 'p' || e.key === 'P') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        setIsPresentationOpen((prev) => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handlePresentationKey);
+    return () => window.removeEventListener('keydown', handlePresentationKey);
+  }, [isAddModalOpen, isCommandPaletteOpen, isKeyboardShortcutsModalOpen]);
 
   // Global Drag & Drop Window Detection
   useEffect(() => {
@@ -431,6 +1020,7 @@ export function App() {
       selectedProjectIds,
       selectedCollectionIds,
       contentTypes,
+      selectedColorHex,
       sortOption,
     });
   }, [
@@ -440,6 +1030,7 @@ export function App() {
     selectedProjectIds,
     selectedCollectionIds,
     contentTypes,
+    selectedColorHex,
     sortOption,
   ]);
 
@@ -448,7 +1039,8 @@ export function App() {
     selectedTags.length > 0 ||
     selectedProjectIds.length > 0 ||
     selectedCollectionIds.length > 0 ||
-    contentTypes.length > 0;
+    contentTypes.length > 0 ||
+    Boolean(selectedColorHex);
 
   // Filter Bar Toggles
   const handleToggleTag = (tag: string) => {
@@ -481,14 +1073,24 @@ export function App() {
     setSelectedProjectIds([]);
     setSelectedCollectionIds([]);
     setContentTypes([]);
+    setSelectedColorHex(undefined);
   };
 
-  // Reference update handler (Confirmed by Supabase)
+  // Reference update handler (Cloud or Local Guest Mode)
   const handleUpdateReference = useCallback(
     async (id: string, updates: Partial<Reference>) => {
-      if (!user) return;
+      if (!user && !isGuestMode) return;
+      if (isGuestMode && !user) {
+        setReferences((prev) =>
+          prev.map((r) =>
+            r.id === id ? { ...r, ...updates, updatedAt: new Date().toISOString() } : r
+          )
+        );
+        showToast('Referência atualizada localmente.');
+        return;
+      }
       try {
-        await supabaseService.updateReference(user.id, id, updates);
+        await neonService.updateReference(user!.id, id, updates);
         setReferences((prev) =>
           prev.map((r) =>
             r.id === id ? { ...r, ...updates, updatedAt: new Date().toISOString() } : r
@@ -496,19 +1098,36 @@ export function App() {
         );
         showToast('Referência atualizada com sucesso.');
       } catch (err: any) {
-        console.error('Erro ao atualizar referência no Supabase:', err);
+        console.error('Erro ao atualizar referência:', err);
         showToast(`Erro ao atualizar: ${err.message || 'Falha no banco.'}`);
       }
     },
-    [user, showToast]
+    [user, isGuestMode, showToast]
   );
 
-  // Reference deletion handler (Confirmed by Supabase)
+  // Freeform Moodboard Canvas Card Position update
+  const handleUpdateCanvasPosition = useCallback(
+    (id: string, position: { x: number; y: number }) => {
+      handleUpdateReference(id, { canvasPosition: position });
+    },
+    [handleUpdateReference]
+  );
+
+  // Reference deletion handler (Cloud or Local Guest Mode)
   const handleDeleteReference = useCallback(
     async (id: string) => {
-      if (!user) return;
+      if (!user && !isGuestMode) return;
+      if (isGuestMode && !user) {
+        setReferences((prev) => prev.filter((r) => r.id !== id));
+        if (selectedReferenceId === id) {
+          setSelectedReferenceId(null);
+          setIsExpandedViewOpen(false);
+        }
+        showToast('Referência excluída.');
+        return;
+      }
       try {
-        await supabaseService.deleteReference(user.id, id);
+        await neonService.deleteReference(user!.id, id);
         setReferences((prev) => prev.filter((r) => r.id !== id));
 
         if (selectedReferenceId === id) {
@@ -518,19 +1137,32 @@ export function App() {
 
         showToast('Referência excluída com sucesso.');
       } catch (err: any) {
-        console.error('Erro ao excluir no Supabase:', err);
+        console.error('Erro ao excluir:', err);
         showToast(`Erro ao excluir: ${err.message || 'Falha na comunicação com o banco.'}`);
       }
     },
-    [user, selectedReferenceId, showToast]
+    [user, isGuestMode, selectedReferenceId, showToast]
   );
 
-  // Quick Action: Favorite toggle (Confirmed by Supabase)
+  // Quick Action: Favorite toggle (Cloud or Local Guest Mode)
   const handleToggleFavorite = useCallback(
     async (id: string, nextFavorite: boolean) => {
-      if (!user) return;
+      if (!user && !isGuestMode) return;
+      if (isGuestMode && !user) {
+        setReferences((prev) =>
+          prev.map((r) =>
+            r.id === id ? { ...r, isFavorite: nextFavorite, updatedAt: new Date().toISOString() } : r
+          )
+        );
+        showToast(
+          nextFavorite
+            ? 'Referência adicionada aos favoritos.'
+            : 'Referência removida dos favoritos.'
+        );
+        return;
+      }
       try {
-        await supabaseService.toggleFavorite(user.id, id, nextFavorite);
+        await neonService.toggleFavorite(user!.id, id, nextFavorite);
         setReferences((prev) =>
           prev.map((r) =>
             r.id === id ? { ...r, isFavorite: nextFavorite, updatedAt: new Date().toISOString() } : r
@@ -546,7 +1178,7 @@ export function App() {
         showToast(`Erro ao favoritar: ${err.message || 'Falha no banco.'}`);
       }
     },
-    [user, showToast]
+    [user, isGuestMode, showToast]
   );
 
   // Active visible references in current view (Inbox, Project, Collection, or Tag)
@@ -772,7 +1404,7 @@ export function App() {
       return;
     }
     try {
-      await supabaseService.completeOnboarding(user.id);
+      await neonService.completeOnboarding(user.id);
       setUserProfile((prev) => (prev ? { ...prev, onboarding_completed: true } : null));
       setIsOnboardingModalOpen(false);
       showToast('Tutorial concluído! Bom proveito no Salvei.');
@@ -800,17 +1432,55 @@ export function App() {
     hasPromptedOnboardingRef.current = false;
     setIsProfileModalOpen(false);
     setIsOnboardingModalOpen(false);
+    setAuthViewMode(null);
+    setShowLandingForUser(false);
     // 2. Perform secure auth sign out
     await signOut();
   };
 
-  // Batch Operations Handlers (Fase 6 - Persistência real no Supabase com tratamento de falhas)
+  const handleExitGuestMode = () => {
+    setIsGuestMode(false);
+    localStorage.removeItem(LOCAL_STORAGE_GUEST_KEY);
+    setShowLandingForUser(false);
+    setAuthViewMode(null);
+    setReferences([]);
+    setProjects([]);
+    setCollections([]);
+    setHasInitialLoadCompleted(false);
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      params.delete('guest');
+      params.delete('mode');
+      const newSearch = params.toString();
+      const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : '');
+      window.history.replaceState(null, '', newUrl);
+    }
+    showToast('Você retornou à apresentação.');
+  };
+
+  // Batch Operations Handlers (Cloud or Local Guest Mode)
   const handleBulkFavorite = useCallback(
     async (favorite: boolean) => {
-      if (!user || selectedBatchIds.length === 0) return;
+      if ((!user && !isGuestMode) || selectedBatchIds.length === 0) return;
+      if (isGuestMode && !user) {
+        const updatedSet = new Set(selectedBatchIds);
+        setReferences((prev) =>
+          prev.map((r) =>
+            updatedSet.has(r.id)
+              ? { ...r, isFavorite: favorite, updatedAt: new Date().toISOString() }
+              : r
+          )
+        );
+        showToast(
+          `${selectedBatchIds.length} ${
+            selectedBatchIds.length === 1 ? 'referência' : 'referências'
+          } ${favorite ? 'adicionada aos favoritos' : 'removida dos favoritos'}.`
+        );
+        return;
+      }
       setIsProcessingBatch(true);
       try {
-        const result = await supabaseService.bulkUpdateFavorite(user.id, selectedBatchIds, favorite);
+        const result = await neonService.bulkUpdateFavorite(user!.id, selectedBatchIds, favorite);
         if (result.successCount > 0) {
           const updatedSet = new Set(selectedBatchIds);
           setReferences((prev) =>
@@ -838,20 +1508,41 @@ export function App() {
         setIsProcessingBatch(false);
       }
     },
-    [user, selectedBatchIds, showToast]
+    [user, isGuestMode, selectedBatchIds, showToast]
   );
 
   const handleBulkAssociateCollection = useCallback(
     async (collectionId: string, action: 'add' | 'remove') => {
-      if (!user || selectedBatchIds.length === 0) return;
+      if ((!user && !isGuestMode) || selectedBatchIds.length === 0) return;
+      const targetCollection = collections.find((c) => c.id === collectionId);
+      const colName = targetCollection ? targetCollection.name : 'coleção';
+
+      if (isGuestMode && !user) {
+        const targetIds = new Set(selectedBatchIds);
+        setReferences((prev) =>
+          prev.map((r) => {
+            if (!targetIds.has(r.id)) return r;
+            const currentCols = r.collectionIds || [];
+            const nextCols =
+              action === 'add'
+                ? Array.from(new Set([...currentCols, collectionId]))
+                : currentCols.filter((id) => id !== collectionId);
+            return { ...r, collectionIds: nextCols, updatedAt: new Date().toISOString() };
+          })
+        );
+        showToast(
+          `${selectedBatchIds.length} referências ${
+            action === 'add' ? 'adicionadas à' : 'removidas da'
+          } coleção "${colName}".`
+        );
+        return;
+      }
+
       setIsProcessingBatch(true);
       try {
-        const targetCollection = collections.find((c) => c.id === collectionId);
-        const colName = targetCollection ? targetCollection.name : 'coleção';
-
-        let result: supabaseService.BatchOperationResult;
+        let result: neonService.BatchOperationResult;
         if (action === 'add') {
-          result = await supabaseService.bulkAddCollection(user.id, selectedBatchIds, collectionId);
+          result = await neonService.bulkAddCollection(user!.id, selectedBatchIds, collectionId);
           if (result.successCount > 0) {
             const targetIds = new Set(selectedBatchIds);
             setReferences((prev) =>
@@ -871,7 +1562,7 @@ export function App() {
             );
           }
         } else {
-          result = await supabaseService.bulkRemoveCollection(user.id, selectedBatchIds, collectionId);
+          result = await neonService.bulkRemoveCollection(user!.id, selectedBatchIds, collectionId);
           if (result.successCount > 0) {
             const targetIds = new Set(selectedBatchIds);
             setReferences((prev) =>
@@ -904,20 +1595,41 @@ export function App() {
         setIsProcessingBatch(false);
       }
     },
-    [user, selectedBatchIds, collections, showToast]
+    [user, isGuestMode, selectedBatchIds, collections, showToast]
   );
 
   const handleBulkAssociateProject = useCallback(
     async (projectId: string, action: 'add' | 'remove') => {
-      if (!user || selectedBatchIds.length === 0) return;
+      if ((!user && !isGuestMode) || selectedBatchIds.length === 0) return;
+      const targetProject = projects.find((p) => p.id === projectId);
+      const projName = targetProject ? targetProject.name : 'projeto';
+
+      if (isGuestMode && !user) {
+        const targetIds = new Set(selectedBatchIds);
+        setReferences((prev) =>
+          prev.map((r) => {
+            if (!targetIds.has(r.id)) return r;
+            const currentProjs = r.projectIds || [];
+            const nextProjs =
+              action === 'add'
+                ? Array.from(new Set([...currentProjs, projectId]))
+                : currentProjs.filter((id) => id !== projectId);
+            return { ...r, projectIds: nextProjs, updatedAt: new Date().toISOString() };
+          })
+        );
+        showToast(
+          `${selectedBatchIds.length} referências ${
+            action === 'add' ? 'associadas ao' : 'removidas do'
+          } projeto "${projName}".`
+        );
+        return;
+      }
+
       setIsProcessingBatch(true);
       try {
-        const targetProject = projects.find((p) => p.id === projectId);
-        const projName = targetProject ? targetProject.name : 'projeto';
-
-        let result: supabaseService.BatchOperationResult;
+        let result: neonService.BatchOperationResult;
         if (action === 'add') {
-          result = await supabaseService.bulkAddProject(user.id, selectedBatchIds, projectId);
+          result = await neonService.bulkAddProject(user!.id, selectedBatchIds, projectId);
           if (result.successCount > 0) {
             const targetIds = new Set(selectedBatchIds);
             setReferences((prev) =>
@@ -937,7 +1649,7 @@ export function App() {
             );
           }
         } else {
-          result = await supabaseService.bulkRemoveProject(user.id, selectedBatchIds, projectId);
+          result = await neonService.bulkRemoveProject(user!.id, selectedBatchIds, projectId);
           if (result.successCount > 0) {
             const targetIds = new Set(selectedBatchIds);
             setReferences((prev) =>
@@ -970,19 +1682,37 @@ export function App() {
         setIsProcessingBatch(false);
       }
     },
-    [user, selectedBatchIds, projects, showToast]
+    [user, isGuestMode, selectedBatchIds, projects, showToast]
   );
 
   const handleBulkTags = useCallback(
     async (tags: string[], action: 'add' | 'remove') => {
-      if (!user || selectedBatchIds.length === 0 || tags.length === 0) return;
+      if ((!user && !isGuestMode) || selectedBatchIds.length === 0 || tags.length === 0) return;
+      const normTags = tags.map((t) => normalizeTag(t)).filter(Boolean);
+
+      if (isGuestMode && !user) {
+        const targetIds = new Set(selectedBatchIds);
+        setReferences((prev) =>
+          prev.map((r) => {
+            if (!targetIds.has(r.id)) return r;
+            const currentTags = r.tags || [];
+            const nextTags =
+              action === 'add'
+                ? Array.from(new Set([...currentTags, ...normTags]))
+                : currentTags.filter((t) => !normTags.includes(t));
+            return { ...r, tags: nextTags, updatedAt: new Date().toISOString() };
+          })
+        );
+        showToast(`Etiquetas ${action === 'add' ? 'adicionadas' : 'removidas'}.`);
+        return;
+      }
+
       setIsProcessingBatch(true);
       try {
-        let result: supabaseService.BatchOperationResult;
-        const normTags = tags.map((t) => normalizeTag(t)).filter(Boolean);
+        let result: neonService.BatchOperationResult;
 
         if (action === 'add') {
-          result = await supabaseService.bulkAddTags(user.id, selectedBatchIds, normTags);
+          result = await neonService.bulkAddTags(user!.id, selectedBatchIds, normTags);
           if (result.successCount > 0) {
             const targetIds = new Set(selectedBatchIds);
             setReferences((prev) =>
@@ -1001,7 +1731,7 @@ export function App() {
             );
           }
         } else {
-          result = await supabaseService.bulkRemoveTags(user.id, selectedBatchIds, normTags);
+          result = await neonService.bulkRemoveTags(user!.id, selectedBatchIds, normTags);
           if (result.successCount > 0) {
             const targetIds = new Set(selectedBatchIds);
             const removeSet = new Set(normTags);
@@ -1035,14 +1765,28 @@ export function App() {
         setIsProcessingBatch(false);
       }
     },
-    [user, selectedBatchIds, showToast]
+    [user, isGuestMode, selectedBatchIds, showToast]
   );
 
   const handleBulkDeleteConfirm = useCallback(async () => {
-    if (!user || selectedBatchIds.length === 0) return;
+    if ((!user && !isGuestMode) || selectedBatchIds.length === 0) return;
+    if (isGuestMode && !user) {
+      const deletedSet = new Set(selectedBatchIds);
+      setReferences((prev) => prev.filter((r) => !deletedSet.has(r.id)));
+      if (selectedReferenceId && deletedSet.has(selectedReferenceId)) {
+        setSelectedReferenceId(null);
+        setIsExpandedViewOpen(false);
+      }
+      const count = selectedBatchIds.length;
+      setSelectedBatchIds([]);
+      setIsBulkDeleteModalOpen(false);
+      showToast(count === 1 ? '1 referência removida do acervo.' : `${count} referências removidas do acervo.`);
+      return;
+    }
+
     setIsProcessingBatch(true);
     try {
-      const result = await supabaseService.bulkDeleteReferences(user.id, selectedBatchIds);
+      const result = await neonService.bulkDeleteReferences(user!.id, selectedBatchIds);
       if (result.successCount > 0) {
         const deletedSet = new Set(selectedBatchIds);
         setReferences((prev) => prev.filter((r) => !deletedSet.has(r.id)));
@@ -1052,7 +1796,7 @@ export function App() {
         }
         setSelectedBatchIds([]);
         setIsBulkDeleteModalOpen(false);
-        showToast(`${result.successCount} referências excluídas com sucesso.`);
+        showToast(result.successCount === 1 ? '1 referência removida do acervo.' : `${result.successCount} referências removidas do acervo.`);
       }
       if (result.failedCount > 0) {
         showToast(`Falha ao excluir ${result.failedCount} itens: ${result.errors?.[0] || 'Erro'}`);
@@ -1062,11 +1806,11 @@ export function App() {
     } finally {
       setIsProcessingBatch(false);
     }
-  }, [user, selectedBatchIds, selectedReferenceId, showToast]);
+  }, [user, isGuestMode, selectedBatchIds, selectedReferenceId, showToast]);
 
-  // Project Management Handlers (Confirmed by Supabase)
+  // Project Management Handlers (Confirmed by Neon)
   const handleCreateProject = async (name: string, description?: string) => {
-    if (!user) return;
+    if (!user && !isGuestMode) return;
     const newProject: Project = {
       id: `proj-${Date.now()}`,
       name,
@@ -1075,18 +1819,24 @@ export function App() {
       updatedAt: new Date().toISOString(),
     };
 
+    if (isGuestMode && !user) {
+      setProjects((prev) => [newProject, ...prev]);
+      showToast(`Projeto "${name}" salvo localmente!`);
+      return;
+    }
+
     try {
-      await supabaseService.saveProject(user.id, newProject);
+      await neonService.saveProject(user!.id, newProject);
       setProjects((prev) => [newProject, ...prev]);
       showToast(`Projeto "${name}" salvo com sucesso!`);
     } catch (err: any) {
-      console.error('Erro ao salvar projeto no Supabase:', err);
+      console.error('Erro ao salvar projeto no Neon:', err);
       showToast(`Erro ao salvar projeto: ${err.message || 'Falha no banco.'}`);
     }
   };
 
   const handleEditProject = async (id: string, name: string, description?: string) => {
-    if (!user) return;
+    if (!user && !isGuestMode) return;
     const existing = projects.find((p) => p.id === id);
     if (!existing) return;
 
@@ -1097,20 +1847,45 @@ export function App() {
       updatedAt: new Date().toISOString(),
     };
 
+    if (isGuestMode && !user) {
+      setProjects((prev) => prev.map((p) => (p.id === id ? updatedProject : p)));
+      showToast('Projeto atualizado localmente.');
+      return;
+    }
+
     try {
-      await supabaseService.saveProject(user.id, updatedProject);
+      await neonService.saveProject(user!.id, updatedProject);
       setProjects((prev) => prev.map((p) => (p.id === id ? updatedProject : p)));
       showToast('Projeto atualizado com sucesso.');
     } catch (err: any) {
-      console.error('Erro ao atualizar projeto no Supabase:', err);
+      console.error('Erro ao atualizar projeto no Neon:', err);
       showToast(`Erro ao atualizar projeto: ${err.message || 'Falha no banco.'}`);
     }
   };
 
   const handleDeleteProject = async (id: string) => {
-    if (!user) return;
+    if (!user && !isGuestMode) return;
+    if (isGuestMode && !user) {
+      setProjects((prev) => prev.filter((p) => p.id !== id));
+      setReferences((prev) =>
+        prev.map((ref) => {
+          if (ref.projectIds?.includes(id)) {
+            return {
+              ...ref,
+              projectIds: ref.projectIds.filter((pId) => pId !== id),
+              updatedAt: new Date().toISOString(),
+            };
+          }
+          return ref;
+        })
+      );
+      if (activeProjectId === id) setActiveProjectId(null);
+      showToast('Projeto removido. Referências preservadas.');
+      return;
+    }
+
     try {
-      await supabaseService.deleteProject(user.id, id);
+      await neonService.deleteProject(user!.id, id);
       setProjects((prev) => prev.filter((p) => p.id !== id));
 
       // Remove project association from references in state without deleting the references
@@ -1132,38 +1907,44 @@ export function App() {
       }
       showToast('Projeto removido. Referências preservadas.');
     } catch (err: any) {
-      console.error('Erro ao excluir projeto no Supabase:', err);
+      console.error('Erro ao excluir projeto no Neon:', err);
       showToast(`Erro ao excluir projeto: ${err.message || 'Falha no banco.'}`);
     }
   };
 
   const handleSaveProjectAssociations = async (projectId: string, referenceIds: string[]) => {
-    if (!user) return;
-    try {
-      await supabaseService.syncProjectReferences(projectId, referenceIds);
-      const targetSet = new Set(referenceIds);
-      setReferences((prev) =>
-        prev.map((ref) => {
-          const hasProject = ref.projectIds?.includes(projectId);
-          const shouldHaveProject = targetSet.has(ref.id);
+    if (!user && !isGuestMode) return;
+    const targetSet = new Set(referenceIds);
+    setReferences((prev) =>
+      prev.map((ref) => {
+        const hasProject = ref.projectIds?.includes(projectId);
+        const shouldHaveProject = targetSet.has(ref.id);
 
-          if (shouldHaveProject && !hasProject) {
-            return {
-              ...ref,
-              projectIds: [...(ref.projectIds || []), projectId],
-              updatedAt: new Date().toISOString(),
-            };
-          } else if (!shouldHaveProject && hasProject) {
-            return {
-              ...ref,
-              projectIds: (ref.projectIds || []).filter((pId) => pId !== projectId),
-              updatedAt: new Date().toISOString(),
-            };
-          }
-          return ref;
-        })
-      );
-      showToast('Associações do projeto sincronizadas com o Supabase.');
+        if (shouldHaveProject && !hasProject) {
+          return {
+            ...ref,
+            projectIds: [...(ref.projectIds || []), projectId],
+            updatedAt: new Date().toISOString(),
+          };
+        } else if (!shouldHaveProject && hasProject) {
+          return {
+            ...ref,
+            projectIds: (ref.projectIds || []).filter((pId) => pId !== projectId),
+            updatedAt: new Date().toISOString(),
+          };
+        }
+        return ref;
+      })
+    );
+
+    if (isGuestMode && !user) {
+      showToast('Associações do projeto atualizadas localmente.');
+      return;
+    }
+
+    try {
+      await neonService.syncProjectReferences(projectId, referenceIds);
+      showToast('Associações do projeto sincronizadas com a nuvem.');
     } catch (err: any) {
       console.error('Erro ao salvar associações do projeto:', err);
       showToast(`Erro ao salvar associações: ${err.message || 'Falha no banco.'}`);
@@ -1177,9 +1958,9 @@ export function App() {
     handleUpdateReference(referenceId, { projectIds: updatedProjectIds });
   };
 
-  // Collection Management Handlers (Confirmed by Supabase)
+  // Collection Management Handlers (Confirmed by Neon)
   const handleCreateCollection = async (name: string, description?: string) => {
-    if (!user) return;
+    if (!user && !isGuestMode) return;
     const newCol: Collection = {
       id: `col-${Date.now()}`,
       name,
@@ -1188,18 +1969,24 @@ export function App() {
       updatedAt: new Date().toISOString(),
     };
 
+    if (isGuestMode && !user) {
+      setCollections((prev) => [newCol, ...prev]);
+      showToast(`Coleção "${name}" salva localmente!`);
+      return;
+    }
+
     try {
-      await supabaseService.saveCollection(user.id, newCol);
+      await neonService.saveCollection(user!.id, newCol);
       setCollections((prev) => [newCol, ...prev]);
       showToast(`Coleção "${name}" salva com sucesso!`);
     } catch (err: any) {
-      console.error('Erro ao salvar coleção no Supabase:', err);
+      console.error('Erro ao salvar coleção no Neon:', err);
       showToast(`Erro ao salvar coleção: ${err.message || 'Falha no banco.'}`);
     }
   };
 
   const handleEditCollection = async (id: string, name: string, description?: string) => {
-    if (!user) return;
+    if (!user && !isGuestMode) return;
     const existing = collections.find((c) => c.id === id);
     if (!existing) return;
 
@@ -1210,20 +1997,45 @@ export function App() {
       updatedAt: new Date().toISOString(),
     };
 
+    if (isGuestMode && !user) {
+      setCollections((prev) => prev.map((c) => (c.id === id ? updatedCol : c)));
+      showToast('Coleção atualizada localmente.');
+      return;
+    }
+
     try {
-      await supabaseService.saveCollection(user.id, updatedCol);
+      await neonService.saveCollection(user!.id, updatedCol);
       setCollections((prev) => prev.map((c) => (c.id === id ? updatedCol : c)));
       showToast('Coleção atualizada com sucesso.');
     } catch (err: any) {
-      console.error('Erro ao atualizar coleção no Supabase:', err);
+      console.error('Erro ao atualizar coleção no Neon:', err);
       showToast(`Erro ao atualizar coleção: ${err.message || 'Falha no banco.'}`);
     }
   };
 
   const handleDeleteCollection = async (id: string) => {
-    if (!user) return;
+    if (!user && !isGuestMode) return;
+    if (isGuestMode && !user) {
+      setCollections((prev) => prev.filter((c) => c.id !== id));
+      setReferences((prev) =>
+        prev.map((ref) => {
+          if (ref.collectionIds?.includes(id)) {
+            return {
+              ...ref,
+              collectionIds: ref.collectionIds.filter((cId) => cId !== id),
+              updatedAt: new Date().toISOString(),
+            };
+          }
+          return ref;
+        })
+      );
+      if (activeCollectionId === id) setActiveCollectionId(null);
+      showToast('Coleção removida. Referências preservadas.');
+      return;
+    }
+
     try {
-      await supabaseService.deleteCollection(user.id, id);
+      await neonService.deleteCollection(user!.id, id);
       setCollections((prev) => prev.filter((c) => c.id !== id));
 
       // Remove association without deleting references
@@ -1245,38 +2057,44 @@ export function App() {
       }
       showToast('Coleção removida. Referências preservadas.');
     } catch (err: any) {
-      console.error('Erro ao excluir coleção no Supabase:', err);
+      console.error('Erro ao excluir coleção no Neon:', err);
       showToast(`Erro ao excluir coleção: ${err.message || 'Falha no banco.'}`);
     }
   };
 
   const handleSaveCollectionAssociations = async (collectionId: string, referenceIds: string[]) => {
-    if (!user) return;
-    try {
-      await supabaseService.syncCollectionReferences(collectionId, referenceIds);
-      const targetSet = new Set(referenceIds);
-      setReferences((prev) =>
-        prev.map((ref) => {
-          const hasCol = ref.collectionIds?.includes(collectionId);
-          const shouldHaveCol = targetSet.has(ref.id);
+    if (!user && !isGuestMode) return;
+    const targetSet = new Set(referenceIds);
+    setReferences((prev) =>
+      prev.map((ref) => {
+        const hasCol = ref.collectionIds?.includes(collectionId);
+        const shouldHaveCol = targetSet.has(ref.id);
 
-          if (shouldHaveCol && !hasCol) {
-            return {
-              ...ref,
-              collectionIds: [...(ref.collectionIds || []), collectionId],
-              updatedAt: new Date().toISOString(),
-            };
-          } else if (!shouldHaveCol && hasCol) {
-            return {
-              ...ref,
-              collectionIds: (ref.collectionIds || []).filter((cId) => cId !== collectionId),
-              updatedAt: new Date().toISOString(),
-            };
-          }
-          return ref;
-        })
-      );
-      showToast('Associações da coleção sincronizadas com o Supabase.');
+        if (shouldHaveCol && !hasCol) {
+          return {
+            ...ref,
+            collectionIds: [...(ref.collectionIds || []), collectionId],
+            updatedAt: new Date().toISOString(),
+          };
+        } else if (!shouldHaveCol && hasCol) {
+          return {
+            ...ref,
+            collectionIds: (ref.collectionIds || []).filter((cId) => cId !== collectionId),
+            updatedAt: new Date().toISOString(),
+          };
+        }
+        return ref;
+      })
+    );
+
+    if (isGuestMode && !user) {
+      showToast('Associações da coleção atualizadas localmente.');
+      return;
+    }
+
+    try {
+      await neonService.syncCollectionReferences(collectionId, referenceIds);
+      showToast('Associações da coleção sincronizadas com a nuvem.');
     } catch (err: any) {
       console.error('Erro ao salvar associações da coleção:', err);
       showToast(`Erro ao salvar associações: ${err.message || 'Falha no banco.'}`);
@@ -1290,7 +2108,50 @@ export function App() {
     handleUpdateReference(referenceId, { collectionIds: updatedCollectionIds });
   };
 
-  // Tag Management Handlers (Confirmed by Supabase)
+  const handleOpenPublicMoodboard = useCallback((collectionId: string) => {
+    const col = collections.find((c) => c.id === collectionId);
+    if (!col) return;
+    const colRefs = references.filter((r) => r.collectionIds?.includes(col.id));
+    const payload: SharedCollectionData = {
+      version: 1,
+      id: col.id,
+      name: col.name,
+      description: col.description,
+      createdAt: col.createdAt,
+      authorName: userProfile?.full_name || effectiveUser?.email?.split('@')[0] || 'Curador Salvei',
+      references: colRefs.map((r) => ({
+        id: r.id,
+        title: r.title,
+        url: r.url,
+        domain: r.domain,
+        screenshotUrl: r.screenshotUrl,
+        palette: r.palette,
+        tags: r.tags,
+        notesMarkdown: r.notesMarkdown,
+      })),
+    };
+    setPublicMoodboardData(payload);
+    setPublicMoodboardCollectionId(collectionId);
+    if (typeof window !== 'undefined') {
+      const url = generateCollectionShareUrl(col, references, payload.authorName);
+      window.history.pushState(null, '', url);
+    }
+  }, [collections, references, userProfile?.full_name, effectiveUser?.email]);
+
+  const handleExitPublicMoodboard = useCallback(() => {
+    setPublicMoodboardData(null);
+    setPublicMoodboardCollectionId(null);
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      params.delete('share');
+      params.delete('id');
+      const newSearch = params.toString();
+      const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : '');
+      window.history.replaceState(null, '', newUrl);
+    }
+  }, []);
+
+  // Tag Management Handlers (Confirmed by Neon)
   const handleCreateTag = (newTag: string) => {
     const norm = normalizeTag(newTag);
     if (!norm) return;
@@ -1298,13 +2159,30 @@ export function App() {
   };
 
   const handleRenameTag = async (oldTag: string, newTag: string) => {
-    if (!user) return;
+    if (!user && !isGuestMode) return;
     const normOld = normalizeTag(oldTag);
     const normNew = normalizeTag(newTag);
     if (!normNew || normOld === normNew) return;
 
+    if (isGuestMode && !user) {
+      setReferences((prev) =>
+        prev.map((ref) => {
+          const hasTag = ref.tags?.map(normalizeTag).includes(normOld);
+          if (hasTag) {
+            const updated = Array.from(
+              new Set(ref.tags.map((t) => (normalizeTag(t) === normOld ? normNew : t)))
+            );
+            return { ...ref, tags: updated, updatedAt: new Date().toISOString() };
+          }
+          return ref;
+        })
+      );
+      showToast(`Etiqueta #${normOld} renomeada para #${normNew}.`);
+      return;
+    }
+
     try {
-      await supabaseService.renameTag(user.id, normOld, normNew);
+      await neonService.renameTag(user!.id, normOld, normNew);
       setReferences((prev) =>
         prev.map((ref) => {
           const hasTag = ref.tags?.map(normalizeTag).includes(normOld);
@@ -1319,16 +2197,33 @@ export function App() {
       );
       showToast(`Etiqueta #${normOld} renomeada para #${normNew}.`);
     } catch (err: any) {
-      console.error('Erro ao renomear tag no Supabase:', err);
+      console.error('Erro ao renomear tag no Neon:', err);
       showToast(`Erro ao renomear tag: ${err.message || 'Falha no banco.'}`);
     }
   };
 
   const handleDeleteTag = async (tagToDelete: string) => {
-    if (!user) return;
+    if (!user && !isGuestMode) return;
     const normDelete = normalizeTag(tagToDelete);
+    if (isGuestMode && !user) {
+      setReferences((prev) =>
+        prev.map((ref) => {
+          if (ref.tags?.map(normalizeTag).includes(normDelete)) {
+            return {
+              ...ref,
+              tags: ref.tags.filter((t) => normalizeTag(t) !== normDelete),
+              updatedAt: new Date().toISOString(),
+            };
+          }
+          return ref;
+        })
+      );
+      showToast(`Etiqueta #${normDelete} removida das referências.`);
+      return;
+    }
+
     try {
-      await supabaseService.deleteTag(user.id, normDelete);
+      await neonService.deleteTag(user!.id, normDelete);
       setReferences((prev) =>
         prev.map((ref) => {
           if (ref.tags?.map(normalizeTag).includes(normDelete)) {
@@ -1343,7 +2238,7 @@ export function App() {
       );
       showToast(`Etiqueta #${normDelete} removida das referências.`);
     } catch (err: any) {
-      console.error('Erro ao excluir tag no Supabase:', err);
+      console.error('Erro ao excluir tag no Neon:', err);
       showToast(`Erro ao excluir tag: ${err.message || 'Falha no banco.'}`);
     }
   };
@@ -1355,6 +2250,7 @@ export function App() {
     tags,
     notes,
     imageFile,
+    palette: passedPalette,
     projectIds,
     collectionIds,
     codeSnippets,
@@ -1365,12 +2261,13 @@ export function App() {
     tags?: string[];
     notes?: string;
     imageFile?: File;
+    palette?: ColorPaletteItem[];
     projectIds?: string[];
     collectionIds?: string[];
     codeSnippets?: CodeSnippet[];
     relatedFiles?: ReferenceFile[];
   }) => {
-    if (!user) {
+    if (!user && !isGuestMode) {
       throw new Error('Sessão expirada. Faça login novamente para salvar referências.');
     }
 
@@ -1388,9 +2285,13 @@ export function App() {
     let originalFileName: string | undefined = undefined;
 
     if (imageFile) {
-      const uploadRes = await supabaseService.uploadMediaFile(user.id, imageFile, 'screenshots');
-      screenshotUrl = uploadRes.url;
-      imageStorageId = uploadRes.storagePath;
+      if (user) {
+        const uploadRes = await neonService.uploadMediaFile(user.id, imageFile, 'screenshots');
+        screenshotUrl = uploadRes.url;
+        imageStorageId = uploadRes.storagePath;
+      } else {
+        screenshotUrl = await readFileAsDataUrl(imageFile);
+      }
       screenshotStatus = 'ready';
       originalFileName = imageFile.name;
     } else if (DOMAIN_SCREENSHOTS[domain]) {
@@ -1400,6 +2301,14 @@ export function App() {
 
     const finalTitle = title || `${domain.charAt(0).toUpperCase() + domain.slice(1)} — Referência Web`;
     const finalTags = tags && tags.length > 0 ? tags.map(normalizeTag) : ['web', 'referencia'];
+
+    let palette: ColorPaletteItem[] | undefined = passedPalette;
+    if (!palette && screenshotUrl) {
+      try {
+        const extracted = await extractPaletteFromImage(screenshotUrl, 5);
+        if (extracted && extracted.length > 0) palette = extracted;
+      } catch {}
+    }
 
     const newReference: Reference = {
       id: `ref-${Date.now()}`,
@@ -1411,6 +2320,7 @@ export function App() {
       imageStorageId,
       originalFileName,
       screenshotStatus,
+      palette,
       tags: finalTags,
       collectionIds: collectionIds || [],
       projectIds: projectIds || [],
@@ -1423,14 +2333,23 @@ export function App() {
       updatedAt: new Date().toISOString(),
     };
 
-    // Strict backend confirmation first
-    await supabaseService.saveReference(user.id, newReference);
+    if (user) {
+      await neonService.saveReference(user.id, newReference);
+    }
 
     setReferences((prev) => [newReference, ...prev]);
     setCurrentDestination('inbox');
     setSelectedReferenceId(newReference.id);
     showToast('Referência salva com sucesso!');
   };
+
+  const handleRestoreDemoReferences = useCallback(() => {
+    setReferences(GUEST_STARTER_REFERENCES);
+    if (!user || isGuestMode) {
+      localStorage.setItem(LOCAL_STORAGE_REFS_KEY, JSON.stringify(GUEST_STARTER_REFERENCES));
+    }
+    showToast('Acervo de demonstração restaurado com referências curadas.');
+  }, [user, isGuestMode, showToast]);
 
   const handleSaveImages = async (
     items: {
@@ -1439,11 +2358,12 @@ export function App() {
       tags?: string[];
       sourceUrl?: string;
       notes?: string;
+      palette?: ColorPaletteItem[];
       projectIds?: string[];
       collectionIds?: string[];
     }[]
   ) => {
-    if (!user) {
+    if (!user && !isGuestMode) {
       throw new Error('Sessão expirada. Faça login novamente para salvar imagens.');
     }
 
@@ -1451,7 +2371,16 @@ export function App() {
 
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
-      const uploadRes = await supabaseService.uploadMediaFile(user.id, item.file, 'screenshots');
+      let screenshotUrl: string | undefined = undefined;
+      let storagePath: string | undefined = undefined;
+
+      if (user) {
+        const uploadRes = await neonService.uploadMediaFile(user.id, item.file, 'screenshots');
+        screenshotUrl = uploadRes.url;
+        storagePath = uploadRes.storagePath;
+      } else {
+        screenshotUrl = await readFileAsDataUrl(item.file);
+      }
 
       let domain: string | undefined = undefined;
       if (item.sourceUrl) {
@@ -1463,16 +2392,25 @@ export function App() {
         }
       }
 
+      let palette: ColorPaletteItem[] | undefined = item.palette;
+      if (!palette && screenshotUrl) {
+        try {
+          const extracted = await extractPaletteFromImage(screenshotUrl, 5);
+          if (extracted && extracted.length > 0) palette = extracted;
+        } catch {}
+      }
+
       const newRef: Reference = {
         id: `ref-${Date.now()}-${i}`,
         title: item.title,
         sourceType: item.sourceUrl ? 'both' : 'image',
         url: item.sourceUrl || undefined,
         domain,
-        screenshotUrl: uploadRes.url,
-        imageStorageId: uploadRes.storagePath,
+        screenshotUrl,
+        imageStorageId: storagePath,
         originalFileName: item.file.name,
         screenshotStatus: 'ready',
+        palette,
         tags: item.tags && item.tags.length > 0 ? item.tags.map(normalizeTag) : ['imagem', 'referencia'],
         collectionIds: item.collectionIds || [],
         projectIds: item.projectIds || [],
@@ -1485,7 +2423,9 @@ export function App() {
         updatedAt: new Date(Date.now() + i).toISOString(),
       };
 
-      await supabaseService.saveReference(user.id, newRef);
+      if (user) {
+        await neonService.saveReference(user.id, newRef);
+      }
       newReferences.push(newRef);
     }
 
@@ -1503,7 +2443,11 @@ export function App() {
     );
   };
 
-  // Optional tool: migrate pre-existing browser localStorage to Supabase once
+  const handleUpdateReferencePalette = (referenceId: string, palette: ColorPaletteItem[]) => {
+    handleUpdateReference(referenceId, { palette });
+  };
+
+  // Optional tool: migrate pre-existing browser localStorage to Neon once
   const handleMigrateBrowserLegacyData = async () => {
     if (!user) return;
     try {
@@ -1519,7 +2463,7 @@ export function App() {
       }
 
       setIsMigratingLegacy(true);
-      const res = await supabaseService.migrateLocalDataToSupabase(user.id, parsedRefs, [], []);
+      const res = await neonService.migrateLocalDataToCloud(user.id, parsedRefs, [], []);
       showToast(`${res.migratedRefs} referências importadas com sucesso para a nuvem!`);
       // Clear legacy storage key to avoid confusion
       localStorage.removeItem('curator_references_v2');
@@ -1545,8 +2489,55 @@ export function App() {
   }, [collections, activeCollectionId]);
 
   // ============================================================================
-  // CONDITIONAL GATES: LOADING, MISSING ENV, MANDATORY AUTH, CLOUD ERROR
+  // CONDITIONAL GATES: PUBLIC MOODBOARD, LOADING, MISSING ENV, MANDATORY AUTH, CLOUD ERROR
   // ============================================================================
+
+  // Public Moodboard Route (Shared Collection) - Available to all visitors, guests, and users
+  if (activePublicMoodboardData) {
+    return (
+      <PublicMoodboardView
+        collectionData={activePublicMoodboardData}
+        onExit={handleExitPublicMoodboard}
+        onGoToAuth={(mode) => {
+          handleExitPublicMoodboard();
+          setAuthViewMode(mode);
+          if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            params.set('auth', mode);
+            const newSearch = params.toString();
+            const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : '');
+            window.history.replaceState(null, '', newUrl);
+          }
+        }}
+        isOwnerPreview={!!effectiveUser || isGuestMode}
+      />
+    );
+  }
+
+  // If visiting an invalid or expired share link
+  if (publicMoodboardCollectionId && !activePublicMoodboardData && !isInitialSessionLoading) {
+    return (
+      <div className="min-h-screen bg-[#0B0C0E] text-white flex flex-col items-center justify-center p-6 font-sans">
+        <div className="max-w-md w-full bg-[#14161B] border border-[#262830] rounded-xl p-8 flex flex-col items-center text-center gap-4 shadow-2xl">
+          <div className="w-12 h-12 rounded-full bg-[#4355DB]/10 text-[#6375F1] flex items-center justify-center">
+            <Layers size={24} />
+          </div>
+          <h2 className="font-bold text-lg text-white">Coleção Não Encontrada</h2>
+          <p className="text-xs text-[#9CA3AF] leading-relaxed">
+            O link do moodboard compartilhado pode ter expirado ou a coleção foi removida pelo autor.
+          </p>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleExitPublicMoodboard}
+            className="mt-2 cursor-pointer"
+          >
+            Ir para a Página Inicial
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   // Gate 1: Checking authentication session
   if (authLoading) {
@@ -1560,7 +2551,7 @@ export function App() {
     );
   }
 
-  // Gate 2: Missing Supabase environment configuration (No local fallback permitted)
+  // Gate 2: Missing Neon environment configuration (No local fallback permitted)
   if (!isConfigured) {
     return (
       <div className="min-h-screen bg-[#0F0F10] text-white flex flex-col items-center justify-center p-6 font-sans">
@@ -1568,22 +2559,129 @@ export function App() {
           <div className="w-12 h-12 rounded-full bg-amber-500/10 text-amber-400 mx-auto flex items-center justify-center">
             <AlertCircle size={24} />
           </div>
-          <h2 className="font-bold text-lg text-white">Configuração do Supabase Ausente</h2>
+          <h2 className="font-bold text-lg text-white">Configuração de Nuvem Ausente</h2>
           <p className="text-xs text-[#A1A1AA] leading-relaxed">
-            O Salvei opera exclusivamente conectado ao Supabase na nuvem. Defina as variáveis <code className="text-amber-300 bg-amber-950/40 px-1 py-0.5 rounded">VITE_SUPABASE_URL</code> e <code className="text-amber-300 bg-amber-950/40 px-1 py-0.5 rounded">VITE_SUPABASE_PUBLISHABLE_KEY</code> no arquivo <code className="text-white">.env.local</code> para inicializar a aplicação.
+            O Salvei opera exclusivamente conectado à nuvem privada. Defina as variáveis de ambiente necessárias no arquivo <code className="text-white">.env.local</code> para inicializar a aplicação.
           </p>
         </div>
       </div>
     );
   }
 
-  // Gate 3: Mandatory Authentication (Unauthenticated users must sign in or register)
-  if (!user) {
-    return <AuthView />;
+  // Gate 3: Mandatory Authentication or Landing Page for Visitors / Explicit Auth Route
+  if (!effectiveUser && !isGuestMode) {
+    if (authViewMode) {
+      return (
+        <AuthView
+          initialMode={authViewMode}
+          onEnterGuestMode={() => {
+            setIsGuestMode(true);
+            setAuthViewMode(null);
+            localStorage.setItem(LOCAL_STORAGE_GUEST_KEY, 'true');
+            const stored = localStorage.getItem(LOCAL_STORAGE_REFS_KEY);
+            if (stored) {
+              setReferences(JSON.parse(stored));
+            } else {
+              setReferences(GUEST_STARTER_REFERENCES);
+              localStorage.setItem(LOCAL_STORAGE_REFS_KEY, JSON.stringify(GUEST_STARTER_REFERENCES));
+            }
+            const storedProjs = localStorage.getItem(LOCAL_STORAGE_PROJECTS_KEY);
+            if (storedProjs) setProjects(JSON.parse(storedProjs));
+            const storedCols = localStorage.getItem(LOCAL_STORAGE_COLLECTIONS_KEY);
+            if (storedCols) setCollections(JSON.parse(storedCols));
+            setHasInitialLoadCompleted(true);
+            setIsInitialSessionLoading(false);
+            if (typeof window !== 'undefined') {
+              const params = new URLSearchParams(window.location.search);
+              params.delete('auth');
+              const newSearch = params.toString();
+              const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : '');
+              window.history.replaceState(null, '', newUrl);
+            }
+            showToast('Bem-vindo ao Modo Local! Suas referências ficam salvas neste navegador.');
+          }}
+          onSuccess={() => {
+            setAuthViewMode(null);
+            if (typeof window !== 'undefined') {
+              const params = new URLSearchParams(window.location.search);
+              params.delete('auth');
+              const newSearch = params.toString();
+              const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : '');
+              window.history.replaceState(null, '', newUrl);
+            }
+          }}
+          onBackToLanding={() => {
+            setAuthViewMode(null);
+            if (typeof window !== 'undefined') {
+              const params = new URLSearchParams(window.location.search);
+              params.delete('auth');
+              const newSearch = params.toString();
+              const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : '');
+              window.history.replaceState(null, '', newUrl);
+            }
+          }}
+        />
+      );
+    }
+
+    return (
+      <LandingPage
+        onOpenAuth={(mode) => {
+          setAuthViewMode(mode);
+          if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            params.set('auth', mode);
+            const newSearch = params.toString();
+            const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : '');
+            window.history.replaceState(null, '', newUrl);
+          }
+        }}
+        onEnterGuestMode={() => {
+          setIsGuestMode(true);
+          localStorage.setItem(LOCAL_STORAGE_GUEST_KEY, 'true');
+          const stored = localStorage.getItem(LOCAL_STORAGE_REFS_KEY);
+          if (stored) {
+            setReferences(JSON.parse(stored));
+          } else {
+            setReferences(GUEST_STARTER_REFERENCES);
+            localStorage.setItem(LOCAL_STORAGE_REFS_KEY, JSON.stringify(GUEST_STARTER_REFERENCES));
+          }
+          const storedProjs = localStorage.getItem(LOCAL_STORAGE_PROJECTS_KEY);
+          if (storedProjs) setProjects(JSON.parse(storedProjs));
+          const storedCols = localStorage.getItem(LOCAL_STORAGE_COLLECTIONS_KEY);
+          if (storedCols) setCollections(JSON.parse(storedCols));
+          setHasInitialLoadCompleted(true);
+          setIsInitialSessionLoading(false);
+          showToast('Bem-vindo ao Modo Local! Suas referências ficam salvas neste navegador.');
+        }}
+      />
+    );
+  }
+
+  // If authenticated user specifically navigates to view the landing page (?landing=true)
+  if (showLandingForUser) {
+    return (
+      <LandingPage
+        isLoggedIn={true}
+        onGoToApp={() => {
+          setShowLandingForUser(false);
+          if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            params.delete('landing');
+            const newSearch = params.toString();
+            const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : '');
+            window.history.replaceState(null, '', newUrl);
+          }
+        }}
+        onOpenAuth={() => {
+          setShowLandingForUser(false);
+        }}
+      />
+    );
   }
 
   // Gate 4: Cloud error screen with Retry action (Requirement 5: Shown ONLY if initial fetch failed completely)
-  if (cloudError && !hasInitialLoadCompleted) {
+  if (cloudError && !hasInitialLoadCompleted && !isGuestMode) {
     return (
       <div className="min-h-screen bg-[#F8F8F6] dark:bg-[#111214] text-[#171717] dark:text-[#F3F4F6] flex flex-col items-center justify-center p-6 font-sans">
         <div className="max-w-md w-full bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-xl p-8 flex flex-col items-center text-center gap-4 shadow-xl">
@@ -1618,7 +2716,7 @@ export function App() {
   }
 
   // Gate 5: Initial cloud fetch in progress (ONLY shown before initial data has ever loaded for this session)
-  if (isInitialSessionLoading && !hasInitialLoadCompleted) {
+  if (isInitialSessionLoading && !hasInitialLoadCompleted && !isGuestMode) {
     return (
       <div className="min-h-screen bg-[#F8F8F6] dark:bg-[#111214] text-[#171717] dark:text-[#F3F4F6] flex flex-col items-center justify-center p-6 gap-3 font-sans transition-colors">
         <Loader2 size={32} className="animate-spin text-[#4355DB]" />
@@ -1679,11 +2777,23 @@ export function App() {
         setCurrentDestination('inbox');
       }}
       profile={userProfile}
-      userEmail={user.email || ''}
+      userEmail={effectiveUser?.email || ''}
       onOpenProfile={() => setIsProfileModalOpen(true)}
       onOpenSettings={() => setCurrentDestination('settings')}
       onOpenTutorial={() => setIsOnboardingModalOpen(true)}
-      onSignOut={handleSafeLogout}
+      isGuestMode={!effectiveUser && isGuestMode}
+      onExitGuestMode={handleExitGuestMode}
+      onOpenAuthModal={(mode: 'login' | 'signup' = 'signup') => {
+        setAuthViewMode(mode);
+        if (typeof window !== 'undefined') {
+          const params = new URLSearchParams(window.location.search);
+          params.set('auth', mode);
+          const newSearch = params.toString();
+          const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : '');
+          window.history.replaceState(null, '', newUrl);
+        }
+      }}
+      onSignOut={!effectiveUser && isGuestMode ? handleExitGuestMode : handleSafeLogout}
     >
       {/* Global Drag and Drop Window Overlay */}
       {isWindowDragging && (
@@ -1696,7 +2806,7 @@ export function App() {
               Solte suas imagens aqui
             </h3>
             <p className="font-sans text-xs text-[#737373] dark:text-[#9CA3AF]">
-              Elas serão enviadas para o Supabase Storage e salvas na sua biblioteca em nuvem.
+              Elas serão armazenadas com segurança e salvas na sua biblioteca em nuvem.
             </p>
           </div>
         </div>
@@ -1730,9 +2840,9 @@ export function App() {
         <div
           role="status"
           aria-live="polite"
-          className="fixed bottom-20 md:bottom-6 right-3 sm:right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-sm bg-[#171717] text-white shadow-xl text-xs font-sans animate-in slide-in-from-bottom-2 duration-150 max-w-[90vw]"
+          className="fixed bottom-20 md:bottom-6 right-3 sm:right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-sm bg-[#171717] dark:bg-[#1C2030] border border-[#2D3139] text-white shadow-2xl text-xs font-mono tracking-wide animate-in slide-in-from-bottom-2 duration-150 max-w-[90vw]"
         >
-          <CheckCircle2 size={15} className="text-[#22c55e] flex-shrink-0" />
+          <CheckCircle2 size={14} className="text-[#22c55e] flex-shrink-0" />
           <span className="truncate">{toastMessage}</span>
         </div>
       )}
@@ -1757,6 +2867,13 @@ export function App() {
           onSortChange={setSortOption}
           searchQuery={searchQuery}
           onClearAllFilters={handleClearAllFilters}
+          selectedColorHex={selectedColorHex}
+          onSelectColorHex={setSelectedColorHex}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          onOpenPresentation={() => setIsPresentationOpen(true)}
+          onOpenBookmarklet={() => setIsBookmarkletOpen(true)}
+          onUpdatePosition={handleUpdateCanvasPosition}
           onSelectReference={(ref) => setSelectedReferenceId(ref.id)}
           selectedReferenceId={selectedReferenceId}
           selectedBatchIds={selectedBatchIds}
@@ -1781,6 +2898,8 @@ export function App() {
             setAddModalInitialMode(mode);
             setIsAddModalOpen(true);
           }}
+          onUpdatePalette={handleUpdateReferencePalette}
+          onRestoreDemoReferences={handleRestoreDemoReferences}
           isFiltered={isFiltered}
         />
       )}
@@ -1819,6 +2938,7 @@ export function App() {
             selectedBatchIds={selectedBatchIds}
             isSelectionModeActive={selectedBatchIds.length > 0}
             onToggleBatchSelect={handleToggleBatchSelect}
+            onUpdatePalette={handleUpdateReferencePalette}
           />
         ) : (
           <ProjectsListView
@@ -1866,6 +2986,8 @@ export function App() {
             selectedBatchIds={selectedBatchIds}
             isSelectionModeActive={selectedBatchIds.length > 0}
             onToggleBatchSelect={handleToggleBatchSelect}
+            onOpenPublicMoodboard={handleOpenPublicMoodboard}
+            onUpdatePalette={handleUpdateReferencePalette}
           />
         ) : (
           <CollectionsListView
@@ -1875,6 +2997,7 @@ export function App() {
             onCreateCollection={handleCreateCollection}
             onEditCollection={handleEditCollection}
             onDeleteCollection={handleDeleteCollection}
+            onOpenPublicMoodboard={handleOpenPublicMoodboard}
           />
         )
       )}
@@ -1890,6 +3013,7 @@ export function App() {
           onDeleteTag={handleDeleteTag}
           onSelectReference={(ref) => setSelectedReferenceId(ref.id)}
           selectedReferenceId={selectedReferenceId}
+          onUpdatePalette={handleUpdateReferencePalette}
         />
       )}
 
@@ -1897,7 +3021,7 @@ export function App() {
       {currentDestination === 'settings' && (
         <SettingsView
           profile={userProfile}
-          userEmail={user.email || ''}
+          userEmail={effectiveUser?.email || ''}
           onOpenProfileModal={() => setIsProfileModalOpen(true)}
           onOpenTutorial={() => setIsOnboardingModalOpen(true)}
           onOpenShortcuts={() => setIsKeyboardShortcutsModalOpen(true)}
@@ -1905,6 +3029,8 @@ export function App() {
           isCloudLoading={isBackgroundSyncing}
           onSignOut={handleSafeLogout}
           showToast={showToast}
+          onExportBackup={handleExportBackup}
+          onImportData={handleImportData}
           onPreferencesUpdated={(newPrefs) => {
             setUserProfile((prev) => (prev ? { ...prev, preferences: newPrefs } : null));
           }}
@@ -1914,11 +3040,17 @@ export function App() {
       {/* Modal de Adicionar Referência */}
       <AddReferenceModal
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setPastedUrl(null);
+          setPastedFile(null);
+        }}
         onSaveUrl={handleSaveUrl}
         onSaveImages={handleSaveImages}
         existingUrls={references.map((r) => r.url).filter((u): u is string => Boolean(u))}
         initialMode={addModalInitialMode}
+        initialPastedUrl={pastedUrl}
+        initialPastedFile={pastedFile}
         availableProjects={projects}
         availableCollections={collections}
         onOpenExisting={(existingUrl) => {
@@ -2042,7 +3174,7 @@ export function App() {
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
         profile={userProfile}
-        userEmail={user.email || ''}
+        userEmail={effectiveUser?.email || ''}
         onProfileUpdated={(updated) => setUserProfile(updated)}
         showToast={showToast}
       />
@@ -2052,6 +3184,19 @@ export function App() {
         isOpen={isOnboardingModalOpen}
         onClose={() => setIsOnboardingModalOpen(false)}
         onComplete={handleCompleteOnboarding}
+      />
+
+      {/* Modal de Web Clipper (Bookmarklet para barra de favoritos) */}
+      <BookmarkletModal
+        isOpen={isBookmarkletOpen}
+        onClose={() => setIsBookmarkletOpen(false)}
+      />
+
+      {/* Modo de Apresentação em Tela Cheia (Tecla P ou botão Apresentar) */}
+      <PresentationMode
+        references={filteredReferences.length > 0 ? filteredReferences : references}
+        isOpen={isPresentationOpen}
+        onClose={() => setIsPresentationOpen(false)}
       />
     </AppShell>
   );
