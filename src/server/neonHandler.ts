@@ -82,13 +82,41 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
   const rawUrl = req.url || '/';
   const url = new URL(rawUrl, `http://${host}`);
 
-  if (!url.pathname.startsWith('/api')) {
+  let pathname = url.pathname;
+
+  // 1. If routed via /api/index?path=... or /api?path=...
+  const pathParam = url.searchParams.get('path');
+  if ((pathname === '/api/index' || pathname === '/api' || pathname === '/' || pathname === '/index') && pathParam) {
+    pathname = pathParam.startsWith('/api')
+      ? pathParam
+      : `/api${pathParam.startsWith('/') ? pathParam : '/' + pathParam}`;
+  }
+
+  // 2. Check Vercel rewrite headers if pathname is still /api/index or /api
+  const vercelMatchedPath = (req.headers?.['x-matched-path'] || req.headers?.['x-vercel-matched-path'] || req.headers?.['x-forwarded-uri']) as string | undefined;
+  if (vercelMatchedPath && (pathname === '/api/index' || pathname === '/api' || pathname === '/' || pathname === '/index')) {
+    pathname = vercelMatchedPath.split('?')[0];
+  }
+
+  // 3. Normalize pathname to always start with /api (unless static /uploads/)
+  if (!pathname.startsWith('/api') && !pathname.startsWith('/uploads')) {
+    pathname = `/api${pathname.startsWith('/') ? pathname : '/' + pathname}`;
+  }
+
+  if (!pathname.startsWith('/api') && !pathname.startsWith('/uploads/')) {
     return false;
+  }
+
+  if (!dbUrl) {
+    sendJson(res, 500, {
+      error: 'DATABASE_URL não configurada no servidor Vercel. Adicione a variável de ambiente no painel do projeto na Vercel.',
+    });
+    return true;
   }
 
   try {
     // 1. AUTH: LOGIN
-    if (url.pathname === '/api/auth/login' && req.method === 'POST') {
+    if (pathname === '/api/auth/login' && req.method === 'POST') {
       const { email, password } = await parseBody(req);
       if (!email || !password) {
         sendJson(res, 400, { error: 'E-mail e senha são obrigatórios.' });
@@ -143,7 +171,7 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     }
 
     // 2. AUTH: SIGNUP
-    if ((url.pathname === '/api/auth/signup' || url.pathname === '/api/auth/register') && req.method === 'POST') {
+    if ((pathname === '/api/auth/signup' || pathname === '/api/auth/register') && req.method === 'POST') {
       const { email, password, fullName } = await parseBody(req);
       if (!email || !password) {
         sendJson(res, 400, { error: 'E-mail e senha são obrigatórios.' });
@@ -207,7 +235,7 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     }
 
     // 3. FETCH FULL USER LIBRARY
-    if (url.pathname === '/api/library' && req.method === 'GET') {
+    if (pathname === '/api/library' && req.method === 'GET') {
       const userId = url.searchParams.get('userId');
       if (!userId) {
         sendJson(res, 400, { error: 'userId obrigatório' });
@@ -290,7 +318,7 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     }
 
     // 4. FETCH PROFILE
-    if (url.pathname === '/api/profile' && req.method === 'GET') {
+    if (pathname === '/api/profile' && req.method === 'GET') {
       const userId = url.searchParams.get('userId');
       if (!userId) {
         sendJson(res, 400, { error: 'userId obrigatório' });
@@ -311,7 +339,7 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     }
 
     // 5. UPDATE PROFILE
-    if (url.pathname === '/api/profile' && req.method === 'PUT') {
+    if (pathname === '/api/profile' && req.method === 'PUT') {
       const body = await parseBody(req);
       const { userId, updates } = body;
       if (!userId) {
@@ -334,7 +362,7 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     }
 
     // 6. SAVE / CREATE REFERENCE
-    if (url.pathname === '/api/references' && req.method === 'POST') {
+    if (pathname === '/api/references' && req.method === 'POST') {
       const body = await parseBody(req);
       const { userId, reference } = body;
 
@@ -409,8 +437,8 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     }
 
     // 7. UPDATE REFERENCE
-    if (url.pathname.startsWith('/api/references/') && req.method === 'PUT') {
-      const id = url.pathname.replace('/api/references/', '');
+    if (pathname.startsWith('/api/references/') && req.method === 'PUT') {
+      const id = pathname.replace('/api/references/', '');
       const body = await parseBody(req);
       const { userId, updates } = body;
 
@@ -441,8 +469,8 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     }
 
     // 8. DELETE REFERENCE
-    if (url.pathname.startsWith('/api/references/') && req.method === 'DELETE') {
-      const id = url.pathname.replace('/api/references/', '');
+    if (pathname.startsWith('/api/references/') && req.method === 'DELETE') {
+      const id = pathname.replace('/api/references/', '');
       const userId = url.searchParams.get('userId');
       if (!userId) {
         sendJson(res, 400, { error: 'userId obrigatório' });
@@ -455,7 +483,7 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     }
 
     // 9. SAVE PROJECT
-    if (url.pathname === '/api/projects' && req.method === 'POST') {
+    if (pathname === '/api/projects' && req.method === 'POST') {
       const { userId, project } = await parseBody(req);
       await sql`
         INSERT INTO projects (id, user_id, name, description)
@@ -470,8 +498,8 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     }
 
     // 10. DELETE PROJECT
-    if (url.pathname.startsWith('/api/projects/') && req.method === 'DELETE') {
-      const id = url.pathname.replace('/api/projects/', '');
+    if (pathname.startsWith('/api/projects/') && req.method === 'DELETE') {
+      const id = pathname.replace('/api/projects/', '');
       const userId = url.searchParams.get('userId');
       await sql`DELETE FROM projects WHERE id = ${id} AND user_id = ${userId};`;
       sendJson(res, 200, { success: true });
@@ -479,7 +507,7 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     }
 
     // 11. SAVE COLLECTION
-    if (url.pathname === '/api/collections' && req.method === 'POST') {
+    if (pathname === '/api/collections' && req.method === 'POST') {
       const { userId, collection } = await parseBody(req);
       await sql`
         INSERT INTO collections (id, user_id, name, description)
@@ -494,8 +522,8 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     }
 
     // 12. DELETE COLLECTION
-    if (url.pathname.startsWith('/api/collections/') && req.method === 'DELETE') {
-      const id = url.pathname.replace('/api/collections/', '');
+    if (pathname.startsWith('/api/collections/') && req.method === 'DELETE') {
+      const id = pathname.replace('/api/collections/', '');
       const userId = url.searchParams.get('userId');
       await sql`DELETE FROM collections WHERE id = ${id} AND user_id = ${userId};`;
       sendJson(res, 200, { success: true });
@@ -503,7 +531,7 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     }
 
     // 13. FILE UPLOAD (Persisted directly as cloud-ready Data URI in Neon PostgreSQL)
-    if (url.pathname === '/api/upload' && req.method === 'POST') {
+    if (pathname === '/api/upload' && req.method === 'POST') {
       const { fileName, base64Data } = await parseBody(req);
       if (!base64Data) {
         sendJson(res, 400, { error: 'Dados da imagem ausentes' });
@@ -518,8 +546,8 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     }
 
     // Serve legacy static /uploads/ files if requested
-    if (url.pathname.startsWith('/uploads/') && req.method === 'GET') {
-      const filePath = path.resolve(process.cwd(), 'public', url.pathname.replace(/^\//, ''));
+    if (pathname.startsWith('/uploads/') && req.method === 'GET') {
+      const filePath = path.resolve(process.cwd(), 'public', pathname.replace(/^\//, ''));
       if (fs.existsSync(filePath)) {
         const ext = path.extname(filePath).toLowerCase();
         const mimeTypes: Record<string, string> = {
@@ -538,7 +566,7 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     }
 
     // 14. BULK OPERATIONS
-    if (url.pathname === '/api/bulk' && req.method === 'POST') {
+    if (pathname === '/api/bulk' && req.method === 'POST') {
       const { userId, action, ids, payload } = await parseBody(req);
       if (!Array.isArray(ids) || ids.length === 0) {
         sendJson(res, 200, { successCount: 0 });

@@ -56,6 +56,13 @@ export function translateAuthError(errorMessage: string): string {
   if (lower.includes('network') || lower.includes('failed to fetch')) {
     return 'Falha na conexão de rede. Verifique seu acesso à internet.';
   }
+  if (
+    lower.includes('unexpected token') ||
+    lower.includes('is not valid json') ||
+    lower.includes('the page could not be found')
+  ) {
+    return 'Serviço temporariamente indisponível. Tente novamente em instantes.';
+  }
   return errorMessage;
 }
 
@@ -94,7 +101,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get('content-type') || '';
+      let data: any = {};
+      if (contentType.includes('application/json')) {
+        try {
+          data = await res.json();
+        } catch {
+          data = {};
+        }
+      } else {
+        return {
+          error: res.status === 404
+            ? 'Serviço de autenticação temporariamente indisponível (404).'
+            : 'Servidor temporariamente indisponível. Tente novamente em instantes.',
+        };
+      }
+
       if (!res.ok) {
         return { error: translateAuthError(data.error || 'Credenciais inválidas.') };
       }
@@ -125,7 +147,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({ email, password, fullName }),
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get('content-type') || '';
+      let data: any = {};
+      if (contentType.includes('application/json')) {
+        try {
+          data = await res.json();
+        } catch {
+          data = {};
+        }
+      } else {
+        return {
+          error: res.status === 404
+            ? 'Serviço de autenticação temporariamente indisponível (404).'
+            : 'Servidor temporariamente indisponível. Tente novamente em instantes.',
+        };
+      }
+
       if (!res.ok) {
         return { error: translateAuthError(data.error || 'Erro ao cadastrar usuário.') };
       }
