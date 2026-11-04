@@ -46,11 +46,13 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content }) => {
         );
       } else if (part.startsWith('[') && part.includes('](') && part.endsWith(')')) {
         const linkText = part.substring(1, part.indexOf(']('));
-        const linkUrl = part.substring(part.indexOf('](') + 2, part.length - 1);
+        const rawUrl = part.substring(part.indexOf('](') + 2, part.length - 1).trim();
+        // XSS Defense: only allow valid HTTP(S) and mailto URLs
+        const isSafeProtocol = /^(https?:\/\/|mailto:)/i.test(rawUrl);
         elements.push(
           <a
             key={keyIdx++}
-            href={linkUrl}
+            href={isSafeProtocol ? rawUrl : '#'}
             target="_blank"
             rel="noopener noreferrer"
             className="text-[#4355DB] hover:underline font-medium"

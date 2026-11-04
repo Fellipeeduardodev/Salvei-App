@@ -3,11 +3,25 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'node:crypto';
 
-const DATABASE_URL =
-  process.env.DATABASE_URL ||
-  'postgresql://neondb_owner:npg_Ae5UkguPb9xq@ep-snowy-glade-b6yep62k.c-2.sa-east-1.aws.neon.tech/neondb?sslmode=require';
+function getDatabaseUrl(): string {
+  if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
+  try {
+    const envPath = path.resolve(process.cwd(), '.env.local');
+    if (fs.existsSync(envPath)) {
+      const content = fs.readFileSync(envPath, 'utf8');
+      const match = content.match(/DATABASE_URL=["']?([^"'\r\n]+)["']?/);
+      if (match && match[1]) return match[1];
+    }
+  } catch {}
+  return '';
+}
 
-export const sql = neon(DATABASE_URL);
+const dbUrl = getDatabaseUrl();
+if (!dbUrl && process.env.NODE_ENV === 'production') {
+  console.error('[SECURITY CONFIG] DATABASE_URL não foi definida nas variáveis de ambiente.');
+}
+
+export const sql = neon(dbUrl || 'postgresql://localhost/dummy');
 
 // Real password hashing with salt + scrypt
 export function hashPassword(password: string): string {
@@ -53,6 +67,9 @@ export function parseBody(req: any): Promise<any> {
 export function sendJson(res: any, status: number, data: any) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.end(JSON.stringify(data));
 }
 

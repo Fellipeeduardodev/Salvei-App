@@ -26,3 +26,4 @@ temp-*
 run-phase7-full-audit.js
 test-mobile-viewports.js
 public/uploads/
+scripts/
