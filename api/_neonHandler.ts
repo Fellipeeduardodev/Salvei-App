@@ -181,6 +181,21 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     return false;
   }
 
+  // 0. HEALTH CHECK / TELEMETRY
+  if (pathname === '/api/ping') {
+    sendJson(res, 200, {
+      ok: true,
+      version: '1.0.1',
+      hasDbUrl: Boolean(getDatabaseUrl()),
+      hasResendKey: Boolean(process.env.RESEND_API_KEY),
+      resendFrom: process.env.RESEND_FROM_EMAIL || 'Salvei <ola@salvei.tech>',
+      appUrl: process.env.APP_URL || 'https://salvei.tech',
+      node: process.version,
+      timestamp: new Date().toISOString(),
+    });
+    return true;
+  }
+
   const dbUrl = getDatabaseUrl();
   if (!dbUrl) {
     sendJson(res, 500, {

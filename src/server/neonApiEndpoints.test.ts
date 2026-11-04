@@ -1,10 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import loginHandler from '../../api/auth/login';
-import forgotPasswordHandler from '../../api/auth/forgot-password';
-import emailTestHandler from '../../api/email/test';
+import { describe, it, expect } from 'vitest';
 import indexHandler from '../../api/index';
 
-describe('Vercel API Handlers', () => {
+describe('Vercel API Handlers (Unified Catch-All)', () => {
   it('direct login handler responds with 400 when missing credentials', async () => {
     let statusCode = 0;
     let headers: Record<string, string> = {};
@@ -25,7 +22,7 @@ describe('Vercel API Handlers', () => {
       get writableEnded() { return Boolean(responseBody); },
     };
 
-    await loginHandler(req, res);
+    await indexHandler(req, res);
     expect(statusCode).toBe(400);
     const parsed = JSON.parse(responseBody);
     expect(parsed.error).toContain('obrigatórios');
@@ -77,7 +74,7 @@ describe('Vercel API Handlers', () => {
       get writableEnded() { return Boolean(responseBody); },
     };
 
-    await loginHandler(req, res);
+    await indexHandler(req, res);
     expect(statusCode).toBe(200);
     const parsed = JSON.parse(responseBody);
     expect(parsed.user.email).toBe('admin@admin.com');
@@ -104,7 +101,7 @@ describe('Vercel API Handlers', () => {
       get writableEnded() { return Boolean(responseBody); },
     };
 
-    await loginHandler(req, res);
+    await indexHandler(req, res);
     expect(statusCode).toBe(401);
     const parsed = JSON.parse(responseBody);
     expect(parsed.error).toBe('E-mail ou senha incorretos.');
@@ -130,7 +127,7 @@ describe('Vercel API Handlers', () => {
       get writableEnded() { return Boolean(responseBody); },
     };
 
-    await forgotPasswordHandler(req, res);
+    await indexHandler(req, res);
     expect(statusCode).toBe(400);
     const parsed = JSON.parse(responseBody);
     expect(parsed.error).toContain('obrigatório');
@@ -156,7 +153,7 @@ describe('Vercel API Handlers', () => {
       get writableEnded() { return Boolean(responseBody); },
     };
 
-    await emailTestHandler(req, res);
+    await indexHandler(req, res);
     expect(statusCode).toBe(400);
     const parsed = JSON.parse(responseBody);
     expect(parsed.error).toContain('destinatário');
