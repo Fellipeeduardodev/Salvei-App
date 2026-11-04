@@ -21,9 +21,16 @@ export function getResendApiKey(): string {
 }
 
 export function getFromEmail(): string {
-  const from = getEnvValue('RESEND_FROM_EMAIL');
-  if (from) return from;
-  return 'Salvei <ola@salvei.tech>';
+  let from = getEnvValue('RESEND_FROM_EMAIL');
+  // Se estiver com o 'ola@' antigo ou em branco, padroniza para contato@salvei.tech
+  if (!from || from.includes('ola@')) {
+    from = 'contato@salvei.tech';
+  }
+  // Garante o nome de exibição oficial "Salvei" no cabeçalho do cliente de e-mail (Gmail/Outlook)
+  if (!from.includes('<')) {
+    return `Salvei <${from}>`;
+  }
+  return from;
 }
 
 export function getAppBaseUrl(): string {
@@ -47,9 +54,11 @@ export function getResendClient(): Resend | null {
 }
 
 /**
- * Base email layout wrapper with Salvei visual identity
+ * Base email layout wrapper with Salvei official visual identity (Cobalt / Indigo Dark)
  */
 function wrapHtmlTemplate(content: string, previewText: string = ''): string {
+  const appUrl = getAppBaseUrl();
+
   return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -58,26 +67,37 @@ function wrapHtmlTemplate(content: string, previewText: string = ''): string {
   <title>Salvei</title>
   <!--[if mso]>
   <style type="text/css">
-    body, table, td { font-family: Arial, Helvetica, sans-serif !important; }
+    body, table, td { font-family: -apple-system, Arial, Helvetica, sans-serif !important; }
   </style>
   <![endif]-->
 </head>
-<body style="margin: 0; padding: 0; background-color: #090a0f; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
-  ${previewText ? `<div style="display: none; max-height: 0px; overflow: hidden; opacity: 0;">${previewText}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>` : ''}
-  <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #090a0f; padding: 40px 16px;">
+<body style="margin: 0; padding: 0; background-color: #0A0B10; color: #F1F4FA; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+  ${previewText ? `<div style="display: none; max-height: 0px; overflow: hidden; opacity: 0; font-size: 1px; line-height: 1px;">${previewText}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>` : ''}
+  <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #0A0B10; padding: 48px 16px;">
     <tr>
       <td align="center">
-        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 560px; background-color: #12141c; border-radius: 20px; border: 1px solid #232736; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
-          <!-- Header -->
+        <!-- Main Card -->
+        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 540px; background-color: #12141D; border-radius: 18px; border: 1px solid #1E2130; overflow: hidden; box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);">
+          <!-- Top Gradient Accent Bar -->
           <tr>
-            <td style="padding: 36px 36px 20px 36px; text-align: left; border-bottom: 1px solid #1e2230;">
+            <td height="3" style="background: linear-gradient(90deg, #4A4CFF 0%, #7678FF 50%, #3032D6 100%); line-height: 3px; font-size: 1px;">&nbsp;</td>
+          </tr>
+
+          <!-- Header with Official Logo -->
+          <tr>
+            <td style="padding: 32px 36px 24px 36px; border-bottom: 1px solid #1A1D2B;">
               <table role="presentation" border="0" cellspacing="0" cellpadding="0">
                 <tr>
-                  <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); width: 36px; height: 36px; border-radius: 10px; text-align: center; vertical-align: middle;">
-                    <span style="font-size: 20px; font-weight: bold; color: #ffffff; line-height: 36px;">S</span>
+                  <td style="vertical-align: middle;">
+                    <a href="${appUrl}" target="_blank" style="text-decoration: none; display: inline-block;">
+                      <img src="${appUrl}/brand/icon-192.png" width="36" height="36" alt="Salvei" style="display: block; width: 36px; height: 36px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.08);" />
+                    </a>
                   </td>
-                  <td style="padding-left: 12px;">
-                    <span style="font-size: 19px; font-weight: 700; letter-spacing: -0.02em; color: #ffffff;">Salvei</span>
+                  <td style="padding-left: 12px; vertical-align: middle;">
+                    <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.04em; color: #FFFFFF; display: block; line-height: 1;">salvei</span>
+                  </td>
+                  <td style="padding-left: 12px; vertical-align: middle;">
+                    <span style="display: inline-block; padding: 3px 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #9C9EFF; background-color: rgba(74, 76, 255, 0.14); border: 1px solid rgba(74, 76, 255, 0.32); border-radius: 6px; line-height: 1;">Ateliê Visual</span>
                   </td>
                 </tr>
               </table>
@@ -86,19 +106,19 @@ function wrapHtmlTemplate(content: string, previewText: string = ''): string {
 
           <!-- Body Content -->
           <tr>
-            <td style="padding: 36px;">
+            <td style="padding: 36px 36px 32px 36px;">
               ${content}
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
-            <td style="padding: 24px 36px; background-color: #0e1017; border-top: 1px solid #1e2230; text-align: center;">
-              <p style="margin: 0 0 8px 0; font-size: 13px; color: #717b94;">
+            <td style="padding: 24px 36px; background-color: #0D0E15; border-top: 1px solid #1A1D2B; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 500; color: #7B849D;">
                 Salvei · Ateliê Visual & Curadoria Inteligente
               </p>
-              <p style="margin: 0; font-size: 12px; color: #4b556b;">
-                Domínio oficial <a href="https://salvei.tech" style="color: #10b981; text-decoration: none;">salvei.tech</a>. Se não esperava este e-mail, pode desconsiderá-lo.
+              <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #4E556C;">
+                Enviado com segurança a partir de <a href="${appUrl}" style="color: #6C6EFF; text-decoration: none; font-weight: 500;">salvei.tech</a>. Se não solicitou, basta ignorar.
               </p>
             </td>
           </tr>
@@ -124,36 +144,50 @@ export async function sendWelcomeEmail(to: string, fullName?: string): Promise<{
   const appUrl = getAppBaseUrl();
 
   const content = `
-    <h1 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 700; color: #ffffff; letter-spacing: -0.02em;">
+    <h1 style="margin: 0 0 14px 0; font-size: 22px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.025em; line-height: 1.3;">
       Boas-vindas ao Salvei, ${firstName}! ✨
     </h1>
-    <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6; color: #9aa4bf;">
-      Sua conta foi criada com sucesso. O Salvei é o seu espaço dedicado para guardar, curar e explorar referências de design, produtos e interfaces sem distrações.
+    <p style="margin: 0 0 22px 0; font-size: 15px; line-height: 1.65; color: #9AA3BB;">
+      Sua conta está criada e pronta. O Salvei é seu espaço dedicado para guardar, curar e conectar referências visuais com inteligência e velocidade.
     </p>
 
-    <div style="background-color: #181b26; border: 1px solid #282d3f; border-radius: 12px; padding: 20px; margin: 0 0 28px 0;">
-      <p style="margin: 0 0 12px 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #10b981;">
-        O que você pode fazer agora:
+    <!-- Checklist / Features Box -->
+    <div style="background-color: #171924; border: 1px solid #23273A; border-radius: 12px; padding: 20px; margin: 0 0 28px 0;">
+      <p style="margin: 0 0 14px 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #7678FF;">
+        Primeiros passos no ateliê:
       </p>
-      <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8; color: #c4ccdf;">
-        <li><strong>Arraste qualquer imagem</strong> ou cole links para extrair paletas cromáticas instantâneas.</li>
-        <li><strong>Crie Coleções e Projetos</strong> para organizar suas inspirações por tema ou cliente.</li>
-        <li><strong>Atalhos de teclado rápidos:</strong> use <code>G</code> para visualização em grade e <code>F</code> para filtros.</li>
-      </ul>
+      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td style="padding: 6px 0; font-size: 14px; line-height: 1.5; color: #CBD3E3;">
+            <strong style="color: #FFFFFF;">• Capture Inspirações:</strong> Arraste imagens ou cole URLs para extração automática de paleta de cores.
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; font-size: 14px; line-height: 1.5; color: #CBD3E3;">
+            <strong style="color: #FFFFFF;">• Organize com Foco:</strong> Separe suas referências por Projetos e Coleções temáticas.
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; font-size: 14px; line-height: 1.5; color: #CBD3E3;">
+            <strong style="color: #FFFFFF;">• Navegação Pro:</strong> Pressione <code style="background-color: #0F1017; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #9C9EFF;">G</code> para grade e <code style="background-color: #0F1017; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #9C9EFF;">F</code> para filtros rápidos.
+          </td>
+        </tr>
+      </table>
     </div>
 
+    <!-- CTA Button -->
     <table role="presentation" border="0" cellspacing="0" cellpadding="0" style="margin: 0 0 24px 0;">
       <tr>
-        <td align="center" style="border-radius: 10px; background-color: #10b981;">
-          <a href="${appUrl}" target="_blank" style="display: inline-block; padding: 14px 28px; font-size: 15px; font-weight: 600; color: #090a0f; text-decoration: none; border-radius: 10px;">
+        <td align="center" style="border-radius: 10px; background: linear-gradient(135deg, #4A4CFF 0%, #3032D6 100%);">
+          <a href="${appUrl}" target="_blank" style="display: inline-block; padding: 14px 32px; font-size: 15px; font-weight: 600; color: #FFFFFF; text-decoration: none; border-radius: 10px; box-shadow: 0 4px 16px rgba(74, 76, 255, 0.35); letter-spacing: -0.01em;">
             Acessar Meu Ateliê &rarr;
           </a>
         </td>
       </tr>
     </table>
 
-    <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #717b94;">
-      Precisa de ajuda ou tem sugestões? Basta responder a este e-mail.
+    <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #6E7690;">
+      Dúvidas ou sugestões? Basta responder a esta mensagem a qualquer momento.
     </p>
   `;
 
@@ -195,35 +229,38 @@ export async function sendPasswordResetEmail(
   const nameGreeting = fullName ? `, ${fullName.split(' ')[0]}` : '';
 
   const content = `
-    <h1 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 700; color: #ffffff; letter-spacing: -0.02em;">
-      Recuperação de Senha 🔒
+    <h1 style="margin: 0 0 14px 0; font-size: 22px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.025em; line-height: 1.3;">
+      Recuperação de Senha
     </h1>
-    <p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.6; color: #9aa4bf;">
-      Olá${nameGreeting}! Recebemos uma solicitação para redefinir a senha da sua conta no Salvei.
+    <p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.65; color: #9AA3BB;">
+      Olá${nameGreeting}! Recebemos uma solicitação para redefinir a senha de acesso à sua conta no Salvei.
     </p>
-    <p style="margin: 0 0 28px 0; font-size: 15px; line-height: 1.6; color: #9aa4bf;">
-      Clique no botão abaixo para definir uma nova senha:
+    <p style="margin: 0 0 28px 0; font-size: 15px; line-height: 1.65; color: #9AA3BB;">
+      Clique no botão abaixo para definir sua nova senha com segurança:
     </p>
 
+    <!-- CTA Button -->
     <table role="presentation" border="0" cellspacing="0" cellpadding="0" style="margin: 0 0 28px 0;">
       <tr>
-        <td align="center" style="border-radius: 10px; background-color: #10b981;">
-          <a href="${resetUrl}" target="_blank" style="display: inline-block; padding: 14px 28px; font-size: 15px; font-weight: 600; color: #090a0f; text-decoration: none; border-radius: 10px;">
+        <td align="center" style="border-radius: 10px; background: linear-gradient(135deg, #4A4CFF 0%, #3032D6 100%);">
+          <a href="${resetUrl}" target="_blank" style="display: inline-block; padding: 14px 34px; font-size: 15px; font-weight: 600; color: #FFFFFF; text-decoration: none; border-radius: 10px; box-shadow: 0 4px 18px rgba(74, 76, 255, 0.38); letter-spacing: -0.01em;">
             Redefinir Minha Senha &rarr;
           </a>
         </td>
       </tr>
     </table>
 
-    <div style="background-color: #181b26; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 14px 16px; margin: 0 0 24px 0;">
-      <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #d1d5db;">
-        <strong>Importante:</strong> Este link é válido por <strong>1 hora</strong>. Se você não solicitou a redefinição de senha, nenhuma ação é necessária e sua conta permanece totalmente segura.
+    <!-- Security Notice Card -->
+    <div style="background-color: #171924; border: 1px solid #23273A; border-left: 3px solid #4A4CFF; border-radius: 10px; padding: 16px; margin: 0 0 24px 0;">
+      <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #CBD3E3;">
+        <strong style="color: #FFFFFF;">Validade de 1 hora:</strong> Este link foi gerado de forma segura e expira automaticamente em 60 minutos. Se você não fez essa solicitação, nenhuma ação é necessária e sua senha atual permanece protegida.
       </p>
     </div>
 
-    <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #717b94;">
-      Se o botão acima não funcionar, copie e cole este link no seu navegador:<br>
-      <a href="${resetUrl}" style="color: #10b981; word-break: break-all;">${resetUrl}</a>
+    <!-- Direct URL Fallback -->
+    <p style="margin: 0; font-size: 12px; line-height: 1.6; color: #6E7690;">
+      Se o botão acima não abrir, copie e cole este link seguro no navegador:<br>
+      <a href="${resetUrl}" style="color: #6C6EFF; text-decoration: underline; word-break: break-all;">${resetUrl}</a>
     </p>
   `;
 
@@ -259,36 +296,36 @@ export async function sendTestEmail(to: string): Promise<{ success: boolean; id?
 
   const from = getFromEmail();
   const content = `
-    <h1 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 700; color: #10b981; letter-spacing: -0.02em;">
-      Resend configurado com sucesso! 🎉
+    <h1 style="margin: 0 0 14px 0; font-size: 22px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.025em; line-height: 1.3;">
+      E-mail do Salvei Configurado! ✨
     </h1>
-    <p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.6; color: #9aa4bf;">
-      Este é um e-mail de teste enviado diretamente pelo <strong>Salvei</strong> através do domínio oficial <strong>salvei.tech</strong>.
+    <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.65; color: #9AA3BB;">
+      Este é um e-mail oficial de teste enviado com o novo design do <strong>Salvei</strong> através do domínio <strong>salvei.tech</strong>.
     </p>
 
-    <div style="background-color: #181b26; border: 1px solid #282d3f; border-radius: 12px; padding: 18px; margin: 0 0 24px 0;">
-      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="4" style="font-size: 14px; color: #c4ccdf;">
+    <div style="background-color: #171924; border: 1px solid #23273A; border-radius: 12px; padding: 18px; margin: 0 0 24px 0;">
+      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="6" style="font-size: 14px; color: #CBD3E3;">
         <tr>
-          <td style="color: #717b94; width: 120px;">Domínio:</td>
-          <td style="font-weight: 600; color: #ffffff;">salvei.tech (Verificado)</td>
+          <td style="color: #6E7690; width: 120px;">Domínio:</td>
+          <td style="font-weight: 600; color: #FFFFFF;">salvei.tech</td>
         </tr>
         <tr>
-          <td style="color: #717b94;">Remetente:</td>
-          <td style="font-family: monospace; color: #10b981;">${from}</td>
+          <td style="color: #6E7690;">Remetente:</td>
+          <td style="font-family: monospace; color: #9C9EFF;">${from}</td>
         </tr>
         <tr>
-          <td style="color: #717b94;">Status DNS:</td>
-          <td style="color: #10b981; font-weight: 600;">✓ SPF, DKIM e DMARC Ativos</td>
+          <td style="color: #6E7690;">Identidade:</td>
+          <td style="color: #4A4CFF; font-weight: 600;">Doop Design System 2.0 (Cobalt)</td>
         </tr>
         <tr>
-          <td style="color: #717b94;">Região:</td>
-          <td>São Paulo (sa-east-1)</td>
+          <td style="color: #6E7690;">Status:</td>
+          <td style="color: #10B981; font-weight: 600;">✓ Autenticado via Resend</td>
         </tr>
       </table>
     </div>
 
-    <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #717b94;">
-      Tudo pronto para envio de e-mails transacionais em produção!
+    <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #6E7690;">
+      Seu sistema de e-mails transacionais está pronto para operar em produção!
     </p>
   `;
 

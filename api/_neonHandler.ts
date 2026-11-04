@@ -188,7 +188,7 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
       version: '1.0.1',
       hasDbUrl: Boolean(getDatabaseUrl()),
       hasResendKey: Boolean(process.env.RESEND_API_KEY),
-      resendFrom: process.env.RESEND_FROM_EMAIL || 'Salvei <ola@salvei.tech>',
+      resendFrom: process.env.RESEND_FROM_EMAIL || 'Salvei <contato@salvei.tech>',
       appUrl: process.env.APP_URL || 'https://salvei.tech',
       node: process.version,
       timestamp: new Date().toISOString(),
