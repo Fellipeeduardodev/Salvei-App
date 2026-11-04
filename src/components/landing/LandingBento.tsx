@@ -54,11 +54,10 @@ export const LandingBento: React.FC<LandingBentoProps> = ({ onOpenAuth }) => {
 
               <div className="relative overflow-hidden bg-[#F1EFE9] border-t border-[#DFD8CC] h-72 sm:h-96">
                 <img
-                  src="/brand/hero-variations/hero-04-immersive-library.png"
+                  src="/brand/hero-variations/hero-04-immersive-library.webp"
                   alt="Biblioteca Geral com visualização em grade e filtros por tags"
                   className="w-full h-full object-cover object-top"
-                  loading="lazy"
-                />
+                  loading="lazy" decoding="async" />
               </div>
             </div>
 
@@ -123,11 +122,10 @@ export const LandingBento: React.FC<LandingBentoProps> = ({ onOpenAuth }) => {
             <div className="gsap-bento-card bg-white rounded-3xl border border-[#DFD8CC] overflow-hidden shadow-xs flex flex-col justify-between text-left">
               <div className="h-64 sm:h-72 overflow-hidden relative bg-[#F1EFE9]">
                 <img
-                  src="/brand/hero-variations/hero-03-layered-interface.png"
+                  src="/brand/hero-variations/hero-03-layered-interface.webp"
                   alt="Painel lateral com notas do designer, URL e tags"
                   className="w-full h-full object-cover object-right-top"
-                  loading="lazy"
-                />
+                  loading="lazy" decoding="async" />
               </div>
 
               <div className="p-8 sm:p-9 flex-1 flex flex-col justify-between">
@@ -160,11 +158,10 @@ export const LandingBento: React.FC<LandingBentoProps> = ({ onOpenAuth }) => {
             <div className="gsap-bento-card bg-white rounded-3xl border border-[#DFD8CC] overflow-hidden shadow-xs flex flex-col justify-between text-left">
               <div className="h-64 sm:h-72 overflow-hidden relative bg-[#F1EFE9]">
                 <img
-                  src="/brand/hero-variations/hero-01-floating-product.png"
+                  src="/brand/hero-variations/hero-01-floating-product.webp"
                   alt="Espaço de trabalho organizado por projetos e coleções"
                   className="w-full h-full object-cover object-left-top"
-                  loading="lazy"
-                />
+                  loading="lazy" decoding="async" />
               </div>
 
               <div className="p-8 sm:p-9 flex-1 flex flex-col justify-between">

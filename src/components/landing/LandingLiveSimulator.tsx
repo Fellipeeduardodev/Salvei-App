@@ -19,7 +19,7 @@ const SAMPLES: SimulatorSample[] = [
     domain: 'linear.app',
     title: 'Linear Method — Principles for Product Management',
     badge: 'Design System & UI',
-    image: '/brand/digital-design-system-spec-02.jpg',
+    image: '/brand/digital-design-system-spec-02.webp',
     palette: [
       { hex: '#0F172A', name: 'Dark Navy' },
       { hex: '#4355DB', name: 'Cobalt' },
@@ -34,7 +34,7 @@ const SAMPLES: SimulatorSample[] = [
     domain: 'stripe.com',
     title: 'Stripe Sessions — The Future of Global Economic Infrastructure',
     badge: 'Fintech & Design',
-    image: '/brand/digital-interface-grid-01.jpg',
+    image: '/brand/digital-interface-grid-01.webp',
     palette: [
       { hex: '#0A2540', name: 'Stripe Dark' },
       { hex: '#635BFF', name: 'Stripe Indigo' },
@@ -49,7 +49,7 @@ const SAMPLES: SimulatorSample[] = [
     domain: 'kinfolk.com',
     title: 'Kinfolk Ateliê — Concrete, Light and Minimal Living Spaces',
     badge: 'Editorial & Arquitetura',
-    image: '/brand/editorial-architecture-01.jpg',
+    image: '/brand/editorial-architecture-01.webp',
     palette: [
       { hex: '#292524', name: 'Stone' },
       { hex: '#A8A29E', name: 'Warm Gray' },
@@ -168,8 +168,7 @@ export const LandingLiveSimulator: React.FC = () => {
                       src={selectedSample.image}
                       alt={selectedSample.title}
                       className="w-full h-full object-cover object-top"
-                      loading="lazy"
-                    />
+                      loading="lazy" decoding="async" />
                   </div>
                 </div>
 

@@ -39,6 +39,9 @@ Na seção **Settings > Environment Variables**, adicione as seguintes variávei
 | `DATABASE_URL` | `postgresql://neondb_owner:senha@ep-...sa-east-1.aws.neon.tech/neondb?sslmode=require` | String de conexão com pooling do Neon |
 | `DATABASE_URL_UNPOOLED` | `postgresql://neondb_owner:senha@ep-...sa-east-1.aws.neon.tech/neondb?sslmode=require` | Conexão direta sem pooling |
 | `VITE_GEMINI_API_KEY` | `AQ.Ab8RN6...` | Chave de API Google Gemini para OCR |
+| `RESEND_API_KEY` | `re_123456789...` | Chave de API do Resend (resend.com/api-keys) |
+| `RESEND_FROM_EMAIL` | `Salvei <ola@salvei.tech>` | Remetente com o domínio verificado `salvei.tech` |
+| `APP_URL` | `https://salvei.tech` | URL canônica da aplicação |
 
 > **Importante:** Marque essas variáveis para os ambientes **Production**, **Preview** e **Development**.
 

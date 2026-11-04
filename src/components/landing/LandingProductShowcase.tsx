@@ -26,19 +26,19 @@ export const LandingProductShowcase: React.FC<LandingProductShowcaseProps> = ({
     {
       id: 'interface' as const,
       name: 'Busca ⌘K & Detalhes',
-      img: '/brand/hero-variations/hero-03-layered-interface.png',
+      img: '/brand/hero-variations/hero-03-layered-interface.webp',
       caption: 'Busca rápida pelo teclado ⌘K e painel lateral com suas notas e cores',
     },
     {
       id: 'harmonics' as const,
       name: 'Tela Principal',
-      img: '/brand/hero-variations/hero-06-full-width-experience.png',
+      img: '/brand/hero-variations/hero-06-full-width-experience.webp',
       caption: 'Sua tela de trabalho com sidebar de projetos, coleções e filtros por etiquetas',
     },
     {
       id: 'grid' as const,
       name: 'Grade de Referências',
-      img: '/brand/hero-variations/hero-04-immersive-library.png',
+      img: '/brand/hero-variations/hero-04-immersive-library.webp',
       caption: 'Navegação visual nítida por todas as suas referências salvas',
     },
   ];
@@ -131,8 +131,7 @@ export const LandingProductShowcase: React.FC<LandingProductShowcaseProps> = ({
                   src={currentTab.img}
                   alt={currentTab.caption}
                   className="w-full h-auto object-contain block transition-all duration-500 group-hover:scale-[1.01] animate-fadeIn"
-                  loading="lazy"
-                />
+                  loading="lazy" decoding="async" />
               </div>
 
               {/* Overlay with active tab indicator */}

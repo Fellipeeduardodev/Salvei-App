@@ -38,13 +38,17 @@
     <meta name="twitter:title" content="Salvei — sua biblioteca visual para guardar, organizar e reencontrar referências de design." />
     <meta name="twitter:description" content="Salvei — sua biblioteca visual para guardar, organizar e reencontrar referências de design." />
 
-    <!-- Google Fonts: Inter, Outfit, JetBrains Mono -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Inter, Outfit, JetBrains Mono (Non-render-blocking) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap" media="print" onload="this.media='all'" />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap" />
+    </noscript>
 
-    <!-- Doop Design Sync -->
-    <script async src="http://localhost:4300/doop-sync.js?key=dk_ORXfc9Jc1gRTMM4pM5VhVwd2"></script>
+    <!-- Preload Primary LCP Image -->
+    <link rel="preload" as="image" href="/brand/digital-design-system-spec-02.webp" type="image/webp" fetchpriority="high" />
   </head>
   <body class="bg-[#F8F8F6] text-[#171717] antialiased selection:bg-[#171717] selection:text-white overflow-x-hidden">
     <div id="root"></div>

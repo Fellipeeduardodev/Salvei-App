@@ -17,11 +17,10 @@ export const LandingGlobalCommunity: React.FC = () => {
         {/* Real 3D World Map Specimen */}
         <div className="relative max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(25,20,15,0.12)] border border-[#DFD8CC] bg-white mb-12">
           <img
-            src="/brand/global-creators-map.jpg"
+            src="/brand/global-creators-map.webp"
             alt="Rede de criadores ao redor do mundo utilizando Salvei"
             className="w-full h-auto object-cover block"
-            loading="lazy"
-          />
+            loading="lazy" decoding="async" />
         </div>
 
         {/* 3 Real Use Cases (No fake testimonial personas) */}

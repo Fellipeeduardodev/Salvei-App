@@ -29,6 +29,7 @@ export interface AuthContextType {
   ) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error?: string }>;
+  confirmPasswordReset: (token: string, newPassword: string) => Promise<{ error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -189,8 +190,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const resetPassword = async (email: string) => {
-    // Instant password reset without email friction
-    return {};
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const contentType = res.headers.get('content-type') || '';
+      let data: any = {};
+      if (contentType.includes('application/json')) {
+        try {
+          data = await res.json();
+        } catch {
+          data = {};
+        }
+      }
+
+      if (!res.ok) {
+        return { error: translateAuthError(data.error || 'Erro ao enviar e-mail de recuperação.') };
+      }
+
+      return {};
+    } catch (err: any) {
+      return { error: translateAuthError(err.message || 'Erro inesperado ao solicitar recuperação.') };
+    }
+  };
+
+  const confirmPasswordReset = async (token: string, newPassword: string) => {
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, newPassword }),
+      });
+
+      const contentType = res.headers.get('content-type') || '';
+      let data: any = {};
+      if (contentType.includes('application/json')) {
+        try {
+          data = await res.json();
+        } catch {
+          data = {};
+        }
+      }
+
+      if (!res.ok) {
+        return { error: translateAuthError(data.error || 'Erro ao redefinir senha.') };
+      }
+
+      return {};
+    } catch (err: any) {
+      return { error: translateAuthError(err.message || 'Erro inesperado ao redefinir senha.') };
+    }
   };
 
   const value = useMemo(
@@ -203,6 +255,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       signUpWithPassword,
       signOut,
       resetPassword,
+      confirmPasswordReset,
     }),
     [user, session, loading, isConfigured]
   );

@@ -18,7 +18,7 @@ const CURATED_REFERENCES: CuratedItem[] = [
     source: 'kinfolk.com',
     category: 'Arquitetura & Espaço',
     tags: ['#arquitetura', '#luz-natural', '#concreto'],
-    image: '/brand/editorial-architecture-01.jpg',
+    image: '/brand/editorial-architecture-01.webp',
     aspect: 'aspect-4/3',
   },
   {
@@ -27,7 +27,7 @@ const CURATED_REFERENCES: CuratedItem[] = [
     source: 'linear.app',
     category: 'Produto Digital & Dark Mode',
     tags: ['#interface', '#dark-mode', '#grid-16-10'],
-    image: '/brand/digital-interface-grid-01.jpg',
+    image: '/brand/digital-interface-grid-01.webp',
     aspect: 'aspect-3/4',
   },
   {
@@ -36,7 +36,7 @@ const CURATED_REFERENCES: CuratedItem[] = [
     source: 'letterpress.ch',
     category: 'Tipografia & Tradição Gráfica',
     tags: ['#tipografia', '#letterpress', '#swiss'],
-    image: '/brand/editorial-typography-print-02.jpg',
+    image: '/brand/editorial-typography-print-02.webp',
     aspect: 'aspect-4/3',
   },
   {
@@ -45,7 +45,7 @@ const CURATED_REFERENCES: CuratedItem[] = [
     source: 'tokens.studio',
     category: 'Frontend & Tokens',
     tags: ['#tokens', '#tailwind', '#design-system'],
-    image: '/brand/digital-design-system-spec-02.jpg',
+    image: '/brand/digital-design-system-spec-02.webp',
     aspect: 'aspect-4/3',
   },
   {
@@ -54,7 +54,7 @@ const CURATED_REFERENCES: CuratedItem[] = [
     source: 'are.na/fellipe',
     category: 'Direção de Arte & Setup',
     tags: ['#studio', '#analog-digital', '#editorial'],
-    image: '/brand/hybrid-studio-still-01.jpg',
+    image: '/brand/hybrid-studio-still-01.webp',
     aspect: 'aspect-4/3',
   },
 ];
@@ -86,8 +86,7 @@ export const LandingCuration: React.FC = () => {
                   src={CURATED_REFERENCES[0].image}
                   alt={CURATED_REFERENCES[0].title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                />
+                  loading="lazy" decoding="async" />
                 <span className="absolute top-3 right-3 px-2 py-0.5 rounded text-[10px] font-['JetBrains_Mono'] bg-black/75 text-white backdrop-blur-xs">
                   {CURATED_REFERENCES[0].source}
                 </span>
@@ -115,8 +114,7 @@ export const LandingCuration: React.FC = () => {
                   src={CURATED_REFERENCES[3].image}
                   alt={CURATED_REFERENCES[3].title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                />
+                  loading="lazy" decoding="async" />
                 <span className="absolute top-3 right-3 px-2 py-0.5 rounded text-[10px] font-['JetBrains_Mono'] bg-black/75 text-white backdrop-blur-xs">
                   {CURATED_REFERENCES[3].source}
                 </span>
@@ -147,8 +145,7 @@ export const LandingCuration: React.FC = () => {
                   src={CURATED_REFERENCES[1].image}
                   alt={CURATED_REFERENCES[1].title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                />
+                  loading="lazy" decoding="async" />
                 <span className="absolute top-3 right-3 px-2 py-0.5 rounded text-[10px] font-['JetBrains_Mono'] bg-black/75 text-white backdrop-blur-xs">
                   {CURATED_REFERENCES[1].source}
                 </span>
@@ -179,8 +176,7 @@ export const LandingCuration: React.FC = () => {
                   src={CURATED_REFERENCES[2].image}
                   alt={CURATED_REFERENCES[2].title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                />
+                  loading="lazy" decoding="async" />
                 <span className="absolute top-3 right-3 px-2 py-0.5 rounded text-[10px] font-['JetBrains_Mono'] bg-black/75 text-white backdrop-blur-xs">
                   {CURATED_REFERENCES[2].source}
                 </span>
@@ -208,8 +204,7 @@ export const LandingCuration: React.FC = () => {
                   src={CURATED_REFERENCES[4].image}
                   alt={CURATED_REFERENCES[4].title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                />
+                  loading="lazy" decoding="async" />
                 <span className="absolute top-3 right-3 px-2 py-0.5 rounded text-[10px] font-['JetBrains_Mono'] bg-black/75 text-white backdrop-blur-xs">
                   {CURATED_REFERENCES[4].source}
                 </span>

@@ -213,10 +213,10 @@ export const LandingWorkflow: React.FC = () => {
                     <div className="bg-white rounded-2xl border border-[#DFD8CC] p-4 shadow-sm flex items-center gap-4">
                       <div className="w-24 h-18 bg-slate-900 rounded-lg overflow-hidden shrink-0 border border-slate-200 relative group">
                         <img
-                          src="/brand/hero-variations/hero-01-floating-product.png"
+                          src="/brand/hero-variations/hero-01-floating-product.webp"
                           alt="Linear Specimen"
                           className="w-full h-full object-cover"
-                        />
+                        loading="lazy" decoding="async" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">

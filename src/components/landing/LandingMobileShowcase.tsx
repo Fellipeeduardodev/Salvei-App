@@ -64,11 +64,10 @@ export const LandingMobileShowcase: React.FC = () => {
           <div className="lg:col-span-6 flex justify-center gsap-mobile-right">
             <div className="relative w-full max-w-lg rounded-3xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(25,20,15,0.14)] border border-[#DDD5C8] bg-white">
               <img
-                src="/brand/mobile-showcase.jpg"
+                src="/brand/mobile-showcase.webp"
                 alt="Designer usando o Salvei no celular ao lado de livros de design"
                 className="w-full h-auto object-cover block"
-                loading="lazy"
-              />
+                loading="lazy" decoding="async" />
             </div>
           </div>
 

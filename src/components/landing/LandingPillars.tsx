@@ -71,7 +71,7 @@ const INSPIRATION_ITEMS: InspirationItem[] = [
     title: 'Kroma Studio — Sistema Gráfico & Papelaria',
     domain: 'behance.net',
     sourceUrl: 'https://behance.net/gallery/kroma-identity',
-    image: '/brand/digital-design-system-spec-02.jpg',
+    image: '/brand/digital-design-system-spec-02.webp',
     description: 'Sistema completo de identidade visual, tipografia institucional e paleta contrastante.',
     tags: ['#branding', '#logotipo', '#paleta', '#design-system'],
     colors: ['#4355DB', '#F59E0B', '#10B981', '#18181B'],
@@ -85,7 +85,7 @@ const INSPIRATION_ITEMS: InspirationItem[] = [
     title: 'Workspace Grid & Arquitetura Dark Mode',
     domain: 'linear.app',
     sourceUrl: 'https://linear.app/method',
-    image: '/brand/digital-interface-grid-01.jpg',
+    image: '/brand/digital-interface-grid-01.webp',
     description: 'Alta densidade de informação, atalhos de teclado ágeis e tipografia monospaçada.',
     tags: ['#ui-ux', '#dark-mode', '#grid-system', '#linear'],
     colors: ['#121316', '#5E6AD2', '#8A99AD'],
@@ -99,7 +99,7 @@ const INSPIRATION_ITEMS: InspirationItem[] = [
     title: 'Editorial New & Satoshi — Harmonia Suíça',
     domain: 'fontshare.com',
     sourceUrl: 'https://fontshare.com/specimen/satoshi',
-    image: '/brand/editorial-typography-print-02.jpg',
+    image: '/brand/editorial-typography-print-02.webp',
     description: 'Tipografia impressa em baixo-relevo com contrastes serifados e grotescos precisos.',
     tags: ['#tipografia', '#letterpress', '#swiss-type', '#serif'],
     colors: ['#EAE4D9', '#2C2B29', '#C2410C'],
@@ -117,7 +117,7 @@ const INSPIRATION_ITEMS: InspirationItem[] = [
     title: 'Luz Natural, Grão Analógico & Cores Quentes',
     domain: 'are.na',
     sourceUrl: 'https://are.na/block/analog-light',
-    image: '/brand/creator-portrait.jpg',
+    image: '/brand/creator-portrait.webp',
     description: 'Fotografia 35mm com iluminação lateral quente, paleta terrosa e textura orgânica.',
     tags: ['#fotografia', '#moodboard', '#luz-natural', '#35mm'],
     colors: ['#D4B996', '#8B5E3C', '#2A201A', '#F7F3EE'],
@@ -131,7 +131,7 @@ const INSPIRATION_ITEMS: InspirationItem[] = [
     title: 'Monografia Suíça: Concreto, Grade & Ritmo',
     domain: 'kinfolk.com',
     sourceUrl: 'https://kinfolk.com/issue-42',
-    image: '/brand/editorial-architecture-01.jpg',
+    image: '/brand/editorial-architecture-01.webp',
     description: 'Diagramação editorial rígida em 12 colunas para monografia arquitetônica contemporânea.',
     tags: ['#editorial', '#print', '#grid-suíço', '#diagramação'],
     colors: ['#1E1E1E', '#9E9E9E', '#FAFAFA'],
@@ -145,7 +145,7 @@ const INSPIRATION_ITEMS: InspirationItem[] = [
     title: 'Pavilhão Monolítico em Concreto Aparente',
     domain: 'dezeen.com',
     sourceUrl: 'https://dezeen.com/spatial-monolith',
-    image: '/brand/hero-product-mockup-16x9.jpg',
+    image: '/brand/hero-product-mockup-16x9.webp',
     description: 'Estudo volumétrico em 3D de concreto ripado com incidência solar zenital.',
     tags: ['#arquitetura', '#3d-render', '#brutalismo', '#luz'],
     colors: ['#27272A', '#71717A', '#F4F4F5'],
@@ -454,8 +454,7 @@ export const LandingPillars: React.FC = () => {
                       src={item.image}
                       alt={item.title}
                       loading="lazy"
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" decoding="async" />
 
                     {/* Gradient Overlay for Top Badges Legibility */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/40 pointer-events-none" />

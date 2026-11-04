@@ -29,19 +29,19 @@ const CAROUSEL_SLIDES = [
     tag: '[ ATELIÊ DIGITAL • 2026 ]',
     title: 'Biblioteca Visual Curada',
     subtitle: 'Guarde capturas em alta resolução de sites, tipografias suíças e paletas em um só lugar.',
-    image: '/brand/auth-salvei-showcase-1.jpg',
+    image: '/brand/auth-salvei-showcase-1.webp',
   },
   {
     tag: '[ WORKSPACE PRIVADO ]',
     title: 'Design de Alta Precisão',
     subtitle: 'Inspirado no rigor editorial suíço e na velocidade do Linear para o seu fluxo criativo.',
-    image: '/brand/auth-salvei-showcase-2.jpg',
+    image: '/brand/auth-salvei-showcase-2.webp',
   },
   {
     tag: '[ FLUXO DE 1 CLIQUE ]',
     title: 'Capture Agora. Encontre Depois.',
     subtitle: 'Extraia automaticamente cores hexadecimais, anotações de layout e trechos de código.',
-    image: '/brand/auth-salvei-showcase-3.jpg',
+    image: '/brand/auth-salvei-showcase-3.webp',
   },
 ];
 
@@ -212,7 +212,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
       {/* ========================================================= */}
       <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
         <img
-          src="/brand/auth-salvei-showcase-1.jpg"
+          src="/brand/auth-salvei-showcase-1.webp"
           alt=""
           className="w-full h-full object-cover opacity-20 filter blur-xl scale-110"
         />

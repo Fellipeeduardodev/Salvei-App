@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import loginHandler from '../../api/auth/login';
+import forgotPasswordHandler from '../../api/auth/forgot-password';
+import emailTestHandler from '../../api/email/test';
 import indexHandler from '../../api/index';
 
 describe('Vercel API Handlers', () => {
@@ -106,5 +108,57 @@ describe('Vercel API Handlers', () => {
     expect(statusCode).toBe(401);
     const parsed = JSON.parse(responseBody);
     expect(parsed.error).toBe('E-mail ou senha incorretos.');
+  });
+
+  it('forgot-password handler validates required email field', async () => {
+    let statusCode = 0;
+    let headers: Record<string, string> = {};
+    let responseBody = '';
+
+    const req = {
+      method: 'POST',
+      url: '/api/auth/forgot-password',
+      headers: { host: 'localhost:3000' },
+      body: { email: '' },
+    };
+
+    const res = {
+      set statusCode(code: number) { statusCode = code; },
+      get statusCode() { return statusCode; },
+      setHeader(name: string, value: string) { headers[name] = value; },
+      end(data: string) { responseBody = data; },
+      get writableEnded() { return Boolean(responseBody); },
+    };
+
+    await forgotPasswordHandler(req, res);
+    expect(statusCode).toBe(400);
+    const parsed = JSON.parse(responseBody);
+    expect(parsed.error).toContain('obrigatório');
+  });
+
+  it('email test handler validates recipient param', async () => {
+    let statusCode = 0;
+    let headers: Record<string, string> = {};
+    let responseBody = '';
+
+    const req = {
+      method: 'POST',
+      url: '/api/email/test',
+      headers: { host: 'localhost:3000' },
+      body: {},
+    };
+
+    const res = {
+      set statusCode(code: number) { statusCode = code; },
+      get statusCode() { return statusCode; },
+      setHeader(name: string, value: string) { headers[name] = value; },
+      end(data: string) { responseBody = data; },
+      get writableEnded() { return Boolean(responseBody); },
+    };
+
+    await emailTestHandler(req, res);
+    expect(statusCode).toBe(400);
+    const parsed = JSON.parse(responseBody);
+    expect(parsed.error).toContain('destinatário');
   });
 });

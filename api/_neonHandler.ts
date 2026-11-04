@@ -2,6 +2,7 @@ import { neon } from '@neondatabase/serverless';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { sendWelcomeEmail, sendPasswordResetEmail, sendTestEmail, getAppBaseUrl } from './_emailService.js';
 
 export function getDatabaseUrl(): string {
   if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
@@ -53,6 +54,42 @@ export function verifyPassword(password: string, storedHash?: string | null): bo
     return crypto.timingSafeEqual(keyBuffer, derivedKey);
   } catch {
     return false;
+  }
+}
+
+const RESET_TOKEN_SECRET = process.env.RESET_SECRET || 'salvei-secure-pwd-reset-salt-2026';
+
+export function generateResetToken(userId: string, currentPasswordHash: string): string {
+  const expiresAt = Date.now() + 3600 * 1000; // 1 hora de validade
+  const payload = `${userId}:${expiresAt}`;
+  const hmac = crypto.createHmac('sha256', RESET_TOKEN_SECRET)
+    .update(`${payload}:${currentPasswordHash}`)
+    .digest('hex');
+  return Buffer.from(`${payload}:${hmac}`).toString('base64url');
+}
+
+export function verifyResetToken(token: string, currentPasswordHash: string): { valid: boolean; userId?: string } {
+  try {
+    const decoded = Buffer.from(token, 'base64url').toString('utf8');
+    const parts = decoded.split(':');
+    if (parts.length < 3) return { valid: false };
+    const [userId, expiresAtStr, signature] = parts;
+    if (!userId || !expiresAtStr || !signature) return { valid: false };
+
+    const expiresAt = parseInt(expiresAtStr, 10);
+    if (Date.now() > expiresAt) return { valid: false };
+
+    const payload = `${userId}:${expiresAtStr}`;
+    const expectedHmac = crypto.createHmac('sha256', RESET_TOKEN_SECRET)
+      .update(`${payload}:${currentPasswordHash}`)
+      .digest('hex');
+
+    if (crypto.timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(expectedHmac, 'hex'))) {
+      return { valid: true, userId };
+    }
+    return { valid: false };
+  } catch {
+    return { valid: false };
   }
 }
 
@@ -265,6 +302,124 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
           access_token: `neon_session_${userId}_${Date.now()}`,
           user: { id: userId, email: cleanEmail },
         },
+      });
+
+      // Envio de boas-vindas assíncrono via Resend (não bloqueia a resposta da API)
+      sendWelcomeEmail(cleanEmail, cleanName).catch((err) => {
+        console.warn('[Resend] Falha ao enviar e-mail de boas-vindas:', err);
+      });
+
+      return true;
+    }
+
+    // 2.1 AUTH: FORGOT PASSWORD
+    if (pathname === '/api/auth/forgot-password' && req.method === 'POST') {
+      const { email } = await parseBody(req);
+      if (!email) {
+        sendJson(res, 400, { error: 'E-mail é obrigatório.' });
+        return true;
+      }
+
+      const cleanEmail = String(email).trim().toLowerCase();
+      try {
+        const users = await sql`
+          SELECT id, email, full_name, password_hash
+          FROM users
+          WHERE LOWER(email) = ${cleanEmail}
+          LIMIT 1;
+        `;
+
+        if (users.length > 0) {
+          const user = users[0];
+          const token = generateResetToken(user.id, user.password_hash);
+          const baseUrl = getAppBaseUrl();
+          const resetUrl = `${baseUrl}/?resetToken=${token}`;
+
+          await sendPasswordResetEmail(user.email, resetUrl, user.full_name);
+        }
+      } catch (emailErr) {
+        console.error('[Resend Password Reset Error]', emailErr);
+      }
+
+      // Resposta uniforme de segurança para prevenir enumeração de contas
+      sendJson(res, 200, {
+        success: true,
+        message: 'Se o endereço estiver cadastrado, você receberá um e-mail com as instruções em instantes.',
+      });
+      return true;
+    }
+
+    // 2.2 AUTH: RESET PASSWORD
+    if (pathname === '/api/auth/reset-password' && req.method === 'POST') {
+      const { token, newPassword } = await parseBody(req);
+      if (!token || !newPassword) {
+        sendJson(res, 400, { error: 'Token e nova senha são obrigatórios.' });
+        return true;
+      }
+      if (String(newPassword).length < 6) {
+        sendJson(res, 400, { error: 'A nova senha deve ter no mínimo 6 caracteres.' });
+        return true;
+      }
+
+      let userId = '';
+      try {
+        const decoded = Buffer.from(String(token), 'base64url').toString('utf8');
+        userId = decoded.split(':')[0];
+      } catch {
+        sendJson(res, 400, { error: 'Token de recuperação inválido.' });
+        return true;
+      }
+
+      if (!userId) {
+        sendJson(res, 400, { error: 'Token de recuperação inválido.' });
+        return true;
+      }
+
+      const users = await sql`
+        SELECT id, password_hash FROM users WHERE id = ${userId} LIMIT 1;
+      `;
+
+      if (users.length === 0) {
+        sendJson(res, 400, { error: 'Usuário não encontrado.' });
+        return true;
+      }
+
+      const user = users[0];
+      const { valid } = verifyResetToken(String(token), user.password_hash);
+      if (!valid) {
+        sendJson(res, 400, { error: 'Este link de recuperação expirou ou já foi utilizado. Solicite um novo link.' });
+        return true;
+      }
+
+      const newHash = hashPassword(String(newPassword));
+      await sql`
+        UPDATE users SET password_hash = ${newHash} WHERE id = ${userId};
+      `;
+
+      sendJson(res, 200, { success: true, message: 'Senha atualizada com sucesso!' });
+      return true;
+    }
+
+    // 2.3 EMAIL: TEST / HEALTH CHECK
+    if (pathname === '/api/email/test' && (req.method === 'POST' || req.method === 'GET')) {
+      const body = req.method === 'POST' ? await parseBody(req) : {};
+      const targetEmail = body.to || url.searchParams.get('to');
+
+      if (!targetEmail) {
+        sendJson(res, 400, { error: 'Parâmetro "to" (destinatário) é obrigatório.' });
+        return true;
+      }
+
+      const sendResult = await sendTestEmail(String(targetEmail).trim());
+      if (!sendResult.success) {
+        sendJson(res, 500, { error: sendResult.error || 'Falha ao enviar e-mail de teste.' });
+        return true;
+      }
+
+      sendJson(res, 200, {
+        success: true,
+        message: `E-mail de teste enviado com sucesso para ${targetEmail}`,
+        id: sendResult.id,
       });
       return true;
     }

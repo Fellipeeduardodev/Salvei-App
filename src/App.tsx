@@ -1,27 +1,30 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useTheme } from './contexts/ThemeContext';
 import { AppShell } from './components/layout/AppShell';
-import { InboxView } from './features/library/InboxView';
-import { ProjectsListView } from './features/projects/ProjectsListView';
-import { ProjectDetailView } from './features/projects/ProjectDetailView';
-import { CollectionsListView } from './features/collections/CollectionsListView';
-import { CollectionDetailView } from './features/collections/CollectionDetailView';
-import { TagsManagementView } from './features/tags/TagsManagementView';
-import { AddReferenceModal } from './components/references/AddReferenceModal';
-import { SidePanel } from './components/references/SidePanel';
-import { ExpandedOverlay } from './components/references/ExpandedOverlay';
-import { AuthView } from './components/auth/AuthView';
 import { LandingPage } from './components/landing/LandingPage';
-import { BulkActionBar } from './components/references/BulkActionBar';
-import { BulkDeleteModal } from './components/references/BulkDeleteModal';
-import { BulkAssociateModal } from './components/references/BulkAssociateModal';
-import { BulkTagModal } from './components/references/BulkTagModal';
-import { CommandPalette } from './components/ui/CommandPalette';
-import { KeyboardShortcutsModal } from './components/ui/KeyboardShortcutsModal';
-import { UserProfileModal } from './components/profile/UserProfileModal';
-import { OnboardingTutorialModal } from './components/onboarding/OnboardingTutorialModal';
-import { SettingsView } from './components/settings/SettingsView';
-import { PublicMoodboardView } from './features/collections/PublicMoodboardView';
+// Lazy-loaded views and modals for optimal initial bundle & Lighthouse performance
+
+const InboxView = React.lazy(() => import('./features/library/InboxView').then((m) => ({ default: m.InboxView })));
+const ProjectsListView = React.lazy(() => import('./features/projects/ProjectsListView').then((m) => ({ default: m.ProjectsListView })));
+const ProjectDetailView = React.lazy(() => import('./features/projects/ProjectDetailView').then((m) => ({ default: m.ProjectDetailView })));
+const CollectionsListView = React.lazy(() => import('./features/collections/CollectionsListView').then((m) => ({ default: m.CollectionsListView })));
+const CollectionDetailView = React.lazy(() => import('./features/collections/CollectionDetailView').then((m) => ({ default: m.CollectionDetailView })));
+const TagsManagementView = React.lazy(() => import('./features/tags/TagsManagementView').then((m) => ({ default: m.TagsManagementView })));
+const AuthView = React.lazy(() => import('./components/auth/AuthView').then((m) => ({ default: m.AuthView })));
+const PublicMoodboardView = React.lazy(() => import('./features/collections/PublicMoodboardView').then((m) => ({ default: m.PublicMoodboardView })));
+const SettingsView = React.lazy(() => import('./components/settings/SettingsView').then((m) => ({ default: m.SettingsView })));
+const AddReferenceModal = React.lazy(() => import('./components/references/AddReferenceModal').then((m) => ({ default: m.AddReferenceModal })));
+const SidePanel = React.lazy(() => import('./components/references/SidePanel').then((m) => ({ default: m.SidePanel })));
+const ExpandedOverlay = React.lazy(() => import('./components/references/ExpandedOverlay').then((m) => ({ default: m.ExpandedOverlay })));
+const BulkActionBar = React.lazy(() => import('./components/references/BulkActionBar').then((m) => ({ default: m.BulkActionBar })));
+const BulkDeleteModal = React.lazy(() => import('./components/references/BulkDeleteModal').then((m) => ({ default: m.BulkDeleteModal })));
+const BulkAssociateModal = React.lazy(() => import('./components/references/BulkAssociateModal').then((m) => ({ default: m.BulkAssociateModal })));
+const BulkTagModal = React.lazy(() => import('./components/references/BulkTagModal').then((m) => ({ default: m.BulkTagModal })));
+const CommandPalette = React.lazy(() => import('./components/ui/CommandPalette').then((m) => ({ default: m.CommandPalette })));
+const KeyboardShortcutsModal = React.lazy(() => import('./components/ui/KeyboardShortcutsModal').then((m) => ({ default: m.KeyboardShortcutsModal })));
+const UserProfileModal = React.lazy(() => import('./components/profile/UserProfileModal').then((m) => ({ default: m.UserProfileModal })));
+const OnboardingTutorialModal = React.lazy(() => import('./components/onboarding/OnboardingTutorialModal').then((m) => ({ default: m.OnboardingTutorialModal })));
+
 import {
   parseShareFromLocation,
   generateCollectionShareUrl,
@@ -62,11 +65,11 @@ import * as neonService from './services/neonService';
 
 // Known domain screenshots for realistic preview simulation
 const DOMAIN_SCREENSHOTS: Record<string, string> = {
-  'linear.app': '/brand/hero-product-mockup-16x9.jpg',
-  'kinfolk.com': '/brand/editorial-architecture-01.jpg',
-  'are.na': '/brand/editorial-typography-print-02.jpg',
-  'are.na/fellipe': '/brand/editorial-typography-print-02.jpg',
-  'designsystems.io': '/brand/digital-design-system-spec-02.jpg',
+  'linear.app': '/brand/hero-product-mockup-16x9.webp',
+  'kinfolk.com': '/brand/editorial-architecture-01.webp',
+  'are.na': '/brand/editorial-typography-print-02.webp',
+  'are.na/fellipe': '/brand/editorial-typography-print-02.webp',
+  'designsystems.io': '/brand/digital-design-system-spec-02.webp',
   'stripe.com': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80',
   'raycast.com': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&auto=format&fit=crop&q=80',
   'apple.com': 'https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=1200&auto=format&fit=crop&q=80',
@@ -101,7 +104,7 @@ const GUEST_STARTER_REFERENCES: Reference[] = [
     url: 'https://linear.app',
     domain: 'linear.app',
     sourceType: 'both',
-    screenshotUrl: '/brand/hero-product-mockup-16x9.jpg',
+    screenshotUrl: '/brand/hero-product-mockup-16x9.webp',
     screenshotStatus: 'ready',
     tags: ['design-system', 'dark-mode', 'alta-densidade'],
     notesMarkdown: '### Linear App\n- **Referência:** Interface editorial de alta velocidade\n- **Tipografia:** Inter / JetBrains Mono\n- **Paleta:** Grafite `#0F1012` com acentos dinâmicos.',
@@ -125,7 +128,7 @@ const GUEST_STARTER_REFERENCES: Reference[] = [
     url: 'https://kinfolk.com',
     domain: 'kinfolk.com',
     sourceType: 'both',
-    screenshotUrl: '/brand/editorial-architecture-01.jpg',
+    screenshotUrl: '/brand/editorial-architecture-01.webp',
     screenshotStatus: 'ready',
     tags: ['editorial', 'tipografia', 'minimalismo'],
     notesMarkdown: '### Kinfolk\n- **Estilo:** Design editorial suíço, respiro generoso e grid assimétrico.',
@@ -149,7 +152,7 @@ const GUEST_STARTER_REFERENCES: Reference[] = [
     url: 'https://are.na',
     domain: 'are.na',
     sourceType: 'both',
-    screenshotUrl: '/brand/editorial-typography-print-02.jpg',
+    screenshotUrl: '/brand/editorial-typography-print-02.webp',
     screenshotStatus: 'ready',
     tags: ['pesquisa', 'curadoria', 'tipografia'],
     notesMarkdown: '### Are.na Channel\n- **Conceito:** Biblioteca de referências sem algoritmo e sem ruído social.',

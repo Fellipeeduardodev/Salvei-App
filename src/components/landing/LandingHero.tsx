@@ -32,7 +32,7 @@ const HERO_CARDS: Record<'todas' | 'interface' | 'editorial' | 'dark-mode' | 'de
       id: 'linear',
       title: 'Linear Modern Product Workspace',
       domain: 'linear.app',
-      image: '/brand/digital-design-system-spec-02.jpg',
+      image: '/brand/digital-design-system-spec-02.webp',
       tags: ['#interface', '#dark-mode'],
       palette: ['#0F172A', '#4355DB', '#64748B', '#E2E8F0'],
       starred: true,
@@ -41,7 +41,7 @@ const HERO_CARDS: Record<'todas' | 'interface' | 'editorial' | 'dark-mode' | 'de
       id: 'kinfolk',
       title: 'Ateliê de Concreto & Luz Rasante',
       domain: 'kinfolk.com',
-      image: '/brand/editorial-architecture-01.jpg',
+      image: '/brand/editorial-architecture-01.webp',
       tags: ['#editorial', '#fotografia'],
       palette: ['#292524', '#A8A29E', '#D6D3D1', '#F5F5F4'],
       starred: false,
@@ -50,7 +50,7 @@ const HERO_CARDS: Record<'todas' | 'interface' | 'editorial' | 'dark-mode' | 'de
       id: 'swiss',
       title: 'Swiss Design Specimen & Grid Tablet',
       domain: 'are.na/fellipe',
-      image: '/brand/editorial-typography-print-02.jpg',
+      image: '/brand/editorial-typography-print-02.webp',
       tags: ['#tipografia', '#grid', '#interface'],
       palette: ['#1E1B4B', '#4355DB', '#93C5FD', '#EFF6FF'],
       starred: false,
@@ -61,7 +61,7 @@ const HERO_CARDS: Record<'todas' | 'interface' | 'editorial' | 'dark-mode' | 'de
       id: 'linear',
       title: 'Linear Modern Product Workspace',
       domain: 'linear.app',
-      image: '/brand/digital-design-system-spec-02.jpg',
+      image: '/brand/digital-design-system-spec-02.webp',
       tags: ['#interface', '#dark-mode'],
       palette: ['#0F172A', '#4355DB', '#64748B', '#E2E8F0'],
       starred: true,
@@ -70,7 +70,7 @@ const HERO_CARDS: Record<'todas' | 'interface' | 'editorial' | 'dark-mode' | 'de
       id: 'raycast',
       title: 'Raycast System & Command Tokens',
       domain: 'raycast.com',
-      image: '/brand/digital-interface-grid-01.jpg',
+      image: '/brand/digital-interface-grid-01.webp',
       tags: ['#interface', '#design-system'],
       palette: ['#090A0F', '#FF6363', '#4355DB', '#E2E8F0'],
       starred: true,
@@ -79,7 +79,7 @@ const HERO_CARDS: Record<'todas' | 'interface' | 'editorial' | 'dark-mode' | 'de
       id: 'swiss',
       title: 'Swiss Design Specimen & Grid Tablet',
       domain: 'are.na/fellipe',
-      image: '/brand/editorial-typography-print-02.jpg',
+      image: '/brand/editorial-typography-print-02.webp',
       tags: ['#interface', '#tipografia'],
       palette: ['#1E1B4B', '#4355DB', '#93C5FD', '#EFF6FF'],
       starred: false,
@@ -90,7 +90,7 @@ const HERO_CARDS: Record<'todas' | 'interface' | 'editorial' | 'dark-mode' | 'de
       id: 'kinfolk',
       title: 'Ateliê de Concreto & Luz Rasante',
       domain: 'kinfolk.com',
-      image: '/brand/editorial-architecture-01.jpg',
+      image: '/brand/editorial-architecture-01.webp',
       tags: ['#editorial', '#fotografia'],
       palette: ['#292524', '#A8A29E', '#D6D3D1', '#F5F5F4'],
       starred: false,
@@ -99,7 +99,7 @@ const HERO_CARDS: Record<'todas' | 'interface' | 'editorial' | 'dark-mode' | 'de
       id: 'swiss',
       title: 'Swiss Design Specimen & Grid Tablet',
       domain: 'are.na/fellipe',
-      image: '/brand/editorial-typography-print-02.jpg',
+      image: '/brand/editorial-typography-print-02.webp',
       tags: ['#editorial', '#tipografia'],
       palette: ['#1E1B4B', '#4355DB', '#93C5FD', '#EFF6FF'],
       starred: false,
@@ -108,7 +108,7 @@ const HERO_CARDS: Record<'todas' | 'interface' | 'editorial' | 'dark-mode' | 'de
       id: 'cereal',
       title: 'Cereal Minimal Volume & Concrete Grid',
       domain: 'readcereal.com',
-      image: '/brand/hybrid-studio-still-01.jpg',
+      image: '/brand/hybrid-studio-still-01.webp',
       tags: ['#editorial', '#fotografia'],
       palette: ['#242120', '#8C827A', '#DDD7CD', '#FAF8F5'],
       starred: false,
@@ -119,7 +119,7 @@ const HERO_CARDS: Record<'todas' | 'interface' | 'editorial' | 'dark-mode' | 'de
       id: 'linear',
       title: 'Linear Modern Product Workspace',
       domain: 'linear.app',
-      image: '/brand/digital-design-system-spec-02.jpg',
+      image: '/brand/digital-design-system-spec-02.webp',
       tags: ['#interface', '#dark-mode'],
       palette: ['#0F172A', '#4355DB', '#64748B', '#E2E8F0'],
       starred: true,
@@ -128,7 +128,7 @@ const HERO_CARDS: Record<'todas' | 'interface' | 'editorial' | 'dark-mode' | 'de
       id: 'raycast',
       title: 'Raycast System & Command Tokens',
       domain: 'raycast.com',
-      image: '/brand/digital-interface-grid-01.jpg',
+      image: '/brand/digital-interface-grid-01.webp',
       tags: ['#dark-mode', '#interface'],
       palette: ['#090A0F', '#FF6363', '#4355DB', '#E2E8F0'],
       starred: true,
@@ -137,7 +137,7 @@ const HERO_CARDS: Record<'todas' | 'interface' | 'editorial' | 'dark-mode' | 'de
       id: 'swiss',
       title: 'Swiss Design Specimen & Grid Tablet',
       domain: 'are.na/fellipe',
-      image: '/brand/editorial-typography-print-02.jpg',
+      image: '/brand/editorial-typography-print-02.webp',
       tags: ['#dark-mode', '#grid'],
       palette: ['#1E1B4B', '#4355DB', '#93C5FD', '#EFF6FF'],
       starred: false,
@@ -148,7 +148,7 @@ const HERO_CARDS: Record<'todas' | 'interface' | 'editorial' | 'dark-mode' | 'de
       id: 'raycast',
       title: 'Raycast System & Command Tokens',
       domain: 'raycast.com',
-      image: '/brand/digital-interface-grid-01.jpg',
+      image: '/brand/digital-interface-grid-01.webp',
       tags: ['#design-system', '#interface'],
       palette: ['#090A0F', '#FF6363', '#4355DB', '#E2E8F0'],
       starred: true,
@@ -157,7 +157,7 @@ const HERO_CARDS: Record<'todas' | 'interface' | 'editorial' | 'dark-mode' | 'de
       id: 'linear',
       title: 'Linear Modern Product Workspace',
       domain: 'linear.app',
-      image: '/brand/digital-design-system-spec-02.jpg',
+      image: '/brand/digital-design-system-spec-02.webp',
       tags: ['#design-system', '#dark-mode'],
       palette: ['#0F172A', '#4355DB', '#64748B', '#E2E8F0'],
       starred: true,
@@ -166,7 +166,7 @@ const HERO_CARDS: Record<'todas' | 'interface' | 'editorial' | 'dark-mode' | 'de
       id: 'cereal',
       title: 'Cereal Minimal Volume & Concrete Grid',
       domain: 'readcereal.com',
-      image: '/brand/hybrid-studio-still-01.jpg',
+      image: '/brand/hybrid-studio-still-01.webp',
       tags: ['#design-system', '#editorial'],
       palette: ['#242120', '#8C827A', '#DDD7CD', '#FAF8F5'],
       starred: false,
@@ -268,7 +268,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ onOpenAuth, onDemoClic
     const sequence = [
       // 1. Move to Search Input (Simulating ⌘K Search)
       {
-        delay: 500,
+        delay: 2200,
         action: () => {
           moveCursorTo(searchInputRef.current, 460, 68, '[data-demo-target="input-search"]', 460);
         },
@@ -887,6 +887,9 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ onOpenAuth, onDemoClic
                       <img
                         src={card.image}
                         alt={card.title}
+                        fetchPriority={idx === 0 ? "high" : "auto"}
+                        loading={idx === 0 ? "eager" : "lazy"}
+                        decoding="async"
                         className="w-full h-full object-cover opacity-85 group-hover/card:scale-105 transition-transform duration-300"
                       />
                       <span className="absolute top-2 left-2 font-mono text-[10px] bg-black/60 text-white px-2 py-0.5 rounded backdrop-blur-xs">
