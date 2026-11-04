@@ -26,6 +26,7 @@
     "resend": "^6.37.0"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/vite": "^4.0.9",
     "@types/node": "^22.13.4",
     "@types/react": "^19.0.10",
