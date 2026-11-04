@@ -169,9 +169,12 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     pathname = vercelMatchedPath.split('?')[0];
   }
 
-  // 3. Normalize pathname to always start with /api (unless static /uploads/)
+  // 3. Normalize pathname to always start with /api (unless static /uploads/) and strip trailing slash
   if (!pathname.startsWith('/api') && !pathname.startsWith('/uploads')) {
     pathname = `/api${pathname.startsWith('/') ? pathname : '/' + pathname}`;
+  }
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    pathname = pathname.replace(/\/+$/, '');
   }
 
   if (!pathname.startsWith('/api') && !pathname.startsWith('/uploads/')) {
