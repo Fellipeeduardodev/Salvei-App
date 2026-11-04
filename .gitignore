@@ -1,10 +1,15 @@
+# Dependencies
 node_modules
 dist
 dist-ssr
+
+# Environment & Local Secrets
 *.local
 .env
 .env.local
 .env.*.local
+
+# Editor & OS files
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -14,17 +19,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-scratch_screenshots/
-scratch/
-scratch_*.js
-capture_current_preview.js
-referencias/
-temp-*
 *.log
-.vercel
-.neon
-run-phase7-full-audit.js
-test-mobile-viewports.js
-public/uploads/
-scripts/
 .claude/
+
+# Temporary & Deployment artifacts
+.vercel
+temp-*
+scratch/
+public/uploads/
