@@ -48,7 +48,7 @@ export function translateAuthError(errorMessage: string): string {
   if (lower.includes('at least 6 characters') || lower.includes('password should be at least')) {
     return 'A senha deve conter no mínimo 6 caracteres.';
   }
-  if (lower.includes('rate limit')) {
+  if (lower.includes('rate limit') || lower.includes('too many requests')) {
     return 'Muitas tentativas em sequência. Por favor, aguarde alguns instantes.';
   }
   if (lower.includes('invalid format') || lower.includes('valid email')) {

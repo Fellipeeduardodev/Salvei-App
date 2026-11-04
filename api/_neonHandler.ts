@@ -3,6 +3,32 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { sendWelcomeEmail, sendPasswordResetEmail, sendTestEmail, getAppBaseUrl } from './_emailService.js';
+import {
+  globalRateLimiter,
+  RATE_LIMIT_POLICIES,
+  getClientIp,
+  getRateLimitHeaders,
+} from './_rateLimiter.js';
+import {
+  isValidEmail,
+  validatePassword,
+  sanitizeString,
+  safeResolveUploadPath,
+  DUMMY_PASSWORD_HASH,
+  getStandardSecurityHeaders,
+} from './_security.js';
+
+export {
+  globalRateLimiter,
+  RATE_LIMIT_POLICIES,
+  getClientIp,
+  getRateLimitHeaders,
+  isValidEmail,
+  validatePassword,
+  sanitizeString,
+  safeResolveUploadPath,
+  DUMMY_PASSWORD_HASH,
+};
 
 export function getDatabaseUrl(): string {
   if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
@@ -93,13 +119,16 @@ export function verifyResetToken(token: string, currentPasswordHash: string): { 
   }
 }
 
-// Helper to read JSON request body safely
-export function parseBody(req: any): Promise<any> {
+// Helper to read JSON request body safely with strict payload size limit (DoS prevention)
+export function parseBody(req: any, maxBytes: number = 10 * 1024 * 1024): Promise<any> {
   if (req.body) {
     if (typeof req.body === 'object' && !Buffer.isBuffer(req.body)) {
       return Promise.resolve(req.body);
     }
     if (typeof req.body === 'string') {
+      if (req.body.length > maxBytes) {
+        return Promise.reject(new Error('PAYLOAD_TOO_LARGE'));
+      }
       try {
         return Promise.resolve(JSON.parse(req.body));
       } catch {
@@ -107,6 +136,9 @@ export function parseBody(req: any): Promise<any> {
       }
     }
     if (Buffer.isBuffer(req.body)) {
+      if (req.body.length > maxBytes) {
+        return Promise.reject(new Error('PAYLOAD_TOO_LARGE'));
+      }
       try {
         return Promise.resolve(JSON.parse(req.body.toString('utf8')));
       } catch {
@@ -119,11 +151,22 @@ export function parseBody(req: any): Promise<any> {
     return Promise.resolve({});
   }
 
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     let data = '';
-    req.on('data', (chunk: any) => {
+    let bytesReceived = 0;
+
+    const onData = (chunk: any) => {
+      const len = Buffer.isBuffer(chunk) ? chunk.length : Buffer.byteLength(String(chunk));
+      bytesReceived += len;
+      if (bytesReceived > maxBytes) {
+        req.pause?.();
+        reject(new Error('PAYLOAD_TOO_LARGE'));
+        return;
+      }
       data += chunk;
-    });
+    };
+
+    req.on('data', onData);
     req.on('end', () => {
       try {
         resolve(data ? JSON.parse(data) : {});
@@ -131,16 +174,31 @@ export function parseBody(req: any): Promise<any> {
         resolve({});
       }
     });
-    req.on('error', () => resolve({}));
+    req.on('error', (err: any) => reject(err));
   });
 }
 
-export function sendJson(res: any, status: number, data: any) {
+export function sendJson(
+  res: any,
+  status: number,
+  data: any,
+  additionalHeaders?: Record<string, string>
+) {
   res.statusCode = status;
-  res.setHeader('Content-Type', 'application/json');
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+
+  // OWASP Standard Security Headers
+  const secHeaders = getStandardSecurityHeaders();
+  for (const [key, val] of Object.entries(secHeaders)) {
+    res.setHeader(key, val);
+  }
+
+  if (additionalHeaders) {
+    for (const [key, val] of Object.entries(additionalHeaders)) {
+      res.setHeader(key, val);
+    }
+  }
+
   res.end(JSON.stringify(data));
 }
 
@@ -149,8 +207,37 @@ export function sendJson(res: any, status: number, data: any) {
  * Compatible with Vite dev server middleware and Vercel Serverless Function runtime.
  */
 export async function handleNeonApiRequest(req: any, res: any): Promise<boolean> {
+  // Handle CORS Preflight OPTIONS requests
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 204;
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.setHeader('Access-Control-Max-Age', '86400');
+    res.end();
+    return true;
+  }
+
   const host = req.headers?.host || 'localhost';
   const rawUrl = req.url || '/';
+
+  // Early Path Traversal Detection on raw URL before URL parser normalization
+  const rawPath = rawUrl.split('?')[0];
+  if (rawPath.startsWith('/uploads/') || rawPath.startsWith('/uploads') || rawPath.includes('/uploads/')) {
+    if (
+      rawPath.includes('..') ||
+      rawPath.includes('%2e') ||
+      rawPath.includes('%2E') ||
+      rawPath.includes('%2f') ||
+      rawPath.includes('%2F') ||
+      rawPath.includes('%5c') ||
+      rawPath.includes('%5C')
+    ) {
+      sendJson(res, 403, { error: 'Acesso negado: tentativa de travessia de diretório detectada.' });
+      return true;
+    }
+  }
+
   const url = new URL(rawUrl, `http://${host}`);
 
   let pathname = url.pathname;
@@ -181,18 +268,56 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     return false;
   }
 
+  const clientIp = getClientIp(req);
+
   // 0. HEALTH CHECK / TELEMETRY
   if (pathname === '/api/ping') {
     sendJson(res, 200, {
       ok: true,
-      version: '1.0.1',
+      version: '1.0.2',
       hasDbUrl: Boolean(getDatabaseUrl()),
       hasResendKey: Boolean(process.env.RESEND_API_KEY),
-      resendFrom: process.env.RESEND_FROM_EMAIL || 'Salvei <contato@salvei.tech>',
+      resendFrom: process.env.RESEND_FROM_EMAIL || 'Salvei <ola@salvei.tech>',
       appUrl: process.env.APP_URL || 'https://salvei.tech',
       node: process.version,
+      clientIp,
       timestamp: new Date().toISOString(),
     });
+    return true;
+  }
+
+  // 1. STATIC FILE SERVING WITH STRICT PATH TRAVERSAL GUARD
+  if (pathname.startsWith('/uploads/') && req.method === 'GET') {
+    const uploadsBaseDir = path.resolve(process.cwd(), 'public', 'uploads');
+    const requestedSub = pathname.replace(/^\/uploads\/?/, '').split('?')[0];
+
+    const { safe, resolvedPath } = safeResolveUploadPath(uploadsBaseDir, requestedSub);
+    if (!safe) {
+      sendJson(res, 403, { error: 'Acesso negado: tentativa de travessia de diretório detectada.' });
+      return true;
+    }
+
+    if (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isFile()) {
+      const ext = path.extname(resolvedPath).toLowerCase();
+      const mimeTypes: Record<string, string> = {
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.webp': 'image/webp',
+        '.gif': 'image/gif',
+        '.svg': 'image/svg+xml',
+      };
+      const stream = fs.createReadStream(resolvedPath);
+      res.writeHead(200, {
+        'Content-Type': mimeTypes[ext] || 'application/octet-stream',
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY',
+      });
+      stream.pipe(res);
+      return true;
+    }
+
+    sendJson(res, 404, { error: 'Arquivo não encontrado.' });
     return true;
   }
 
@@ -205,15 +330,73 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
   }
 
   try {
-    // 1. AUTH: LOGIN
+    // 1. AUTH: LOGIN (Brute Force Protected by IP and Target Account)
     if (pathname === '/api/auth/login' && req.method === 'POST') {
-      const { email, password } = await parseBody(req);
+      // 1.1 IP-level limit check (protects against credential stuffing across thousands of accounts)
+      const ipLimit = globalRateLimiter.consume(`login_ip:${clientIp}`, RATE_LIMIT_POLICIES.LOGIN_PER_IP);
+      if (!ipLimit.allowed) {
+        sendJson(
+          res,
+          429,
+          {
+            error: RATE_LIMIT_POLICIES.LOGIN_PER_IP.message,
+            code: 'RATE_LIMIT_EXCEEDED',
+            retryAfter: ipLimit.retryAfterSec,
+          },
+          getRateLimitHeaders(ipLimit)
+        );
+        return true;
+      }
+
+      let body: any;
+      try {
+        body = await parseBody(req, 64 * 1024);
+      } catch (err: any) {
+        if (err.message === 'PAYLOAD_TOO_LARGE') {
+          sendJson(res, 413, { error: 'O tamanho da requisição excede o limite permitido (Payload Too Large).' });
+          return true;
+        }
+        throw err;
+      }
+
+      const { email, password } = body || {};
       if (!email || !password) {
         sendJson(res, 400, { error: 'E-mail e senha são obrigatórios.' });
         return true;
       }
 
       const cleanEmail = String(email).trim().toLowerCase();
+
+      // Email format validation
+      if (!isValidEmail(cleanEmail)) {
+        sendJson(res, 400, { error: 'Formato de e-mail inválido.' });
+        return true;
+      }
+
+      // Password length validation (prevents CPU exhaustion on scrypt)
+      const pwdValidation = validatePassword(password);
+      if (!pwdValidation.valid) {
+        sendJson(res, 400, { error: pwdValidation.error });
+        return true;
+      }
+
+      // 1.2 Account-specific brute force check (IP + Email)
+      const accountKey = `login_acc:${clientIp}:${cleanEmail}`;
+      const accountLimit = globalRateLimiter.consume(accountKey, RATE_LIMIT_POLICIES.LOGIN_PER_ACCOUNT);
+      if (!accountLimit.allowed) {
+        sendJson(
+          res,
+          429,
+          {
+            error: RATE_LIMIT_POLICIES.LOGIN_PER_ACCOUNT.message,
+            code: 'RATE_LIMIT_EXCEEDED',
+            retryAfter: accountLimit.retryAfterSec,
+          },
+          getRateLimitHeaders(accountLimit)
+        );
+        return true;
+      }
+
       const users = await sql`
         SELECT u.id, u.email, u.full_name, u.password_hash, p.avatar_url, p.onboarding_completed, p.preferences
         FROM users u
@@ -223,6 +406,8 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
       `;
 
       if (users.length === 0) {
+        // Timing attack mitigation: run constant-time scrypt against dummy hash
+        verifyPassword(String(password), DUMMY_PASSWORD_HASH);
         sendJson(res, 401, { error: 'E-mail ou senha incorretos.' });
         return true;
       }
@@ -233,6 +418,9 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
         sendJson(res, 401, { error: 'E-mail ou senha incorretos.' });
         return true;
       }
+
+      // SUCCESS: Clear failed attempt counter for this user/IP pair
+      globalRateLimiter.reset(accountKey);
 
       const profile = {
         id: user.id,
@@ -260,20 +448,53 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
       return true;
     }
 
-    // 2. AUTH: SIGNUP
+    // 2. AUTH: SIGNUP (Registration Flood Protection)
     if ((pathname === '/api/auth/signup' || pathname === '/api/auth/register') && req.method === 'POST') {
-      const { email, password, fullName } = await parseBody(req);
+      const signupLimit = globalRateLimiter.consume(`signup_ip:${clientIp}`, RATE_LIMIT_POLICIES.SIGNUP_PER_IP);
+      if (!signupLimit.allowed) {
+        sendJson(
+          res,
+          429,
+          {
+            error: RATE_LIMIT_POLICIES.SIGNUP_PER_IP.message,
+            code: 'RATE_LIMIT_EXCEEDED',
+            retryAfter: signupLimit.retryAfterSec,
+          },
+          getRateLimitHeaders(signupLimit)
+        );
+        return true;
+      }
+
+      let body: any;
+      try {
+        body = await parseBody(req, 64 * 1024);
+      } catch (err: any) {
+        if (err.message === 'PAYLOAD_TOO_LARGE') {
+          sendJson(res, 413, { error: 'O tamanho da requisição excede o limite permitido.' });
+          return true;
+        }
+        throw err;
+      }
+
+      const { email, password, fullName } = body || {};
       if (!email || !password) {
         sendJson(res, 400, { error: 'E-mail e senha são obrigatórios.' });
         return true;
       }
-      if (String(password).length < 6) {
-        sendJson(res, 400, { error: 'A senha deve conter no mínimo 6 caracteres.' });
+
+      const cleanEmail = String(email).trim().toLowerCase();
+      if (!isValidEmail(cleanEmail)) {
+        sendJson(res, 400, { error: 'Formato de e-mail inválido.' });
         return true;
       }
 
-      const cleanEmail = String(email).trim().toLowerCase();
-      const cleanName = String(fullName || cleanEmail.split('@')[0]).trim();
+      const pwdValidation = validatePassword(password);
+      if (!pwdValidation.valid) {
+        sendJson(res, 400, { error: pwdValidation.error });
+        return true;
+      }
+
+      const cleanName = sanitizeString(fullName || cleanEmail.split('@')[0], 80);
 
       const existing = await sql`
         SELECT id FROM users WHERE LOWER(email) = ${cleanEmail} LIMIT 1;
@@ -322,7 +543,7 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
         },
       });
 
-      // Envio de boas-vindas assíncrono via Resend (não bloqueia a resposta da API)
+      // Envio de boas-vindas assíncrono via Resend
       sendWelcomeEmail(cleanEmail, cleanName).catch((err) => {
         console.warn('[Resend] Falha ao enviar e-mail de boas-vindas:', err);
       });
@@ -330,15 +551,62 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
       return true;
     }
 
-    // 2.1 AUTH: FORGOT PASSWORD
+    // 2.1 AUTH: FORGOT PASSWORD (Rate-Limited per IP and per Target Email)
     if (pathname === '/api/auth/forgot-password' && req.method === 'POST') {
-      const { email } = await parseBody(req);
+      const ipLimit = globalRateLimiter.consume(`forgot_ip:${clientIp}`, RATE_LIMIT_POLICIES.FORGOT_PASSWORD_PER_IP);
+      if (!ipLimit.allowed) {
+        sendJson(
+          res,
+          429,
+          {
+            error: RATE_LIMIT_POLICIES.FORGOT_PASSWORD_PER_IP.message,
+            code: 'RATE_LIMIT_EXCEEDED',
+            retryAfter: ipLimit.retryAfterSec,
+          },
+          getRateLimitHeaders(ipLimit)
+        );
+        return true;
+      }
+
+      let body: any;
+      try {
+        body = await parseBody(req, 64 * 1024);
+      } catch (err: any) {
+        if (err.message === 'PAYLOAD_TOO_LARGE') {
+          sendJson(res, 413, { error: 'O tamanho da requisição excede o limite permitido.' });
+          return true;
+        }
+        throw err;
+      }
+
+      const { email } = body || {};
       if (!email) {
         sendJson(res, 400, { error: 'E-mail é obrigatório.' });
         return true;
       }
 
       const cleanEmail = String(email).trim().toLowerCase();
+      if (!isValidEmail(cleanEmail)) {
+        sendJson(res, 400, { error: 'Formato de e-mail inválido.' });
+        return true;
+      }
+
+      // Rate limit per target email (stops flooding recipient inbox & exhausting Resend limits)
+      const emailLimit = globalRateLimiter.consume(`forgot_email:${cleanEmail}`, RATE_LIMIT_POLICIES.FORGOT_PASSWORD_PER_EMAIL);
+      if (!emailLimit.allowed) {
+        sendJson(
+          res,
+          429,
+          {
+            error: RATE_LIMIT_POLICIES.FORGOT_PASSWORD_PER_EMAIL.message,
+            code: 'RATE_LIMIT_EXCEEDED',
+            retryAfter: emailLimit.retryAfterSec,
+          },
+          getRateLimitHeaders(emailLimit)
+        );
+        return true;
+      }
+
       try {
         const users = await sql`
           SELECT id, email, full_name, password_hash
@@ -367,15 +635,43 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
       return true;
     }
 
-    // 2.2 AUTH: RESET PASSWORD
+    // 2.2 AUTH: RESET PASSWORD (Rate-Limited per IP)
     if (pathname === '/api/auth/reset-password' && req.method === 'POST') {
-      const { token, newPassword } = await parseBody(req);
+      const resetLimit = globalRateLimiter.consume(`reset_ip:${clientIp}`, RATE_LIMIT_POLICIES.RESET_PASSWORD_PER_IP);
+      if (!resetLimit.allowed) {
+        sendJson(
+          res,
+          429,
+          {
+            error: RATE_LIMIT_POLICIES.RESET_PASSWORD_PER_IP.message,
+            code: 'RATE_LIMIT_EXCEEDED',
+            retryAfter: resetLimit.retryAfterSec,
+          },
+          getRateLimitHeaders(resetLimit)
+        );
+        return true;
+      }
+
+      let body: any;
+      try {
+        body = await parseBody(req, 64 * 1024);
+      } catch (err: any) {
+        if (err.message === 'PAYLOAD_TOO_LARGE') {
+          sendJson(res, 413, { error: 'O tamanho da requisição excede o limite permitido.' });
+          return true;
+        }
+        throw err;
+      }
+
+      const { token, newPassword } = body || {};
       if (!token || !newPassword) {
         sendJson(res, 400, { error: 'Token e nova senha são obrigatórios.' });
         return true;
       }
-      if (String(newPassword).length < 6) {
-        sendJson(res, 400, { error: 'A nova senha deve ter no mínimo 6 caracteres.' });
+
+      const pwdValidation = validatePassword(newPassword);
+      if (!pwdValidation.valid) {
+        sendJson(res, 400, { error: pwdValidation.error });
         return true;
       }
 
@@ -418,17 +714,49 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
       return true;
     }
 
-    // 2.3 EMAIL: TEST / HEALTH CHECK
+    // 2.3 EMAIL: TEST / HEALTH CHECK (Strictly restricted in production)
     if (pathname === '/api/email/test' && (req.method === 'POST' || req.method === 'GET')) {
-      const body = req.method === 'POST' ? await parseBody(req) : {};
-      const targetEmail = body.to || url.searchParams.get('to');
+      const testLimit = globalRateLimiter.consume(`email_test_ip:${clientIp}`, RATE_LIMIT_POLICIES.EMAIL_TEST_PER_IP);
+      if (!testLimit.allowed) {
+        sendJson(
+          res,
+          429,
+          {
+            error: RATE_LIMIT_POLICIES.EMAIL_TEST_PER_IP.message,
+            code: 'RATE_LIMIT_EXCEEDED',
+            retryAfter: testLimit.retryAfterSec,
+          },
+          getRateLimitHeaders(testLimit)
+        );
+        return true;
+      }
+
+      const isProduction = process.env.NODE_ENV === 'production';
+      const adminSecret = process.env.ADMIN_SECRET || process.env.RESEND_TEST_SECRET;
+      const authHeader = req.headers?.authorization?.replace(/^Bearer\s+/i, '') || url.searchParams.get('key');
+
+      if (isProduction && (!adminSecret || authHeader !== adminSecret)) {
+        sendJson(res, 403, {
+          error: 'Endpoint de teste restrito a ambiente de desenvolvimento ou chave de administrador autorizada.',
+        });
+        return true;
+      }
+
+      const body = req.method === 'POST' ? await parseBody(req, 64 * 1024) : {};
+      const targetEmail = body?.to || url.searchParams.get('to');
 
       if (!targetEmail) {
         sendJson(res, 400, { error: 'Parâmetro "to" (destinatário) é obrigatório.' });
         return true;
       }
 
-      const sendResult = await sendTestEmail(String(targetEmail).trim());
+      const cleanTarget = String(targetEmail).trim();
+      if (!isValidEmail(cleanTarget)) {
+        sendJson(res, 400, { error: 'Endereço de e-mail do destinatário é inválido.' });
+        return true;
+      }
+
+      const sendResult = await sendTestEmail(cleanTarget);
       if (!sendResult.success) {
         sendJson(res, 500, { error: sendResult.error || 'Falha ao enviar e-mail de teste.' });
         return true;
@@ -436,9 +764,25 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
 
       sendJson(res, 200, {
         success: true,
-        message: `E-mail de teste enviado com sucesso para ${targetEmail}`,
+        message: `E-mail de teste enviado com sucesso para ${cleanTarget}`,
         id: sendResult.id,
       });
+      return true;
+    }
+
+    // --- GLOBAL API RATE LIMITING FOR ALL SUBSEQUENT DATA ENDPOINTS ---
+    const apiLimit = globalRateLimiter.consume(`global_api:${clientIp}`, RATE_LIMIT_POLICIES.GLOBAL_API_PER_IP);
+    if (!apiLimit.allowed) {
+      sendJson(
+        res,
+        429,
+        {
+          error: RATE_LIMIT_POLICIES.GLOBAL_API_PER_IP.message,
+          code: 'RATE_LIMIT_EXCEEDED',
+          retryAfter: apiLimit.retryAfterSec,
+        },
+        getRateLimitHeaders(apiLimit)
+      );
       return true;
     }
 
@@ -548,8 +892,8 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
 
     // 5. UPDATE PROFILE
     if (pathname === '/api/profile' && req.method === 'PUT') {
-      const body = await parseBody(req);
-      const { userId, updates } = body;
+      const body = await parseBody(req, 512 * 1024);
+      const { userId, updates } = body || {};
       if (!userId) {
         sendJson(res, 400, { error: 'userId obrigatório' });
         return true;
@@ -558,10 +902,10 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
       await sql`
         UPDATE profiles
         SET 
-          full_name = COALESCE(${updates.full_name}, full_name),
-          avatar_url = COALESCE(${updates.avatar_url}, avatar_url),
-          onboarding_completed = COALESCE(${updates.onboarding_completed}, onboarding_completed),
-          preferences = COALESCE(${updates.preferences ? JSON.stringify(updates.preferences) : null}::jsonb, preferences),
+          full_name = COALESCE(${updates?.full_name ? sanitizeString(updates.full_name, 100) : null}, full_name),
+          avatar_url = COALESCE(${updates?.avatar_url}, avatar_url),
+          onboarding_completed = COALESCE(${updates?.onboarding_completed}, onboarding_completed),
+          preferences = COALESCE(${updates?.preferences ? JSON.stringify(updates.preferences) : null}::jsonb, preferences),
           updated_at = now()
         WHERE id = ${userId};
       `;
@@ -571,15 +915,20 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
 
     // 6. SAVE / CREATE REFERENCE
     if (pathname === '/api/references' && req.method === 'POST') {
-      const body = await parseBody(req);
-      const { userId, reference } = body;
+      const body = await parseBody(req, 2 * 1024 * 1024);
+      const { userId, reference } = body || {};
+
+      if (!userId || !reference?.id || !reference?.title) {
+        sendJson(res, 400, { error: 'Dados da referência incompletos.' });
+        return true;
+      }
 
       await sql`
         INSERT INTO "references" (
           id, user_id, title, url, domain, screenshot_url, image_storage_path,
           screenshot_status, source_type, original_file_name, notes_markdown, is_favorite, palette
         ) VALUES (
-          ${reference.id}, ${userId}, ${reference.title}, ${reference.url || null},
+          ${reference.id}, ${userId}, ${sanitizeString(reference.title, 255)}, ${reference.url || null},
           ${reference.domain || null}, ${reference.screenshotUrl || null}, ${reference.imageStorageId || null},
           ${reference.screenshotStatus || 'none'}, ${reference.sourceType || 'url'},
           ${reference.originalFileName || null}, ${reference.notesMarkdown || ''},
@@ -602,9 +951,9 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
       // Sync tags
       if (Array.isArray(reference.tags)) {
         for (const tag of reference.tags) {
-          const cleanTag = String(tag).trim();
+          const cleanTag = sanitizeString(String(tag), 50);
           if (!cleanTag) continue;
-          const tagId = `tag-${cleanTag.toLowerCase().replace(/\s+/g, '-')}`;
+          const tagId = `tag-${cleanTag.toLowerCase().replace(/[^a-z0-9_-]/g, '-')}`;
           await sql`
             INSERT INTO tags (id, user_id, name, slug)
             VALUES (${tagId}, ${userId}, ${cleanTag}, ${cleanTag.toLowerCase()})
@@ -647,10 +996,15 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     // 7. UPDATE REFERENCE
     if (pathname.startsWith('/api/references/') && req.method === 'PUT') {
       const id = pathname.replace('/api/references/', '');
-      const body = await parseBody(req);
-      const { userId, updates } = body;
+      const body = await parseBody(req, 2 * 1024 * 1024);
+      const { userId, updates } = body || {};
 
-      if (updates.isFavorite !== undefined) {
+      if (!userId) {
+        sendJson(res, 400, { error: 'userId obrigatório' });
+        return true;
+      }
+
+      if (updates?.isFavorite !== undefined) {
         await sql`
           UPDATE "references"
           SET is_favorite = ${Boolean(updates.isFavorite)}, updated_at = now()
@@ -658,11 +1012,11 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
         `;
       }
 
-      if (updates.title !== undefined || updates.notesMarkdown !== undefined || updates.palette !== undefined) {
+      if (updates?.title !== undefined || updates?.notesMarkdown !== undefined || updates?.palette !== undefined) {
         await sql`
           UPDATE "references"
           SET 
-            title = COALESCE(${updates.title}, title),
+            title = COALESCE(${updates.title ? sanitizeString(updates.title, 255) : null}, title),
             notes_markdown = COALESCE(${updates.notesMarkdown}, notes_markdown),
             url = COALESCE(${updates.url}, url),
             domain = COALESCE(${updates.domain}, domain),
@@ -692,10 +1046,15 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
 
     // 9. SAVE PROJECT
     if (pathname === '/api/projects' && req.method === 'POST') {
-      const { userId, project } = await parseBody(req);
+      const { userId, project } = await parseBody(req, 512 * 1024);
+      if (!userId || !project?.id || !project?.name) {
+        sendJson(res, 400, { error: 'Dados do projeto incompletos.' });
+        return true;
+      }
+
       await sql`
         INSERT INTO projects (id, user_id, name, description)
-        VALUES (${project.id}, ${userId}, ${project.name}, ${project.description || null})
+        VALUES (${project.id}, ${userId}, ${sanitizeString(project.name, 120)}, ${project.description ? sanitizeString(project.description, 500) : null})
         ON CONFLICT (id) DO UPDATE SET
           name = EXCLUDED.name,
           description = EXCLUDED.description,
@@ -709,6 +1068,10 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     if (pathname.startsWith('/api/projects/') && req.method === 'DELETE') {
       const id = pathname.replace('/api/projects/', '');
       const userId = url.searchParams.get('userId');
+      if (!userId) {
+        sendJson(res, 400, { error: 'userId obrigatório' });
+        return true;
+      }
       await sql`DELETE FROM projects WHERE id = ${id} AND user_id = ${userId};`;
       sendJson(res, 200, { success: true });
       return true;
@@ -716,10 +1079,15 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
 
     // 11. SAVE COLLECTION
     if (pathname === '/api/collections' && req.method === 'POST') {
-      const { userId, collection } = await parseBody(req);
+      const { userId, collection } = await parseBody(req, 512 * 1024);
+      if (!userId || !collection?.id || !collection?.name) {
+        sendJson(res, 400, { error: 'Dados da coleção incompletos.' });
+        return true;
+      }
+
       await sql`
         INSERT INTO collections (id, user_id, name, description)
-        VALUES (${collection.id}, ${userId}, ${collection.name}, ${collection.description || null})
+        VALUES (${collection.id}, ${userId}, ${sanitizeString(collection.name, 120)}, ${collection.description ? sanitizeString(collection.description, 500) : null})
         ON CONFLICT (id) DO UPDATE SET
           name = EXCLUDED.name,
           description = EXCLUDED.description,
@@ -733,6 +1101,10 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     if (pathname.startsWith('/api/collections/') && req.method === 'DELETE') {
       const id = pathname.replace('/api/collections/', '');
       const userId = url.searchParams.get('userId');
+      if (!userId) {
+        sendJson(res, 400, { error: 'userId obrigatório' });
+        return true;
+      }
       await sql`DELETE FROM collections WHERE id = ${id} AND user_id = ${userId};`;
       sendJson(res, 200, { success: true });
       return true;
@@ -740,7 +1112,8 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
 
     // 13. FILE UPLOAD (Persisted directly as cloud-ready Data URI in Neon PostgreSQL)
     if (pathname === '/api/upload' && req.method === 'POST') {
-      const { fileName, base64Data } = await parseBody(req);
+      const body = await parseBody(req, 15 * 1024 * 1024);
+      const { fileName, base64Data } = body || {};
       if (!base64Data) {
         sendJson(res, 400, { error: 'Dados da imagem ausentes' });
         return true;
@@ -748,35 +1121,16 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
 
       sendJson(res, 200, {
         url: base64Data,
-        storagePath: fileName || `img-${Date.now()}`,
+        storagePath: fileName ? sanitizeString(fileName, 120) : `img-${Date.now()}`,
       });
       return true;
     }
 
-    // Serve legacy static /uploads/ files if requested
-    if (pathname.startsWith('/uploads/') && req.method === 'GET') {
-      const filePath = path.resolve(process.cwd(), 'public', pathname.replace(/^\//, ''));
-      if (fs.existsSync(filePath)) {
-        const ext = path.extname(filePath).toLowerCase();
-        const mimeTypes: Record<string, string> = {
-          '.png': 'image/png',
-          '.jpg': 'image/jpeg',
-          '.jpeg': 'image/jpeg',
-          '.webp': 'image/webp',
-          '.gif': 'image/gif',
-          '.svg': 'image/svg+xml',
-        };
-        const stream = fs.createReadStream(filePath);
-        res.writeHead(200, { 'Content-Type': mimeTypes[ext] || 'image/png' });
-        stream.pipe(res);
-        return true;
-      }
-    }
-
     // 14. BULK OPERATIONS
     if (pathname === '/api/bulk' && req.method === 'POST') {
-      const { userId, action, ids, payload } = await parseBody(req);
-      if (!Array.isArray(ids) || ids.length === 0) {
+      const body = await parseBody(req, 1024 * 1024);
+      const { userId, action, ids, payload } = body || {};
+      if (!userId || !Array.isArray(ids) || ids.length === 0) {
         sendJson(res, 200, { successCount: 0 });
         return true;
       }
@@ -788,7 +1142,7 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
       } else if (action === 'favorite') {
         for (const id of ids) {
           await sql`
-            UPDATE "references" SET is_favorite = ${Boolean(payload.isFavorite)}, updated_at = now()
+            UPDATE "references" SET is_favorite = ${Boolean(payload?.isFavorite)}, updated_at = now()
             WHERE id = ${id} AND user_id = ${userId};
           `;
         }
@@ -801,6 +1155,10 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
     sendJson(res, 404, { error: 'Rota não encontrada' });
     return true;
   } catch (err: any) {
+    if (err.message === 'PAYLOAD_TOO_LARGE') {
+      sendJson(res, 413, { error: 'O tamanho da requisição excede o limite permitido (Payload Too Large).' });
+      return true;
+    }
     console.error('API Error:', err);
     sendJson(res, 500, { error: err.message || 'Erro interno no servidor' });
     return true;
