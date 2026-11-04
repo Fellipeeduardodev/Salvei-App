@@ -10,19 +10,13 @@ import {
   Filter,
   X,
   Tag,
-  Briefcase,
   Layers,
-  Code2,
   FileText,
-  Paperclip,
   Image as ImageIcon,
   ChevronDown,
   Star,
   LayoutGrid,
-  List,
   Palette,
-  Presentation,
-  Bookmark,
   Pipette,
 } from 'lucide-react';
 
@@ -43,9 +37,9 @@ interface FilterBarProps {
   availableTags: string[];
   selectedTags: string[];
   onToggleTag: (tag: string) => void;
-  availableProjects: Project[];
-  selectedProjectIds: string[];
-  onToggleProject: (projectId: string) => void;
+  availableProjects?: Project[];
+  selectedProjectIds?: string[];
+  onToggleProject?: (projectId: string) => void;
   availableCollections: Collection[];
   selectedCollectionIds: string[];
   onToggleCollection: (collectionId: string) => void;
@@ -71,9 +65,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   availableTags,
   selectedTags,
   onToggleTag,
-  availableProjects,
-  selectedProjectIds,
-  onToggleProject,
+  availableProjects: _availableProjects = [],
+  selectedProjectIds: _selectedProjectIds = [],
+  onToggleProject: _onToggleProject,
   availableCollections,
   selectedCollectionIds,
   onToggleCollection,
@@ -88,8 +82,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onSelectColorHex,
   viewMode = 'grid',
   onViewModeChange,
-  onOpenPresentation,
-  onOpenBookmarklet,
+  onOpenPresentation: _onOpenPresentation,
+  onOpenBookmarklet: _onOpenBookmarklet,
   isFiltered = false,
 }) => {
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
@@ -100,15 +94,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   > = {
     is_favorite: { label: 'Favoritas', icon: <Star size={12} className="text-[#F59E0B] fill-[#F59E0B]" /> },
     has_image: { label: 'Com imagem', icon: <ImageIcon size={12} /> },
-    has_code: { label: 'Com código', icon: <Code2 size={12} /> },
     has_notes: { label: 'Com anotações', icon: <FileText size={12} /> },
-    has_files: { label: 'Com arquivos', icon: <Paperclip size={12} /> },
+    has_code: { label: 'Com código', icon: <FileText size={12} /> },
+    has_files: { label: 'Com arquivos', icon: <FileText size={12} /> },
   };
+
+  const DISPLAYED_CONTENT_TYPES: ContentTypeFilter[] = ['is_favorite', 'has_image', 'has_notes'];
 
   const hasActiveFilters =
     Boolean(searchQuery && searchQuery.trim().length > 0) ||
     selectedTags.length > 0 ||
-    selectedProjectIds.length > 0 ||
     selectedCollectionIds.length > 0 ||
     contentTypes.length > 0 ||
     Boolean(selectedColorHex);
@@ -195,34 +190,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           </span>
         </div>
 
-        {/* Right: Controls, Presentation, Clipper & Sort */}
+        {/* Right: Controls & Sort */}
         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 shrink-0">
-          {/* Web Clipper Bookmarklet (Desktop / Laptop only) */}
-          {onOpenBookmarklet && (
-            <button
-              type="button"
-              onClick={onOpenBookmarklet}
-              className="hidden sm:flex h-7 px-2 sm:px-2.5 rounded-md bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] text-xs font-medium text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:border-[#D4D4D0] dark:hover:border-[#3E434D] transition-colors cursor-pointer items-center gap-1.5 min-h-[34px] sm:min-h-auto"
-              title="Abrir Web Clipper / Bookmarklet"
-            >
-              <Bookmark size={12} className="text-[#4355DB]" />
-              <span>Clipper</span>
-            </button>
-          )}
-
-          {/* Presentation Mode (Desktop / Tablet only) */}
-          {onOpenPresentation && (
-            <button
-              type="button"
-              onClick={onOpenPresentation}
-              className="hidden sm:flex h-7 px-2 sm:px-2.5 rounded-md bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] text-xs font-medium text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:border-[#D4D4D0] dark:hover:border-[#3E434D] transition-colors cursor-pointer items-center gap-1.5 min-h-[34px] sm:min-h-auto"
-              title="Iniciar Apresentação em Tela Cheia (Tecla P)"
-            >
-              <Presentation size={12} className="text-[#F59E0B]" />
-              <span>Apresentar</span>
-            </button>
-          )}
-
           {/* View Mode Switcher: Grid vs Moodboard (Desktop / Tablet only) */}
           {onViewModeChange && (
             <div className="hidden sm:flex items-center p-0.5 rounded-md bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] h-7 min-h-[34px] sm:min-h-auto">
@@ -273,38 +242,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       {/* Advanced Faceted Filter Panel */}
       {isAdvancedFiltersOpen && (
         <div className="p-4 bg-white dark:bg-[#191B20] border border-[#E7E7E5] dark:border-[#2D3139] rounded-sm flex flex-col gap-4 animate-in fade-in duration-100 shadow-2xs">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Category 1: Projects Filter */}
-            <div className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] font-bold text-[#A8A8A6] dark:text-[#6B7280] uppercase tracking-wider flex items-center gap-1.5">
-                <Briefcase size={12} /> Projetos
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {availableProjects.length === 0 ? (
-                  <span className="text-xs text-[#A8A8A6] dark:text-[#6B7280] italic">Nenhum projeto cadastrado</span>
-                ) : (
-                  availableProjects.map((p) => {
-                    const isSelected = selectedProjectIds.includes(p.id);
-                    return (
-                      <button
-                        key={p.id}
-                        type="button"
-                        onClick={() => onToggleProject(p.id)}
-                        className={`px-2 py-1 rounded text-xs transition-colors cursor-pointer border ${
-                          isSelected
-                            ? 'bg-[#171717] dark:bg-[#4355DB] text-white border-[#171717] dark:border-[#4355DB] font-semibold'
-                            : 'bg-[#F8F8F6] dark:bg-[#20232A] border-[#E7E7E5] dark:border-[#2D3139] text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6]'
-                        }`}
-                      >
-                        {p.name}
-                      </button>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-
-            {/* Category 2: Collections Filter */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Category 1: Collections Filter */}
             <div className="flex flex-col gap-2">
               <span className="font-mono text-[10px] font-bold text-[#A8A8A6] dark:text-[#6B7280] uppercase tracking-wider flex items-center gap-1.5">
                 <Layers size={12} /> Coleções
@@ -334,13 +273,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               </div>
             </div>
 
-            {/* Category 3: Content Types Filter */}
+            {/* Category 2: Content Types Filter */}
             <div className="flex flex-col gap-2">
               <span className="font-mono text-[10px] font-bold text-[#A8A8A6] dark:text-[#6B7280] uppercase tracking-wider flex items-center gap-1.5">
                 Tipo de Conteúdo
               </span>
               <div className="flex flex-wrap gap-1.5">
-                {(Object.keys(CONTENT_TYPE_LABELS) as ContentTypeFilter[]).map((type) => {
+                {DISPLAYED_CONTENT_TYPES.map((type) => {
                   const isSelected = contentTypes.includes(type);
                   const { label, icon } = CONTENT_TYPE_LABELS[type];
                   return (
@@ -362,7 +301,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               </div>
             </div>
 
-            {/* Category 4: Paleta Cromática */}
+            {/* Category 3: Paleta Cromática */}
             <div className="flex flex-col gap-2">
               <span className="font-mono text-[10px] font-bold text-[#A8A8A6] dark:text-[#6B7280] uppercase tracking-wider flex items-center gap-1.5">
                 <Palette size={12} /> Paleta de Cor
@@ -451,28 +390,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               </button>
             </span>
           ))}
-
-          {/* Projects Chips */}
-          {selectedProjectIds.map((pId) => {
-            const project = availableProjects.find((p) => p.id === pId);
-            return (
-              <span
-                key={pId}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F1F1EF] dark:bg-[#20232A] text-[#171717] dark:text-[#F3F4F6] border border-[#E7E7E5] dark:border-[#2D3139] text-[11px] font-sans font-medium"
-              >
-                <Briefcase size={10} className="text-[#737373] dark:text-[#9CA3AF]" />
-                <span>Projeto: {project ? project.name : pId}</span>
-                <button
-                  type="button"
-                  onClick={() => onToggleProject(pId)}
-                  className="p-0.5 hover:text-[#EF4444] cursor-pointer"
-                  title="Remover filtro de projeto"
-                >
-                  <X size={11} />
-                </button>
-              </span>
-            );
-          })}
 
           {/* Collections Chips */}
           {selectedCollectionIds.map((cId) => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Reference, Project, Collection, CodeSnippet, ReferenceFile } from '../../types/reference';
+import { Reference, Project, Collection } from '../../types/reference';
 import {
   ExternalLink,
   Copy,
@@ -10,22 +10,18 @@ import {
   Plus,
   Calendar,
   Layers,
-  Briefcase,
-  Code2,
   Edit3,
   Eye,
   Image as ImageIcon,
   Upload,
   Trash2,
-  Paperclip,
   FileText,
   AlertCircle,
   X,
 } from 'lucide-react';
 import { MarkdownViewer } from './MarkdownViewer';
-import { CodeSnippetBlock } from './CodeSnippetBlock';
-import { saveImageBlob } from '../../lib/imageStorage';
-import { formatBytes, validateAndFormatUrl } from '../../lib/referenceLifecycle';
+import { saveImageBlob, readFileAsOptimizedDataUrl } from '../../lib/imageStorage';
+import { validateAndFormatUrl } from '../../lib/referenceLifecycle';
 
 interface ExpandedOverlayProps {
   reference: Reference | null;
@@ -43,7 +39,7 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
   onClose,
   onUpdateReference,
   onDeleteReference,
-  availableProjects = [],
+  availableProjects: _availableProjects = [],
   availableCollections = [],
 }) => {
   const [copiedUrl, setCopiedUrl] = useState(false);
@@ -60,18 +56,10 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
   const [newTagInput, setNewTagInput] = useState('');
   const [isAddingTag, setIsAddingTag] = useState(false);
 
-  const [isAddingSnippet, setIsAddingSnippet] = useState(false);
-  const [snippetTitle, setSnippetTitle] = useState('');
-  const [snippetLanguage, setSnippetLanguage] = useState<
-    'css' | 'tailwind' | 'typescript' | 'javascript' | 'html' | 'json'
-  >('tailwind');
-  const [snippetCode, setSnippetCode] = useState('');
-
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const fileAttachmentInputRef = useRef<HTMLInputElement>(null);
   const tagInputRef = useRef<HTMLInputElement>(null);
 
   // Sync drafts whenever reference changes
@@ -84,7 +72,6 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
       setIsEditingUrl(false);
       setIsEditingNotes(false);
       setIsAddingTag(false);
-      setIsAddingSnippet(false);
       setIsConfirmingDelete(false);
     }
   }, [reference?.id]);
@@ -191,10 +178,11 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
     setIsUploadingImage(true);
     try {
       const storageId = `img-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const objectUrl = await saveImageBlob(storageId, file);
+      await saveImageBlob(storageId, file);
+      const permanentUrl = await readFileAsOptimizedDataUrl(file);
 
       onUpdateReference(reference.id, {
-        screenshotUrl: objectUrl,
+        screenshotUrl: permanentUrl,
         imageStorageId: storageId,
         originalFileName: file.name,
         screenshotStatus: 'ready',
@@ -206,60 +194,6 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
       setIsUploadingImage(false);
       e.target.value = '';
     }
-  };
-
-  const handleAddSnippet = () => {
-    if (snippetTitle.trim() && snippetCode.trim()) {
-      const newSnippet: CodeSnippet = {
-        id: `code-${Date.now()}`,
-        title: snippetTitle.trim(),
-        language: snippetLanguage,
-        code: snippetCode.trim(),
-      };
-      onUpdateReference(reference.id, {
-        codeSnippets: [...reference.codeSnippets, newSnippet],
-      });
-      setSnippetTitle('');
-      setSnippetCode('');
-      setIsAddingSnippet(false);
-    }
-  };
-
-  const handleRemoveSnippet = (snippetId: string) => {
-    onUpdateReference(reference.id, {
-      codeSnippets: reference.codeSnippets.filter((s) => s.id !== snippetId),
-    });
-  };
-
-  const handleUpdateSnippet = (updatedSnippet: CodeSnippet) => {
-    onUpdateReference(reference.id, {
-      codeSnippets: reference.codeSnippets.map((s) =>
-        s.id === updatedSnippet.id ? updatedSnippet : s
-      ),
-    });
-  };
-
-  const handleAttachFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const newFile: ReferenceFile = {
-      id: `file-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-      name: file.name,
-      type: file.type || 'application/octet-stream',
-      size: formatBytes(file.size),
-    };
-
-    onUpdateReference(reference.id, {
-      relatedFiles: [...(reference.relatedFiles || []), newFile],
-    });
-    e.target.value = '';
-  };
-
-  const handleRemoveFile = (fileId: string) => {
-    onUpdateReference(reference.id, {
-      relatedFiles: (reference.relatedFiles || []).filter((f) => f.id !== fileId),
-    });
   };
 
   const formattedDate = new Date(reference.createdAt).toLocaleDateString('pt-BR', {
@@ -290,13 +224,6 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
         type="file"
         accept="image/png,image/jpeg,image/jpg,image/webp,image/gif,image/avif"
         onChange={handleImageFileSelected}
-        className="hidden"
-      />
-
-      <input
-        ref={fileAttachmentInputRef}
-        type="file"
-        onChange={handleAttachFile}
         className="hidden"
       />
 
@@ -444,16 +371,16 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
               ) : (
                 <div
                   onClick={() => setIsEditingTitle(true)}
-                  className="group/title flex items-start justify-between gap-2 cursor-pointer"
-                  title="Clique para editar o título"
+                  className="group/title flex items-start justify-between gap-2 cursor-pointer p-1.5 -m-1.5 rounded-md hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors"
+                  title="Clique para renomear"
                 >
                   <h1 className="font-sans font-bold text-xl text-[#171717] dark:text-[#F3F4F6] leading-snug">
                     {reference.title}
                   </h1>
-                  <Edit3
-                    size={14}
-                    className="text-[#A8A8A6] dark:text-[#6B7280] opacity-0 group-hover/title:opacity-100 transition-opacity flex-shrink-0 mt-1"
-                  />
+                  <span className="flex items-center gap-1 text-[11px] text-[#737373] dark:text-[#9CA3AF] group-hover/title:text-[#4355DB] dark:group-hover/title:text-[#6375F1] transition-colors flex-shrink-0 mt-1">
+                    <Edit3 size={13} />
+                    <span className="text-[10px] font-mono hidden group-hover/title:inline">Renomear</span>
+                  </span>
                 </div>
               )}
             </div>
@@ -605,136 +532,66 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
               </div>
             </div>
 
-            {/* Projects & Collections Associations */}
-            <div className="flex flex-col gap-3 pb-4 border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70 text-xs">
-              <span className="font-mono text-[10px] font-semibold text-[#A8A8A6] dark:text-[#9CA3AF] uppercase tracking-wider">
-                Associações
-              </span>
-
-              {/* Projects */}
-              <div className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-[#737373] dark:text-[#9CA3AF] flex items-center gap-1.5 font-medium">
-                    <Briefcase size={12} className="text-[#4355DB] dark:text-[#6375F1]" />
-                    <span>Projetos vinculados</span>
-                  </span>
-                  {availableProjects.length > 0 && (
-                    <select
-                      value=""
-                      onChange={(e) => {
-                        const pId = e.target.value;
-                        if (pId && !reference.projectIds?.includes(pId)) {
-                          onUpdateReference(reference.id, {
-                            projectIds: [...(reference.projectIds || []), pId],
-                          });
-                        }
-                      }}
-                      className="text-[11px] text-[#4355DB] dark:text-[#6375F1] bg-transparent outline-none cursor-pointer pr-1"
-                    >
-                      <option value="" className="dark:bg-[#191B20] dark:text-[#F3F4F6]">+ Vincular projeto...</option>
-                      {availableProjects
-                        .filter((p) => !reference.projectIds?.includes(p.id))
-                        .map((p) => (
-                          <option key={p.id} value={p.id} className="dark:bg-[#191B20] dark:text-[#F3F4F6]">
-                            {p.name}
-                          </option>
-                        ))}
-                    </select>
-                  )}
-                </div>
-
-                <div className="flex flex-wrap gap-1.5">
-                  {(!reference.projectIds || reference.projectIds.length === 0) ? (
-                    <span className="text-xs text-[#A8A8A6] dark:text-[#6B7280] italic">Nenhum projeto vinculado</span>
-                  ) : (
-                    reference.projectIds.map((pId) => {
-                      const p = availableProjects.find((proj) => proj.id === pId);
-                      return (
-                        <span
-                          key={pId}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#F1F1EF] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-[11px] text-[#171717] dark:text-[#F3F4F6]"
-                        >
-                          <span className="truncate max-w-[140px]">{p ? p.name : pId}</span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onUpdateReference(reference.id, {
-                                projectIds: reference.projectIds.filter((id) => id !== pId),
-                              });
-                            }}
-                            className="p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-[#A8A8A6] hover:text-[#EF4444] cursor-pointer"
-                            title="Desvincular projeto"
-                          >
-                            <X size={10} />
-                          </button>
-                        </span>
-                      );
-                    })
-                  )}
-                </div>
+            {/* Collections Associations */}
+            <div className="flex flex-col gap-2 pb-4 border-b border-[#E7E7E5]/70 dark:border-[#2D3139]/70 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[#737373] dark:text-[#9CA3AF] flex items-center gap-1.5 font-medium">
+                  <Layers size={12} className="text-[#4355DB] dark:text-[#6375F1]" />
+                  <span>Coleções vinculadas</span>
+                </span>
+                {availableCollections.length > 0 && (
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      const cId = e.target.value;
+                      if (cId && !reference.collectionIds?.includes(cId)) {
+                        onUpdateReference(reference.id, {
+                          collectionIds: [...(reference.collectionIds || []), cId],
+                        });
+                      }
+                    }}
+                    className="text-[11px] text-[#4355DB] dark:text-[#6375F1] bg-transparent outline-none cursor-pointer pr-1"
+                  >
+                    <option value="" className="dark:bg-[#191B20] dark:text-[#F3F4F6]">+ Vincular coleção...</option>
+                    {availableCollections
+                      .filter((c) => !reference.collectionIds?.includes(c.id))
+                      .map((c) => (
+                        <option key={c.id} value={c.id} className="dark:bg-[#191B20] dark:text-[#F3F4F6]">
+                          {c.name}
+                        </option>
+                      ))}
+                  </select>
+                )}
               </div>
 
-              {/* Collections */}
-              <div className="flex flex-col gap-1.5 pt-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-[#737373] dark:text-[#9CA3AF] flex items-center gap-1.5 font-medium">
-                    <Layers size={12} className="text-[#4355DB] dark:text-[#6375F1]" />
-                    <span>Coleções vinculadas</span>
-                  </span>
-                  {availableCollections.length > 0 && (
-                    <select
-                      value=""
-                      onChange={(e) => {
-                        const cId = e.target.value;
-                        if (cId && !reference.collectionIds?.includes(cId)) {
-                          onUpdateReference(reference.id, {
-                            collectionIds: [...(reference.collectionIds || []), cId],
-                          });
-                        }
-                      }}
-                      className="text-[11px] text-[#4355DB] dark:text-[#6375F1] bg-transparent outline-none cursor-pointer pr-1"
-                    >
-                      <option value="" className="dark:bg-[#191B20] dark:text-[#F3F4F6]">+ Vincular coleção...</option>
-                      {availableCollections
-                        .filter((c) => !reference.collectionIds?.includes(c.id))
-                        .map((c) => (
-                          <option key={c.id} value={c.id} className="dark:bg-[#191B20] dark:text-[#F3F4F6]">
-                            {c.name}
-                          </option>
-                        ))}
-                    </select>
-                  )}
-                </div>
-
-                <div className="flex flex-wrap gap-1.5">
-                  {(!reference.collectionIds || reference.collectionIds.length === 0) ? (
-                    <span className="text-xs text-[#A8A8A6] dark:text-[#6B7280] italic">Nenhuma coleção vinculada</span>
-                  ) : (
-                    reference.collectionIds.map((cId) => {
-                      const c = availableCollections.find((col) => col.id === cId);
-                      return (
-                        <span
-                          key={cId}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#F1F1EF] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-[11px] text-[#171717] dark:text-[#F3F4F6]"
+              <div className="flex flex-wrap gap-1.5">
+                {(!reference.collectionIds || reference.collectionIds.length === 0) ? (
+                  <span className="text-xs text-[#A8A8A6] dark:text-[#6B7280] italic">Nenhuma coleção vinculada</span>
+                ) : (
+                  reference.collectionIds.map((cId) => {
+                    const c = availableCollections.find((col) => col.id === cId);
+                    return (
+                      <span
+                        key={cId}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#F1F1EF] dark:bg-[#20232A] border border-[#E7E7E5] dark:border-[#2D3139] text-[11px] text-[#171717] dark:text-[#F3F4F6]"
+                      >
+                        <span className="truncate max-w-[140px]">{c ? c.name : cId}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onUpdateReference(reference.id, {
+                              collectionIds: reference.collectionIds.filter((id) => id !== cId),
+                            });
+                          }}
+                          className="p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-[#A8A8A6] hover:text-[#EF4444] cursor-pointer"
+                          title="Desvincular coleção"
                         >
-                          <span className="truncate max-w-[140px]">{c ? c.name : cId}</span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onUpdateReference(reference.id, {
-                                collectionIds: reference.collectionIds.filter((id) => id !== cId),
-                              });
-                            }}
-                            className="p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-[#A8A8A6] hover:text-[#EF4444] cursor-pointer"
-                            title="Desvincular coleção"
-                          >
-                            <X size={10} />
-                          </button>
-                        </span>
-                      );
-                    })
-                  )}
-                </div>
+                          <X size={10} />
+                        </button>
+                      </span>
+                    );
+                  })
+                )}
               </div>
             </div>
 
@@ -792,128 +649,6 @@ export const ExpandedOverlay: React.FC<ExpandedOverlayProps> = ({
                   title="Clique para editar as notas"
                 >
                   <MarkdownViewer content={reference.notesMarkdown} />
-                </div>
-              )}
-            </div>
-
-            {/* Code Snippets Section */}
-            <div className="flex flex-col gap-3 pb-5 border-b border-[#E7E7E5]/70">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] font-semibold text-[#A8A8A6] uppercase tracking-wider flex items-center gap-1.5">
-                  <Code2 size={13} /> Trechos de Código ({reference.codeSnippets.length})
-                </span>
-                {!isAddingSnippet && (
-                  <button
-                    onClick={() => setIsAddingSnippet(true)}
-                    className="text-xs font-medium text-[#4355DB] hover:text-[#3646B8] flex items-center gap-1 cursor-pointer outline-none"
-                  >
-                    <Plus size={12} /> Adicionar snippet
-                  </button>
-                )}
-              </div>
-
-              {reference.codeSnippets.map((snippet) => (
-                <CodeSnippetBlock
-                  key={snippet.id}
-                  snippet={snippet}
-                  onDelete={() => handleRemoveSnippet(snippet.id)}
-                  onUpdate={handleUpdateSnippet}
-                />
-              ))}
-
-              {isAddingSnippet && (
-                <div className="flex flex-col gap-2.5 p-3 rounded-sm bg-[#F8F8F6] border border-[#4355DB]">
-                  <span className="text-xs font-bold text-[#171717]">Novo Trecho de Código</span>
-                  <input
-                    type="text"
-                    placeholder="Título (ex: Tailwind Grid, Efeito CSS)"
-                    value={snippetTitle}
-                    onChange={(e) => setSnippetTitle(e.target.value)}
-                    className="w-full text-xs px-2.5 py-1.5 rounded bg-white border border-[#E7E7E5] text-[#171717] outline-none"
-                  />
-                  <select
-                    value={snippetLanguage}
-                    onChange={(e) =>
-                      setSnippetLanguage(
-                        e.target.value as 'css' | 'tailwind' | 'typescript' | 'javascript' | 'html' | 'json'
-                      )
-                    }
-                    className="text-xs px-2 py-1.5 rounded bg-white border border-[#E7E7E5] text-[#171717] outline-none"
-                  >
-                    <option value="tailwind">Tailwind CSS</option>
-                    <option value="css">CSS Padrão</option>
-                    <option value="typescript">TypeScript</option>
-                    <option value="javascript">JavaScript</option>
-                    <option value="html">HTML</option>
-                    <option value="json">JSON</option>
-                  </select>
-                  <textarea
-                    placeholder="Cole o código aqui..."
-                    rows={4}
-                    value={snippetCode}
-                    onChange={(e) => setSnippetCode(e.target.value)}
-                    className="w-full p-2.5 font-mono text-xs bg-white border border-[#E7E7E5] rounded outline-none"
-                  />
-                  <div className="flex items-center justify-end gap-2">
-                    <button
-                      onClick={() => setIsAddingSnippet(false)}
-                      className="px-2.5 py-1 text-xs text-[#737373] hover:text-[#171717] cursor-pointer"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      onClick={handleAddSnippet}
-                      disabled={!snippetTitle.trim() || !snippetCode.trim()}
-                      className="px-3 py-1 text-xs font-semibold bg-[#171717] text-white rounded cursor-pointer disabled:opacity-50"
-                    >
-                      Salvar snippet
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Related Files Section */}
-            <div className="flex flex-col gap-3 pb-5 border-b border-[#E7E7E5]/70">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] font-semibold text-[#A8A8A6] uppercase tracking-wider flex items-center gap-1.5">
-                  <Paperclip size={12} /> Arquivos Anexados ({reference.relatedFiles?.length || 0})
-                </span>
-                <button
-                  type="button"
-                  onClick={() => fileAttachmentInputRef.current?.click()}
-                  className="text-xs font-medium text-[#4355DB] hover:text-[#3646B8] flex items-center gap-1 cursor-pointer outline-none"
-                >
-                  <Plus size={12} /> Anexar arquivo
-                </button>
-              </div>
-
-              {(!reference.relatedFiles || reference.relatedFiles.length === 0) ? (
-                <span className="text-xs text-[#A8A8A6] italic">Nenhum arquivo complementar anexado</span>
-              ) : (
-                <div className="flex flex-col gap-1.5">
-                  {reference.relatedFiles.map((file) => (
-                    <div
-                      key={file.id}
-                      className="flex items-center justify-between p-2 rounded bg-[#F8F8F6] border border-[#E7E7E5] text-xs font-mono"
-                    >
-                      <div className="flex items-center gap-2 truncate max-w-[280px]">
-                        <FileText size={13} className="text-[#737373] flex-shrink-0" />
-                        <span className="truncate text-[#171717]">{file.name}</span>
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {file.size && <span className="text-[10px] text-[#A8A8A6]">{file.size}</span>}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveFile(file.id)}
-                          className="p-1 text-[#A8A8A6] hover:text-[#EF4444] transition-colors rounded cursor-pointer"
-                          title="Remover anexo"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
                 </div>
               )}
             </div>

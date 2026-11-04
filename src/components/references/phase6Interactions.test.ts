@@ -221,4 +221,56 @@ describe('Fase 6: Regras de Interação de Teclado e Seleção Múltipla', () =>
       expect(sanitizedSelection).not.toContain('ref-2');
     });
   });
+
+  describe('Interatividade de Etiquetas (TagInput) e Mudança de Nome', () => {
+    it('normaliza etiquetas corretamente removendo hashtags e formatando espaços', () => {
+      const normalize = (raw: string) =>
+        raw
+          .trim()
+          .toLowerCase()
+          .replace(/^#+/, '')
+          .replace(/\s+/g, '-');
+
+      expect(normalize('#saas')).toBe('saas');
+      expect(normalize('##dark-mode ')).toBe('dark-mode');
+      expect(normalize('Landing Page Pro')).toBe('landing-page-pro');
+      expect(normalize('   ')).toBe('');
+    });
+
+    it('alterna (toggle) sugestões de etiquetas sem duplicar itens', () => {
+      let tags = ['saas', 'dark-mode'];
+      const toggle = (current: string[], sug: string) => {
+        const clean = sug.trim().toLowerCase().replace(/^#+/, '');
+        return current.includes(clean)
+          ? current.filter((t) => t !== clean)
+          : [...current, clean];
+      };
+
+      // Toggle existing: removes it
+      tags = toggle(tags, 'saas');
+      expect(tags).toEqual(['dark-mode']);
+
+      // Toggle non-existing: adds it
+      tags = toggle(tags, 'minimal');
+      expect(tags).toEqual(['dark-mode', 'minimal']);
+
+      // Toggle with hashtag prefix
+      tags = toggle(tags, '#dashboard');
+      expect(tags).toEqual(['dark-mode', 'minimal', 'dashboard']);
+    });
+
+    it('permite renomeação reativa do título de cada rascunho de imagem', () => {
+      const drafts = [
+        { name: 'image.png', title: 'Image' },
+        { name: 'screen-2.jpg', title: 'Screen 2' },
+      ];
+
+      const updateTitle = (index: number, newTitle: string) =>
+        drafts.map((d, i) => (i === index ? { ...d, title: newTitle } : d));
+
+      const updated = updateTitle(0, 'Dashboard Analytics Final');
+      expect(updated[0].title).toBe('Dashboard Analytics Final');
+      expect(updated[1].title).toBe('Screen 2');
+    });
+  });
 });

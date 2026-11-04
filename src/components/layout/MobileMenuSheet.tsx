@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import {
-  Briefcase,
   Layers,
   Tag,
   SlidersHorizontal,
@@ -8,7 +7,7 @@ import {
   HelpCircle,
   LogOut,
   X,
-    ChevronRight,
+  ChevronRight,
   User as UserIcon,
   BookOpen,
 } from 'lucide-react';
@@ -138,36 +137,6 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
 
         {/* Scrollable Navigation Options */}
         <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-1.5">
-          {/* Projetos */}
-          <button
-            type="button"
-            onClick={() => handleSelectDestination('projects')}
-            className={`w-full flex items-center justify-between p-3 rounded-lg text-left transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB] ${
-              currentDestination === 'projects'
-                ? 'bg-[#EDEDEA] dark:bg-[#2A303C] text-[#171717] dark:text-[#F3F4F6] font-semibold'
-                : 'text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A]'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <div
-                className={`w-8 h-8 rounded-md flex items-center justify-center ${
-                  currentDestination === 'projects'
-                    ? 'bg-[#4355DB] text-white'
-                    : 'bg-[#F1F1EF] dark:bg-[#20232A] text-[#737373] dark:text-[#9CA3AF]'
-                }`}
-              >
-                <Briefcase size={16} />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-semibold text-[#171717] dark:text-[#F3F4F6]">Projetos</span>
-                <span className="text-[11px] text-[#737373] dark:text-[#9CA3AF]">Sprints, produtos e entregáveis</span>
-              </div>
-            </div>
-            <span className="font-mono text-xs text-[#737373] dark:text-[#9CA3AF] bg-white dark:bg-[#20232A] px-2 py-0.5 rounded border border-[#E7E7E5] dark:border-[#2D3139]">
-              {projectCount}
-            </span>
-          </button>
-
           {/* Coleções */}
           <button
             type="button"

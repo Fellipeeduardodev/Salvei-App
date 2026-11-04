@@ -21,8 +21,6 @@ import { KeyboardShortcutsModal } from './components/ui/KeyboardShortcutsModal';
 import { UserProfileModal } from './components/profile/UserProfileModal';
 import { OnboardingTutorialModal } from './components/onboarding/OnboardingTutorialModal';
 import { SettingsView } from './components/settings/SettingsView';
-import { BookmarkletModal } from './components/clipper/BookmarkletModal';
-import { PresentationMode } from './components/presentation/PresentationMode';
 import { PublicMoodboardView } from './features/collections/PublicMoodboardView';
 import {
   parseShareFromLocation,
@@ -350,14 +348,13 @@ export function App() {
           setTheme(profileData.preferences.theme);
         }
 
-        // Auto-launch Onboarding Tutorial on first login if not completed
+        // Mark onboarding checked without intrusive automatic popup
         if (
           profileData &&
           !profileData.onboarding_completed &&
           !hasPromptedOnboardingRef.current
         ) {
           hasPromptedOnboardingRef.current = true;
-          setIsOnboardingModalOpen(true);
         }
       } catch (err: any) {
         console.error('Falha ao carregar dados do Salvei:', err);
@@ -582,8 +579,6 @@ export function App() {
   const [sortOption, setSortOption] = useState<SortOption>('newest');
   const [selectedColorHex, setSelectedColorHex] = useState<string | undefined>(undefined);
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'moodboard'>('grid');
-  const [isPresentationOpen, setIsPresentationOpen] = useState(false);
-  const [isBookmarkletOpen, setIsBookmarkletOpen] = useState(false);
 
   // 6. Modal, SidePanel & Expanded View States
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -873,31 +868,6 @@ export function App() {
       window.history.replaceState(null, '', window.location.pathname + (newQuery ? `?${newQuery}` : ''));
     }
   }, [showToast]);
-
-  // Tecla 'P' para alternar Modo Apresentação
-  useEffect(() => {
-    const handlePresentationKey = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-      if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable ||
-        isAddModalOpen ||
-        isCommandPaletteOpen ||
-        isKeyboardShortcutsModalOpen
-      ) {
-        return;
-      }
-
-      if ((e.key === 'p' || e.key === 'P') && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        e.preventDefault();
-        setIsPresentationOpen((prev) => !prev);
-      }
-    };
-
-    window.addEventListener('keydown', handlePresentationKey);
-    return () => window.removeEventListener('keydown', handlePresentationKey);
-  }, [isAddModalOpen, isCommandPaletteOpen, isKeyboardShortcutsModalOpen]);
 
   // Global Drag & Drop Window Detection
   useEffect(() => {
@@ -2871,8 +2841,6 @@ export function App() {
           onSelectColorHex={setSelectedColorHex}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
-          onOpenPresentation={() => setIsPresentationOpen(true)}
-          onOpenBookmarklet={() => setIsBookmarkletOpen(true)}
           onUpdatePosition={handleUpdateCanvasPosition}
           onSelectReference={(ref) => setSelectedReferenceId(ref.id)}
           selectedReferenceId={selectedReferenceId}
@@ -3053,6 +3021,7 @@ export function App() {
         initialPastedFile={pastedFile}
         availableProjects={projects}
         availableCollections={collections}
+        availableTags={availableTags}
         onOpenExisting={(existingUrl) => {
           const found = references.find((r) => r.url === existingUrl);
           if (found) {
@@ -3097,7 +3066,6 @@ export function App() {
         onClearSelection={handleClearBatchSelection}
         onBulkFavorite={handleBulkFavorite}
         onOpenCollectionModal={() => setIsBulkCollectionModalOpen(true)}
-        onOpenProjectModal={() => setIsBulkProjectModalOpen(true)}
         onOpenTagModal={() => setIsBulkTagModalOpen(true)}
         onOpenDeleteModal={() => setIsBulkDeleteModalOpen(true)}
         isProcessing={isProcessingBatch}
@@ -3120,16 +3088,6 @@ export function App() {
         availableItems={collections}
         count={selectedBatchIds.length}
         onConfirm={handleBulkAssociateCollection}
-      />
-
-      {/* Modal de Associação a Projetos em Lote */}
-      <BulkAssociateModal
-        isOpen={isBulkProjectModalOpen}
-        onClose={() => setIsBulkProjectModalOpen(false)}
-        type="project"
-        availableItems={projects}
-        count={selectedBatchIds.length}
-        onConfirm={handleBulkAssociateProject}
       />
 
       {/* Modal de Adição/Remoção de Etiquetas em Lote */}
@@ -3184,19 +3142,6 @@ export function App() {
         isOpen={isOnboardingModalOpen}
         onClose={() => setIsOnboardingModalOpen(false)}
         onComplete={handleCompleteOnboarding}
-      />
-
-      {/* Modal de Web Clipper (Bookmarklet para barra de favoritos) */}
-      <BookmarkletModal
-        isOpen={isBookmarkletOpen}
-        onClose={() => setIsBookmarkletOpen(false)}
-      />
-
-      {/* Modo de Apresentação em Tela Cheia (Tecla P ou botão Apresentar) */}
-      <PresentationMode
-        references={filteredReferences.length > 0 ? filteredReferences : references}
-        isOpen={isPresentationOpen}
-        onClose={() => setIsPresentationOpen(false)}
       />
     </AppShell>
   );

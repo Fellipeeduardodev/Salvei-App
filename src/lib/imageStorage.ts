@@ -190,3 +190,92 @@ export async function hydrateImageStorage(
 
   return result;
 }
+
+/**
+ * Reads a File/Blob and converts it to an optimized, lightweight Data URL.
+ * Automatically downsamples images larger than maxDimension to keep database payload small.
+ */
+export async function readFileAsOptimizedDataUrl(
+  file: File | Blob,
+  maxDimension = 1600,
+  quality = 0.85
+): Promise<string> {
+  return new Promise((resolve) => {
+    // If not in a browser environment or file is SVG / GIF, read as plain data URL
+    if (typeof window === 'undefined' || file.type === 'image/svg+xml' || file.type === 'image/gif') {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    // If already under 350KB, preserve original bytes
+    if (file.size > 0 && file.size < 350 * 1024) {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      let { width, height } = img;
+
+      if (width <= maxDimension && height <= maxDimension && file.size < 500 * 1024) {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => resolve('');
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      if (width > maxDimension || height > maxDimension) {
+        if (width > height) {
+          height = Math.round((height * maxDimension) / width);
+          width = maxDimension;
+        } else {
+          width = Math.round((width * maxDimension) / height);
+          height = maxDimension;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+
+      try {
+        const webp = canvas.toDataURL('image/webp', quality);
+        if (webp.startsWith('data:image/webp')) {
+          resolve(webp);
+          return;
+        }
+      } catch {}
+
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.readAsDataURL(file);
+    };
+
+    img.src = objectUrl;
+  });
+}

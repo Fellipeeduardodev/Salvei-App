@@ -485,7 +485,7 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
       return true;
     }
 
-    // 13. FILE UPLOAD (Saved to public/uploads/ or returns data URI)
+    // 13. FILE UPLOAD (Persisted directly as cloud-ready Data URI in Neon PostgreSQL)
     if (url.pathname === '/api/upload' && req.method === 'POST') {
       const { fileName, base64Data } = await parseBody(req);
       if (!base64Data) {
@@ -493,25 +493,31 @@ export async function handleNeonApiRequest(req: any, res: any): Promise<boolean>
         return true;
       }
 
-      try {
-        const buffer = Buffer.from(base64Data.replace(/^data:[^;]+;base64,/, ''), 'base64');
-        const cleanName = `${Date.now()}-${fileName.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-        const uploadDir = path.resolve(process.cwd(), 'public/uploads');
-        if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-        fs.writeFileSync(path.join(uploadDir, cleanName), buffer);
-        sendJson(res, 200, {
-          url: `/uploads/${cleanName}`,
-          storagePath: `uploads/${cleanName}`,
-        });
-      } catch {
-        // Fallback to data URL if file system write is read-only (e.g. serverless)
-        sendJson(res, 200, {
-          url: base64Data,
-          storagePath: fileName,
-        });
-      }
+      sendJson(res, 200, {
+        url: base64Data,
+        storagePath: fileName || `img-${Date.now()}`,
+      });
       return true;
+    }
+
+    // Serve legacy static /uploads/ files if requested
+    if (url.pathname.startsWith('/uploads/') && req.method === 'GET') {
+      const filePath = path.resolve(process.cwd(), 'public', url.pathname.replace(/^\//, ''));
+      if (fs.existsSync(filePath)) {
+        const ext = path.extname(filePath).toLowerCase();
+        const mimeTypes: Record<string, string> = {
+          '.png': 'image/png',
+          '.jpg': 'image/jpeg',
+          '.jpeg': 'image/jpeg',
+          '.webp': 'image/webp',
+          '.gif': 'image/gif',
+          '.svg': 'image/svg+xml',
+        };
+        const stream = fs.createReadStream(filePath);
+        res.writeHead(200, { 'Content-Type': mimeTypes[ext] || 'image/png' });
+        stream.pipe(res);
+        return true;
+      }
     }
 
     // 14. BULK OPERATIONS

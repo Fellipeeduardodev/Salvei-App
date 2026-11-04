@@ -1,11 +1,9 @@
 import React from 'react';
 import {
   Inbox,
-  Briefcase,
   Layers,
   Tag,
   SlidersHorizontal,
-  FolderGit2,
   Bookmark,
   Compass,
   LogOut,
@@ -42,11 +40,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onNavigate,
   referenceCount,
   tagCount,
-  projectCount = 0,
+  projectCount: _projectCount = 0,
   collectionCount = 0,
-  projects = [],
+  projects: _projects = [],
   collections = [],
-  onSelectProject,
+  onSelectProject: _onSelectProject,
   onSelectCollection,
   profile,
   onOpenProfile,
@@ -69,12 +67,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       count: referenceCount,
     },
     {
-      id: 'projects',
-      label: 'Projetos',
-      icon: <Briefcase size={18} strokeWidth={1.8} />,
-      count: projectCount,
-    },
-    {
       id: 'collections',
       label: 'Coleções',
       icon: <Layers size={18} strokeWidth={1.8} />,
@@ -90,11 +82,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const handleItemClick = (id: NavigationDestination) => {
     onNavigate(id);
-  };
-
-  const handleProjectClick = (projectId: string) => {
-    onNavigate('projects');
-    onSelectProject?.(projectId);
   };
 
   const handleCollectionClick = (collectionId: string) => {
@@ -174,9 +161,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Desktop-only: Curated Collections Quick Access */}
         <div className="hidden lg:flex px-3 pt-3 flex-col gap-1">
           <span className="px-2 pb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#A8A8A6] dark:text-[#6B7280]">
-            Coleções Temáticas
+            Coleções
           </span>
-          {collections.slice(0, 4).map((col) => (
+          {collections.slice(0, 6).map((col) => (
             <button
               key={col.id}
               onClick={() => handleCollectionClick(col.id)}
@@ -184,23 +171,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <Bookmark size={13} className="text-[#A8A8A6] dark:text-[#6B7280] shrink-0" />
               <span className="truncate">{col.name}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Desktop-only: Active Projects Quick Access */}
-        <div className="hidden lg:flex px-3 pt-4 flex-col gap-1">
-          <span className="px-2 pb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#A8A8A6] dark:text-[#6B7280]">
-            Projetos Recentes
-          </span>
-          {projects.slice(0, 4).map((p) => (
-            <button
-              key={p.id}
-              onClick={() => handleProjectClick(p.id)}
-              className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs text-[#737373] dark:text-[#9CA3AF] hover:text-[#171717] dark:hover:text-[#F3F4F6] hover:bg-[#F1F1EF] dark:hover:bg-[#20232A] transition-colors cursor-pointer text-left outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
-            >
-              <FolderGit2 size={13} className="text-[#A8A8A6] dark:text-[#6B7280] shrink-0" />
-              <span className="truncate">{p.name}</span>
             </button>
           ))}
         </div>

@@ -146,8 +146,6 @@ export const InboxView: React.FC<InboxViewProps> = ({
         onSelectColorHex={onSelectColorHex}
         viewMode={viewMode}
         onViewModeChange={onViewModeChange}
-        onOpenPresentation={onOpenPresentation}
-        onOpenBookmarklet={onOpenBookmarklet}
         isFiltered={isFiltered}
       />
 

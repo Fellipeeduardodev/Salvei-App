@@ -5,7 +5,6 @@ import {
   Star,
   StarOff,
   Layers,
-  Briefcase,
   Tag,
   Trash2,
   X,
@@ -20,7 +19,7 @@ interface BulkActionBarProps {
   onClearSelection: () => void;
   onBulkFavorite: (favorite: boolean) => void;
   onOpenCollectionModal: () => void;
-  onOpenProjectModal: () => void;
+  onOpenProjectModal?: () => void;
   onOpenTagModal: () => void;
   onOpenDeleteModal: () => void;
   isProcessing?: boolean;
@@ -34,7 +33,7 @@ export const BulkActionBar: React.FC<BulkActionBarProps> = ({
   onClearSelection,
   onBulkFavorite,
   onOpenCollectionModal,
-  onOpenProjectModal,
+  onOpenProjectModal: _onOpenProjectModal,
   onOpenTagModal,
   onOpenDeleteModal,
   isProcessing = false,
@@ -114,19 +113,6 @@ export const BulkActionBar: React.FC<BulkActionBarProps> = ({
         >
           <Layers size={13} className="text-[#A8A8A6]" />
           <span>Coleção</span>
-        </button>
-
-        {/* Projeto */}
-        <button
-          type="button"
-          disabled={isProcessing}
-          onClick={onOpenProjectModal}
-          className="px-2 sm:px-2.5 py-1.5 min-h-[34px] rounded hover:bg-[#2B2B2B] disabled:opacity-40 text-xs font-medium text-[#E7E7E5] hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-[#4355DB]"
-          title="Associar ou desassociar de um projeto"
-          aria-label="Associar selecionadas a um projeto"
-        >
-          <Briefcase size={13} className="text-[#A8A8A6]" />
-          <span>Projeto</span>
         </button>
 
         {/* Etiquetas */}

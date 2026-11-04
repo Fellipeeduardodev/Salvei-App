@@ -4,6 +4,7 @@ import type {
   Project,
   Collection,
 } from '../types/reference';
+import { readFileAsOptimizedDataUrl } from '../lib/imageStorage';
 
 export interface UserLibraryData {
   references: Reference[];
@@ -204,33 +205,29 @@ export async function migrateLocalDataToCloud(
 export async function uploadMediaFile(
   userId: string,
   file: File,
-  folder: string = 'screenshots'
+  _folder: string = 'screenshots'
 ): Promise<{ url: string; storagePath: string }> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = async () => {
-      try {
-        const base64Data = reader.result as string;
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId,
-            fileName: file.name,
-            contentType: file.type,
-            base64Data,
-          }),
-        });
-        if (!res.ok) throw new Error('Falha ao fazer upload da imagem');
-        const data = await res.json();
-        resolve(data);
-      } catch (err) {
-        reject(err);
-      }
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+  try {
+    const base64Data = await readFileAsOptimizedDataUrl(file);
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId,
+        fileName: file.name,
+        contentType: file.type,
+        base64Data,
+      }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.url) return data;
+    }
+    return { url: base64Data, storagePath: file.name };
+  } catch {
+    const fallbackData = await readFileAsOptimizedDataUrl(file);
+    return { url: fallbackData, storagePath: file.name };
+  }
 }
 
 export async function bulkUpdateFavorite(
